@@ -372,6 +372,8 @@ function initBeautyAddictLogin() {
           document.getElementById("field-email").value = d.email || "";
           document.getElementById("field-ddn").value = d.dateNaissance || "";
         });
+        var photoHTML = "<div style='text-align:center;margin-bottom:20px;'><div id='info-avatar-preview' style='width:80px;height:80px;border-radius:50%;background:#c9a86a;margin:0 auto 12px;overflow:hidden;display:flex;align-items:center;justify-content:center;border:3px solid #e8d4b0;'></div><label style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;'>Changer ma photo<input type='file' id='avatar-upload' accept='image/*' style='display:none;' /></label><div id='avatar-msg' style='color:#8b735d;font-size:12px;margin-top:8px;'></div></div>";
+document.getElementById("baa-info-panel").querySelector("div div").insertAdjacentHTML("afterbegin", photoHTML);
         document.getElementById("save-info").onclick = function() {
           const u = auth.currentUser;
           db.collection("users").doc(u.uid).update({
