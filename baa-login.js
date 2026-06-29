@@ -148,7 +148,6 @@ function initBeautyAddictLogin() {
           document.addEventListener("click", function closeMenu(e) { if (!menu.contains(e.target) && e.target !== menuBtn) { menu.remove(); document.removeEventListener("click", closeMenu); } });
         };
         document.body.appendChild(menuBtn);
-        setTimeout(function() { openDashboard(); }, 400);
       }
       function openDashboard() {
         if (document.getElementById("baa-dashboard-panel")) return;
@@ -624,6 +623,7 @@ function initBeautyAddictLogin() {
           document.getElementById("equipe-result").innerHTML = detailHTML; document.getElementById("equipe-result").style.display = "block";
         };
       }
+      setTimeout(function() { openDashboard(); }, 500);
     }
   });
 }
