@@ -73,6 +73,7 @@ function initBeautyAddictLogin() {
           if (!data) { msg.innerHTML = "Compte introuvable."; return; }
           if (data.accountStatus === "pending") { msg.innerHTML = "Compte en attente de validation."; return; }
           if (data.accountStatus === "suspended") { msg.innerHTML = "Compte suspendu."; return; }
+          window.__baaShowDashboard = true;
         } catch (e) { document.getElementById("baa-message").innerHTML = "Email ou mot de passe incorrect."; }
       };
       document.getElementById("signup-btn").onclick = async function() {
@@ -623,7 +624,7 @@ function initBeautyAddictLogin() {
           document.getElementById("equipe-result").innerHTML = detailHTML; document.getElementById("equipe-result").style.display = "block";
         };
       }
-      openDashboard();
+      if (window.__baaShowDashboard) { window.__baaShowDashboard = false; openDashboard(); }
       console.log("Dashboard appel effectue");
     }
   });
