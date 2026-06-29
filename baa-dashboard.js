@@ -1,13 +1,14 @@
 (function() {
   firebase.auth().onAuthStateChanged(function(user) {
     if (!user) return;
+    var justLoggedIn = sessionStorage.getItem("baa-just-logged-in");
+    if (!justLoggedIn) return;
+    sessionStorage.removeItem("baa-just-logged-in");
     var db = firebase.firestore();
     var today = new Date().toDateString();
     db.collection("users").doc(user.uid).get().then(function(snap) {
       var data = snap.data();
       if (!data || data.accountStatus !== "active") return;
-      if (data.dashboardVuLe === today) return;
-      db.collection("users").doc(user.uid).update({ dashboardVuLe: today });
       var panel = document.createElement("div");
       panel.id = "baa-dashboard-panel";
       panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999999;display:flex;justify-content:center;align-items:center;padding:20px;";
