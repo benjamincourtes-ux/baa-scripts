@@ -114,6 +114,7 @@ function initBeautyAddictLogin() {
       if (derniereConnexion !== aujourdhui) {
         db.collection("users").doc(user.uid).update({ derniereConnexion: new Date().toISOString() });
       }
+      setTimeout(function() { openDashboard(); }, 500);
       if (!document.querySelector("#baa-menu-btn")) {
         const menuBtn = document.createElement("div");
         menuBtn.id = "baa-menu-btn";
@@ -623,7 +624,6 @@ function initBeautyAddictLogin() {
           document.getElementById("equipe-result").innerHTML = detailHTML; document.getElementById("equipe-result").style.display = "block";
         };
       }
-      setTimeout(function() { openDashboard(); }, 500);
     }
   });
 }
