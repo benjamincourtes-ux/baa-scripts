@@ -73,7 +73,6 @@ function initBeautyAddictLogin() {
           if (!data) { msg.innerHTML = "Compte introuvable."; return; }
           if (data.accountStatus === "pending") { msg.innerHTML = "Compte en attente de validation."; return; }
           if (data.accountStatus === "suspended") { msg.innerHTML = "Compte suspendu."; return; }
-          window.__baaShowDashboard = true;
         } catch (e) { document.getElementById("baa-message").innerHTML = "Email ou mot de passe incorrect."; }
       };
       document.getElementById("signup-btn").onclick = async function() {
@@ -110,11 +109,6 @@ function initBeautyAddictLogin() {
     if (data && data.accountStatus === "suspended") { auth.signOut(); return; }
     if (data && data.accountStatus === "active") {
       const existing = document.getElementById("baa-login-overlay"); if (existing) existing.remove();
-      var derniereConnexion = data.derniereConnexion ? new Date(data.derniereConnexion).toDateString() : null;
-      var aujourdhui = new Date().toDateString();
-      if (derniereConnexion !== aujourdhui) {
-        db.collection("users").doc(user.uid).update({ derniereConnexion: new Date().toISOString() });
-      }
       if (!document.querySelector("#baa-menu-btn")) {
         const menuBtn = document.createElement("div");
         menuBtn.id = "baa-menu-btn";
@@ -149,53 +143,6 @@ function initBeautyAddictLogin() {
           document.addEventListener("click", function closeMenu(e) { if (!menu.contains(e.target) && e.target !== menuBtn) { menu.remove(); document.removeEventListener("click", closeMenu); } });
         };
         document.body.appendChild(menuBtn);
-      }
-      function openDashboard() {
-        if (document.getElementById("baa-dashboard-panel")) return;
-        const uid = auth.currentUser.uid;
-        const panel = document.createElement("div"); panel.id = "baa-dashboard-panel";
-        panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999999;display:flex;justify-content:center;align-items:center;padding:20px;";
-        const box = document.createElement("div");
-        box.style.cssText = "background:#f8f3ee;width:90%;max-width:500px;border-radius:24px;padding:28px;font-family:Arial,sans-serif;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);";
-        box.innerHTML = "<div style='text-align:center;margin-bottom:20px;'><div style='font-size:36px;margin-bottom:8px;'>✨</div><div id='dash-bonjour' style='color:#8b735d;font-size:20px;font-weight:bold;margin-bottom:4px;'>Bonjour !</div><div style='color:#bbb;font-size:13px;'>" + new Date().toLocaleDateString("fr-FR", {weekday:"long", day:"numeric", month:"long"}) + "</div></div><div id='dash-checklist-block' style='background:white;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid #e8d4b0;'><div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;'><div style='color:#8b735d;font-size:13px;font-weight:bold;'>✅ Checklist du jour</div><div id='dash-checklist-pct' style='color:#c9a86a;font-size:13px;font-weight:bold;'>...</div></div><div style='background:#f0e6d3;border-radius:20px;height:10px;overflow:hidden;'><div id='dash-checklist-barre' style='background:#c9a86a;height:100%;border-radius:20px;width:0%;transition:width 0.6s ease;'></div></div><div id='dash-checklist-msg' style='color:#999;font-size:12px;margin-top:8px;'></div></div><div id='dash-objectif-block' style='background:white;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid #e8d4b0;'><div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;'><div style='color:#8b735d;font-size:13px;font-weight:bold;'>🎯 Objectif du mois</div><div id='dash-objectif-pct' style='color:#c9a86a;font-size:13px;font-weight:bold;'>...</div></div><div style='background:#f0e6d3;border-radius:20px;height:10px;overflow:hidden;'><div id='dash-objectif-barre' style='background:#c9a86a;height:100%;border-radius:20px;width:0%;transition:width 0.6s ease;'></div></div><div id='dash-objectif-detail' style='color:#999;font-size:12px;margin-top:8px;'></div></div><div id='dash-commandes-block' style='background:white;border-radius:14px;padding:16px;margin-bottom:20px;border:1px solid #e8d4b0;'><div style='color:#8b735d;font-size:13px;font-weight:bold;margin-bottom:8px;'>📦 Ce mois-ci</div><div id='dash-commandes-detail' style='color:#999;font-size:13px;'>Chargement...</div></div><div id='dash-motivation' style='text-align:center;color:#8b735d;font-size:13px;font-style:italic;margin-bottom:20px;'></div><button id='close-dashboard' style='width:100%;background:linear-gradient(135deg,#c9a86a,#e8d4b0);color:white;border:none;padding:14px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:15px;letter-spacing:0.5px;text-align:center;display:block;'>Commencer ma journee !</button>";
-        panel.appendChild(box); document.body.appendChild(panel);
-        document.getElementById("close-dashboard").onclick = function() { panel.remove(); };
-        db.collection("users").doc(uid).get().then(function(snap) {
-          const d = snap.data();
-          document.getElementById("dash-bonjour").innerText = "Bonjour " + (d.prenom || "") + " ! 🌸";
-          var today = new Date().toDateString();
-          var taches = d.checklistTaches || []; var cochees = d.checklistCochees || [];
-          if (d.checklistDate !== today) { taches = []; cochees = []; }
-          var total = taches.length || 10;
-          var pctCheck = total === 0 ? 0 : Math.round(cochees.length / total * 100);
-          document.getElementById("dash-checklist-pct").innerText = pctCheck + "%";
-          setTimeout(function() { document.getElementById("dash-checklist-barre").style.width = pctCheck + "%"; }, 100);
-          document.getElementById("dash-checklist-barre").style.background = pctCheck === 100 ? "#2ecc71" : "#c9a86a";
-          document.getElementById("dash-checklist-msg").innerText = pctCheck === 100 ? "Checklist completee, bravo ! 🎉" : cochees.length + " tache" + (cochees.length > 1 ? "s" : "") + " sur " + total + " completee" + (cochees.length > 1 ? "s" : "");
-          var objectif = d.suiviObjectif || 0; var realise = d.suiviRealise || 0;
-          if (objectif > 0) {
-            var pctObj = Math.min(100, Math.round(realise / objectif * 100));
-            document.getElementById("dash-objectif-pct").innerText = pctObj + "%";
-            setTimeout(function() { document.getElementById("dash-objectif-barre").style.width = pctObj + "%"; }, 200);
-            document.getElementById("dash-objectif-barre").style.background = pctObj >= 100 ? "#2ecc71" : pctObj >= 50 ? "#c9a86a" : "#f39c12";
-            var taux = realise >= 100 ? 30 : 20;
-            document.getElementById("dash-objectif-detail").innerText = realise + " / " + objectif + " euros - Commission : " + (realise * taux / 100).toFixed(2) + " euros";
-          } else {
-            document.getElementById("dash-objectif-pct").innerText = "-";
-            document.getElementById("dash-objectif-detail").innerText = "Aucun objectif defini pour ce mois";
-          }
-          var messages = ["Chaque action te rapproche de tes reves. Tu es capable ! 💪", "Ta regularite fait toute la difference. Continue ! ✨", "Aujourd hui est une nouvelle chance de briller. Saisis-la ! 🌟", "Tu construis quelque chose de beau. Sois fiere de toi ! 🌸", "Les grandes reussites commencent par de petites actions quotidiennes. 🔥"];
-          document.getElementById("dash-motivation").innerText = messages[Math.floor(Math.random() * messages.length)];
-        });
-        var moisDebut = new Date(); moisDebut.setDate(1); moisDebut.setHours(0,0,0,0);
-        db.collection("users").doc(uid).collection("commandes").get().then(function(snapshot) {
-          var totalMois = 0; var nbCommandes = 0;
-          snapshot.forEach(function(docSnap) {
-            var c = docSnap.data();
-            if (c.date) { var d = new Date(c.date); if (d >= moisDebut) { totalMois += parseFloat(c.montant) || 0; nbCommandes++; } }
-          });
-          document.getElementById("dash-commandes-detail").innerHTML = "<span style='color:#3a3a3a;font-weight:bold;font-size:15px;'>" + nbCommandes + " commande" + (nbCommandes > 1 ? "s" : "") + "</span> - <span style='color:#c9a86a;font-weight:bold;font-size:15px;'>" + totalMois.toFixed(2) + " euros</span> <span style='color:#bbb;font-size:12px;'>ce mois-ci</span>";
-        });
       }
       function openAdminPanel() {
         if (document.getElementById("baa-admin-panel")) return;
@@ -624,9 +571,6 @@ function initBeautyAddictLogin() {
           document.getElementById("equipe-result").innerHTML = detailHTML; document.getElementById("equipe-result").style.display = "block";
         };
       }
-      if (window.__baaShowDashboard) { window.__baaShowDashboard = false; openDashboard(); }
-      if (!document.getElementById("baa-dashboard-panel")) { openDashboard(); }
-      console.log("Dashboard appel effectue");
     }
   });
 }
