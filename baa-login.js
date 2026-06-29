@@ -15,6 +15,51 @@ function initBeautyAddictLogin() {
       overlay.id = "baa-login-overlay";
       overlay.innerHTML = "<div id='baa-login-card'><h1>Bienvenue dans l'Academie Beauty Addict</h1><p>Plus qu'une formation, cette academie est un tremplin.<br>Un espace pour apprendre, grandir et deployer pleinement ton potentiel.</p><div class='baa-tabs'><button id='login-tab' class='baa-tab baa-active'>Se connecter</button><button id='signup-tab' class='baa-tab baa-inactive'>Creer mon compte</button></div><div id='login-view'><input id='login-email' class='baa-input' placeholder='Email' /><input id='login-password' type='password' class='baa-input' placeholder='Mot de passe' /><button id='login-btn' class='baa-btn'>Se connecter</button></div><div id='signup-view' style='display:none;'><input id='signup-firstname' class='baa-input' placeholder='Prenom' /><input id='signup-lastname' class='baa-input' placeholder='Nom' /><input id='signup-email' class='baa-input' placeholder='Email' /><input id='signup-password' type='password' class='baa-input' placeholder='Mot de passe' /><input id='signup-password2' type='password' class='baa-input' placeholder='Confirmer mot de passe' /><button id='signup-btn' class='baa-btn'>Creer mon compte</button></div><div id='baa-message'></div></div>";
       document.body.appendChild(overlay);
+
+      (function() {
+        var canvas = document.createElement("canvas");
+        canvas.id = "baa-particles";
+        canvas.style.cssText = "position:fixed;inset:0;width:100%;height:100%;z-index:9998;pointer-events:none;";
+        document.body.appendChild(canvas);
+        var ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        window.addEventListener("resize", function() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+        var particles = [];
+        for (var i = 0; i < 55; i++) {
+          particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: Math.random() * 2.5 + 0.5,
+            dx: (Math.random() - 0.5) * 0.4,
+            dy: (Math.random() - 0.5) * 0.3 - 0.15,
+            o: Math.random() * 0.6 + 0.2,
+            do: (Math.random() - 0.5) * 0.008
+          });
+        }
+        var colors = ["rgba(201,168,106,", "rgba(232,212,176,", "rgba(243,231,211,", "rgba(255,220,120,"];
+        function animateParticles() {
+          if (!document.getElementById("baa-login-overlay") && !document.getElementById("baa-particles")) return;
+          if (!document.getElementById("baa-login-overlay")) { canvas.remove(); return; }
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          particles.forEach(function(p, i) {
+            p.x += p.dx; p.y += p.dy;
+            p.o += p.do;
+            if (p.o > 0.8 || p.o < 0.1) p.do *= -1;
+            if (p.x < -10) p.x = canvas.width + 10;
+            if (p.x > canvas.width + 10) p.x = -10;
+            if (p.y < -10) p.y = canvas.height + 10;
+            if (p.y > canvas.height + 10) p.y = -10;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = colors[i % colors.length] + p.o + ")";
+            ctx.fill();
+          });
+          requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+      })();
+
       document.getElementById("login-tab").onclick = function() { document.getElementById("login-view").style.display = "block"; document.getElementById("signup-view").style.display = "none"; document.getElementById("login-tab").className = "baa-tab baa-active"; document.getElementById("signup-tab").className = "baa-tab baa-inactive"; document.getElementById("baa-message").innerHTML = ""; };
       document.getElementById("signup-tab").onclick = function() { document.getElementById("login-view").style.display = "none"; document.getElementById("signup-view").style.display = "block"; document.getElementById("signup-tab").className = "baa-tab baa-active"; document.getElementById("login-tab").className = "baa-tab baa-inactive"; document.getElementById("baa-message").innerHTML = ""; };
       document.getElementById("login-btn").onclick = async function() {
