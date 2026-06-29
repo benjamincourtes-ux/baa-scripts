@@ -1,8 +1,8 @@
 (function() {
-  if (window.location.search.indexOf("baa-login=1") === -1) return;
-  history.replaceState(null, "", window.location.pathname);
   firebase.auth().onAuthStateChanged(function(user) {
-    if (!user) return;
+    if (!user) { sessionStorage.removeItem("baa-show-dashboard"); return; }
+    if (!sessionStorage.getItem("baa-show-dashboard")) return;
+    sessionStorage.removeItem("baa-show-dashboard");
     var db = firebase.firestore();
     var today = new Date().toDateString();
     db.collection("users").doc(user.uid).get().then(function(snap) {
