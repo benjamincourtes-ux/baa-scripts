@@ -121,7 +121,7 @@ function initBeautyAddictLogin() {
       if (!document.querySelector("#baa-menu-btn")) {
         const menuBtn = document.createElement("div");
         menuBtn.id = "baa-menu-btn";
-        menuBtn.style.cssText = "position:fixed;top:12px;right:60px;z-index:99999;width:44px;height:44px;border-radius:50%;background:#f3e7d3;border:1px solid rgba(200,169,107,0.5);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(200,169,107,0.3);overflow:hidden;";
+        menuBtn.style.cssText = "position:fixed;top:60px;right:60px;z-index:99999;width:44px;height:44px;border-radius:50%;background:#f3e7d3;border:1px solid rgba(200,169,107,0.5);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(200,169,107,0.3);overflow:hidden;";
 
         db.collection("users").doc(auth.currentUser.uid).get().then(function(snap) {
           const d = snap.data();
