@@ -73,7 +73,7 @@ function initBeautyAddictLogin() {
           if (!data) { msg.innerHTML = "Compte introuvable."; return; }
           if (data.accountStatus === "pending") { msg.innerHTML = "Compte en attente de validation."; return; }
           if (data.accountStatus === "suspended") { msg.innerHTML = "Compte suspendu."; return; }
-          window.location.href = window.location.href.split("?")[0] + "?baa-login=1";
+          sessionStorage.setItem("baa-show-dashboard", "1");
         } catch (e) { document.getElementById("baa-message").innerHTML = "Email ou mot de passe incorrect."; }
       };
       document.getElementById("signup-btn").onclick = async function() {
