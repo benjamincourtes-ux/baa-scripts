@@ -5,9 +5,9 @@
     var user = auth.currentUser;
     if (!user) { setTimeout(waitAndShowDashboard, 500); return; }
     if (document.getElementById("baa-dashboard-panel")) return;
-    var todayKey = "baa-dashboard-" + new Date().toDateString();
-    if (localStorage.getItem(todayKey)) return;
-    localStorage.setItem(todayKey, "1");
+    var todayKey = "baa-dashboard-" + user.uid + "-" + new Date().toDateString();
+    if (sessionStorage.getItem(todayKey)) return;
+    sessionStorage.setItem(todayKey, "1");
     db.collection("users").doc(user.uid).get().then(function(snap) {
       var data = snap.data();
       if (!data || data.accountStatus !== "active") return;
