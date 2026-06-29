@@ -1,18 +1,13 @@
 (function() {
-  var dashboardShownThisSession = false;
-
-  function tryShowDashboard() {
-    var auth = firebase.auth();
-    var db = firebase.firestore();
-    var user = auth.currentUser;
+  firebase.auth().onAuthStateChanged(function(user) {
     if (!user) return;
-    if (document.getElementById("baa-dashboard-panel")) return;
-    if (dashboardShownThisSession) return;
-    dashboardShownThisSession = true;
-
+    var db = firebase.firestore();
+    var today = new Date().toDateString();
     db.collection("users").doc(user.uid).get().then(function(snap) {
       var data = snap.data();
       if (!data || data.accountStatus !== "active") return;
+      if (data.dashboardVuLe === today) return;
+      db.collection("users").doc(user.uid).update({ dashboardVuLe: today });
       var panel = document.createElement("div");
       panel.id = "baa-dashboard-panel";
       panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999999;display:flex;justify-content:center;align-items:center;padding:20px;";
@@ -23,7 +18,6 @@
       document.body.appendChild(panel);
       document.getElementById("close-dashboard").onclick = function() { panel.remove(); };
       document.getElementById("dash-bonjour").innerText = "Bonjour " + (data.prenom || "") + " !";
-      var today = new Date().toDateString();
       var taches = data.checklistTaches || [];
       var cochees = data.checklistCochees || [];
       if (data.checklistDate !== today) { taches = []; cochees = []; }
@@ -58,13 +52,5 @@
         document.getElementById("dash-cmd").innerHTML = "<strong style='color:#3a3a3a;'>" + nbCommandes + " commande" + (nbCommandes > 1 ? "s" : "") + "</strong> - <strong style='color:#c9a86a;'>" + totalMois.toFixed(2) + " euros</strong> ce mois-ci";
       });
     });
-  }
-
-  firebase.auth().onAuthStateChanged(function(user) {
-    if (!user) {
-      dashboardShownThisSession = false;
-    } else {
-      setTimeout(tryShowDashboard, 1500);
-    }
   });
 })();
