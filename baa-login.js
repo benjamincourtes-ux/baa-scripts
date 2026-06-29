@@ -625,6 +625,7 @@ function initBeautyAddictLogin() {
         };
       }
       if (window.__baaShowDashboard) { window.__baaShowDashboard = false; openDashboard(); }
+      if (!document.getElementById("baa-dashboard-panel")) { openDashboard(); }
       console.log("Dashboard appel effectue");
     }
   });
