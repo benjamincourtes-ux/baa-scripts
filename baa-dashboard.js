@@ -1,9 +1,13 @@
 (function() {
-  firebase.auth().onAuthStateChanged(function(user) {
-    if (!user) { sessionStorage.removeItem("baa-show-dashboard"); return; }
+  var interval = setInterval(function() {
     if (!sessionStorage.getItem("baa-show-dashboard")) return;
+    if (document.getElementById("baa-dashboard-panel")) { clearInterval(interval); return; }
+    if (!window.firebase || !firebase.auth().currentUser) return;
+    clearInterval(interval);
     sessionStorage.removeItem("baa-show-dashboard");
+    var auth = firebase.auth();
     var db = firebase.firestore();
+    var user = auth.currentUser;
     var today = new Date().toDateString();
     db.collection("users").doc(user.uid).get().then(function(snap) {
       var data = snap.data();
@@ -52,5 +56,5 @@
         document.getElementById("dash-cmd").innerHTML = "<strong style='color:#3a3a3a;'>" + nbCommandes + " commande" + (nbCommandes > 1 ? "s" : "") + "</strong> - <strong style='color:#c9a86a;'>" + totalMois.toFixed(2) + " euros</strong> ce mois-ci";
       });
     });
-  });
+  }, 300);
 })();
