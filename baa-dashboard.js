@@ -1,13 +1,15 @@
 (function() {
-  function waitAndShowDashboard() {
+  var dashboardShownThisSession = false;
+
+  function tryShowDashboard() {
     var auth = firebase.auth();
     var db = firebase.firestore();
     var user = auth.currentUser;
-    if (!user) { setTimeout(waitAndShowDashboard, 500); return; }
+    if (!user) return;
     if (document.getElementById("baa-dashboard-panel")) return;
-    var todayKey = "baa-dashboard-" + user.uid + "-" + new Date().toDateString();
-    if (sessionStorage.getItem(todayKey)) return;
-    sessionStorage.setItem(todayKey, "1");
+    if (dashboardShownThisSession) return;
+    dashboardShownThisSession = true;
+
     db.collection("users").doc(user.uid).get().then(function(snap) {
       var data = snap.data();
       if (!data || data.accountStatus !== "active") return;
@@ -57,9 +59,12 @@
       });
     });
   }
-  if (document.readyState === "complete") {
-    setTimeout(waitAndShowDashboard, 2500);
-  } else {
-    window.addEventListener("load", function() { setTimeout(waitAndShowDashboard, 2500); });
-  }
+
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (!user) {
+      dashboardShownThisSession = false;
+    } else {
+      setTimeout(tryShowDashboard, 1500);
+    }
+  });
 })();
