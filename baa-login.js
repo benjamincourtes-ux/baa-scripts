@@ -372,8 +372,38 @@ function initBeautyAddictLogin() {
           document.getElementById("field-email").value = d.email || "";
           document.getElementById("field-ddn").value = d.dateNaissance || "";
         });
-        var photoHTML = "<div style='text-align:center;margin-bottom:20px;'><div id='info-avatar-preview' style='width:80px;height:80px;border-radius:50%;background:#c9a86a;margin:0 auto 12px;overflow:hidden;display:flex;align-items:center;justify-content:center;border:3px solid #e8d4b0;'></div><label style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;'>Changer ma photo<input type='file' id='avatar-upload' accept='image/*' style='display:none;' /></label><div id='avatar-msg' style='color:#8b735d;font-size:12px;margin-top:8px;'></div></div>";
-document.getElementById("baa-info-panel").querySelector("div div").insertAdjacentHTML("afterbegin", photoHTML);
+db.collection("users").doc(auth.currentUser.uid).get().then(function(snapPhoto) {
+  const dp = snapPhoto.data();
+  const avatarDiv = document.createElement("div");
+  avatarDiv.style.cssText = "text-align:center;margin-bottom:20px;";
+  var photoHTML = dp.photoURL
+    ? "<img src='" + dp.photoURL + "' style='width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid #e8d4b0;margin-bottom:12px;' />"
+    : "<div style='width:80px;height:80px;border-radius:50%;background:#c9a86a;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;border:3px solid #e8d4b0;'><span style='color:white;font-size:24px;font-weight:bold;'>" + (dp.prenom ? dp.prenom[0].toUpperCase() : "") + (dp.nom ? dp.nom[0].toUpperCase() : "") + "</span></div>";
+  avatarDiv.innerHTML = photoHTML + "<label style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;display:inline-block;'>Changer ma photo<input type='file' id='avatar-upload' accept='image/*' style='display:none;' /></label><div id='avatar-msg' style='color:#8b735d;font-size:12px;margin-top:8px;'></div>";
+  box.insertBefore(avatarDiv, box.firstChild);
+  document.getElementById("avatar-upload").onchange = async function() {
+    const file = this.files[0];
+    if (!file) return;
+    document.getElementById("avatar-msg").innerText = "Upload en cours...";
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "baa_avatars");
+    formData.append("folder", "avatars");
+    try {
+      const res = await fetch("https://api.cloudinary.com/v1_1/dxcfq3nyl/image/upload", { method: "POST", body: formData });
+      const data = await res.json();
+      const url = data.secure_url;
+      await db.collection("users").doc(auth.currentUser.uid).update({ photoURL: url });
+      avatarDiv.querySelector("div, img").outerHTML = "<img src='" + url + "' style='width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid #e8d4b0;margin-bottom:12px;' />";
+      document.getElementById("avatar-msg").innerText = "Photo mise a jour !";
+      const menuBtn = document.getElementById("baa-menu-btn");
+      if (menuBtn) menuBtn.innerHTML = "<img src='" + url + "' style='width:100%;height:100%;object-fit:cover;' />";
+      setTimeout(function() { document.getElementById("avatar-msg").innerText = ""; }, 3000);
+    } catch (e) {
+      document.getElementById("avatar-msg").innerText = "Erreur lors de l upload.";
+    }
+  };
+});
         document.getElementById("save-info").onclick = function() {
           const u = auth.currentUser;
           db.collection("users").doc(u.uid).update({
