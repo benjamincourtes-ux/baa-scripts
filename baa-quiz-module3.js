@@ -3,6 +3,19 @@ function openQuizModule3() {
   var auth = firebase.auth();
   var db = firebase.firestore();
   var uid = auth.currentUser ? auth.currentUser.uid : null;
+  if (uid) {
+    db.collection("users").doc(uid).get().then(function(snapCheck) {
+      var dCheck = snapCheck.data();
+      if (dCheck && dCheck.quizModule3Complete === true) {
+        alert("Tu as deja valide ce quiz avec un score superieur ou egal a 80 pourcent. Il n est plus necessaire de le refaire.");
+        return;
+      }
+      __launchQuiz();
+    });
+  } else {
+    __launchQuiz();
+  }
+  function __launchQuiz() {
 
   var questions = [
     { q: "Selon le Chapitre 1, que se passe-t-il si personne ne sait ce que vous faites ?", options: ["Cela n'a aucune importance", "Personne ne peut acheter chez vous", "Les clients viennent quand meme", "C'est un avantage pour la discretion"], correct: 1, explain: "Sans visibilite, personne ne peut acheter chez vous : la visibilite est le fondement meme de l'activite." },
@@ -135,4 +148,5 @@ function openQuizModule3() {
   }
 
   renderQuestion();
+  }
 }
