@@ -34,7 +34,7 @@ function openQuizModule2() {
   box.innerHTML = "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'><h2 style='color:#8b735d;margin:0;'>Quiz Module 2</h2><span id='close-quiz' style='cursor:pointer;font-size:28px;color:#8b735d;'>X</span></div><div style='color:#999;font-size:13px;margin-bottom:20px;'>Les Fondations de Mon Activite</div><div id='quiz-progress-container' style='margin-bottom:20px;'><div style='display:flex;justify-content:space-between;margin-bottom:6px;'><span id='quiz-progress-text' style='color:#8b735d;font-size:13px;font-weight:bold;'>Question 1 / 15</span><span id='quiz-score-text' style='color:#c9a86a;font-size:13px;font-weight:bold;'>Score : 0</span></div><div style='background:#f0e6d3;border-radius:20px;height:10px;overflow:hidden;'><div id='quiz-progress-barre' style='background:#c9a86a;height:100%;border-radius:20px;width:0%;transition:width 0.4s ease;'></div></div></div><div id='quiz-content'></div>";
   panel.appendChild(box);
   document.body.appendChild(panel);
-  document.getElementById("close-quiz").onclick = function() { panel.remove(); };
+  document.getElementById("close-quiz").onclick = function() { panel.remove(); if (typeof openOutilsPanel === "function") { openOutilsPanel(); } };
 
   function renderQuestion() {
     answered = false;
@@ -123,11 +123,14 @@ function openQuizModule2() {
       renderQuestion();
     };
     if (uid) {
-      db.collection("users").doc(uid).update({
+      var pctSave = Math.round((score / questions.length) * 100);
+      var updateData = {
         quizModule2Score: score,
         quizModule2Total: questions.length,
         quizModule2Date: new Date().toISOString()
-      }).catch(function(e) { console.log("Erreur sauvegarde quiz:", e); });
+      };
+      if (pctSave >= 80) { updateData.quizModule2Complete = true; } else { updateData.quizModule2Complete = false; }
+      db.collection("users").doc(uid).update(updateData).catch(function(e) { console.log("Erreur sauvegarde quiz:", e); });
     }
   }
 
