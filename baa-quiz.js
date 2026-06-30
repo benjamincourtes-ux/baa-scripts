@@ -3,6 +3,19 @@ function openQuizBonDemarrage() {
   var auth = firebase.auth();
   var db = firebase.firestore();
   var uid = auth.currentUser ? auth.currentUser.uid : null;
+  if (uid) {
+    db.collection("users").doc(uid).get().then(function(snapCheck) {
+      var dCheck = snapCheck.data();
+      if (dCheck && dCheck.quizBonDemarrageComplete === true) {
+        alert("Tu as deja valide ce quiz avec un score superieur ou egal a 80 pourcent. Il n est plus necessaire de le refaire.");
+        return;
+      }
+      __launchQuiz();
+    });
+  } else {
+    __launchQuiz();
+  }
+  function __launchQuiz() {
 
   var questions = [
     { q: "Combien de jours dure le programme Bon Demarrage Mihi ?", options: ["5 jours", "7 jours", "10 jours", "14 jours"], correct: 1, explain: "Le programme Bon Demarrage dure exactement 7 jours, un par etape cle de votre lancement." },
@@ -135,4 +148,5 @@ function openQuizBonDemarrage() {
   }
 
   renderQuestion();
+  }
 }
