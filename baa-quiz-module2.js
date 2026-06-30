@@ -3,6 +3,19 @@ function openQuizModule2() {
   var auth = firebase.auth();
   var db = firebase.firestore();
   var uid = auth.currentUser ? auth.currentUser.uid : null;
+  if (uid) {
+    db.collection("users").doc(uid).get().then(function(snapCheck) {
+      var dCheck = snapCheck.data();
+      if (dCheck && dCheck.quizModule2Complete === true) {
+        alert("Tu as deja valide ce quiz avec un score superieur ou egal a 80 pourcent. Il n est plus necessaire de le refaire.");
+        return;
+      }
+      __launchQuiz();
+    });
+  } else {
+    __launchQuiz();
+  }
+  function __launchQuiz() {
 
   var questions = [
     { q: "Que represente le 'Pourquoi' selon le Chapitre 1 ?", options: ["Une formalite administrative", "Le moteur invisible qui pousse a avancer dans les moments difficiles", "Un objectif financier uniquement", "Une simple formalite de bienvenue"], correct: 1, explain: "Le Pourquoi est le moteur invisible qui pousse a persister meme quand les resultats tardent a venir." },
@@ -135,4 +148,5 @@ function openQuizModule2() {
   }
 
   renderQuestion();
+  }
 }
