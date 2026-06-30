@@ -385,6 +385,31 @@ function initBeautyAddictLogin() {
         document.getElementById("outil-tab-quiz2").onclick = function() { panel.remove(); openQuizModule2(); };
         document.getElementById("outil-tab-quiz3").onclick = function() { panel.remove(); openQuizModule3(); };
         document.getElementById("outil-tab-quiz4").onclick = function() { panel.remove(); openQuizModule4(); };
+        (function() {
+          var quizUid = auth.currentUser ? auth.currentUser.uid : null;
+          if (!quizUid) return;
+          db.collection("users").doc(quizUid).get().then(function(snap) {
+            var d = snap.data();
+            if (!d) return;
+            var quizBadges = [
+              { id: "outil-tab-quiz", completeField: "quizBonDemarrageComplete", scoreField: "quizBonDemarrageScore", totalField: "quizBonDemarrageTotal", label: "Quiz formation" },
+              { id: "outil-tab-quiz2", completeField: "quizModule2Complete", scoreField: "quizModule2Score", totalField: "quizModule2Total", label: "Quiz Module 2" },
+              { id: "outil-tab-quiz3", completeField: "quizModule3Complete", scoreField: "quizModule3Score", totalField: "quizModule3Total", label: "Quiz Module 3" },
+              { id: "outil-tab-quiz4", completeField: "quizModule4Complete", scoreField: "quizModule4Score", totalField: "quizModule4Total", label: "Quiz Module 4" }
+            ];
+            quizBadges.forEach(function(qb) {
+              if (d[qb.completeField] === true) {
+                var btn = document.getElementById(qb.id);
+                if (btn) {
+                  btn.innerHTML = "✓ " + qb.label + " (" + d[qb.scoreField] + "/" + d[qb.totalField] + ")";
+                  btn.style.background = "#2ecc71";
+                  btn.style.color = "white";
+                  btn.style.border = "none";
+                }
+              }
+            });
+          });
+        })();
         document.getElementById("calc-btn").onclick = function() {
           const ca = parseFloat(document.getElementById("ca-input").value);
           if (!ca || ca <= 0) { alert("Saisis un chiffre d affaires valide."); return; }
