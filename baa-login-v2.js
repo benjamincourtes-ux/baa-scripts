@@ -123,6 +123,16 @@ function initBeautyAddictLogin() {
     if (data && data.accountStatus === "suspended") { auth.signOut(); return; }
     if (data && data.accountStatus === "active") {
       const existing = document.getElementById("baa-login-overlay"); if (existing) existing.remove();
+      if (!window.__baaHeartbeatStarted) {
+        window.__baaHeartbeatStarted = true;
+        function envoyerHeartbeat() {
+          if (auth.currentUser) {
+            db.collection("users").doc(auth.currentUser.uid).update({ derniereActivite: new Date().toISOString() }).catch(function(e) {});
+          }
+        }
+        envoyerHeartbeat();
+        setInterval(envoyerHeartbeat, 60000);
+      }
       if (!document.querySelector("#baa-menu-btn")) {
         const menuBtn = document.createElement("div");
         menuBtn.id = "baa-menu-btn";
@@ -202,9 +212,11 @@ function initBeautyAddictLogin() {
             snapshot.forEach(function(docSnap) {
               const d = docSnap.data(); const uid = docSnap.id;
               const statusColor = d.accountStatus === "active" ? "#2ecc71" : d.accountStatus === "suspended" ? "#e74c3c" : "#f39c12";
+              var estEnLigne = d.derniereActivite && (new Date() - new Date(d.derniereActivite)) < 120000;
+              var badgeEnLigne = estEnLigne ? "<span style='background:#2ecc71;color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:bold;margin-left:6px;'>🟢 En ligne</span>" : "";
               const row = document.createElement("div"); row.id = "row-all-" + uid;
               row.style.cssText = "background:white;border-radius:12px;padding:16px 20px;margin-bottom:12px;border:1px solid #e8d4b0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;";
-              row.innerHTML = "<div><div style='font-weight:bold;color:#3a3a3a;'>" + d.prenom + " " + d.nom + "</div><div style='color:#888;font-size:13px;'>" + d.email + "</div><div style='font-size:12px;margin-top:4px;'><span style='background:" + statusColor + ";color:white;padding:2px 8px;border-radius:10px;'>" + d.accountStatus + "</span></div></div><div style='display:flex;gap:8px;'><button id='block-" + uid + "' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>" + (d.accountStatus === "suspended" ? "Debloquer" : "Bloquer") + "</button><button id='delete-" + uid + "' style='background:#ffe8e8;color:#c0392b;border:1px solid #e74c3c;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>Supprimer</button></div>";
+              row.innerHTML = "<div><div style='font-weight:bold;color:#3a3a3a;'>" + d.prenom + " " + d.nom + badgeEnLigne + "</div><div style='color:#888;font-size:13px;'>" + d.email + "</div><div style='font-size:12px;margin-top:4px;'><span style='background:" + statusColor + ";color:white;padding:2px 8px;border-radius:10px;'>" + d.accountStatus + "</span></div></div><div style='display:flex;gap:8px;'><button id='block-" + uid + "' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>" + (d.accountStatus === "suspended" ? "Debloquer" : "Bloquer") + "</button><button id='delete-" + uid + "' style='background:#ffe8e8;color:#c0392b;border:1px solid #e74c3c;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>Supprimer</button></div>";
               list.appendChild(row);
               document.getElementById("block-" + uid).onclick = function() { const newStatus = d.accountStatus === "suspended" ? "active" : "suspended"; db.collection("users").doc(uid).update({ accountStatus: newStatus }).then(function() { loadAllMembers(); }); };
               document.getElementById("delete-" + uid).onclick = function() { if (confirm("Supprimer definitivement " + d.prenom + " " + d.nom + " ?")) { db.collection("users").doc(uid).delete().then(function() { document.getElementById("row-all-" + uid).remove(); }); } };
@@ -221,6 +233,8 @@ function initBeautyAddictLogin() {
               const d = docSnap.data();
               const card = document.createElement("div"); card.style.cssText = "background:white;border-radius:12px;padding:16px 20px;margin-bottom:12px;border:1px solid #e8d4b0;";
               const derniereConnexion = d.derniereConnexion ? new Date(d.derniereConnexion).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }) : "Jamais";
+              var estEnLigneD = d.derniereActivite && (new Date() - new Date(d.derniereActivite)) < 120000;
+              var badgeEnLigneD = estEnLigneD ? "<span style='background:#2ecc71;color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:bold;margin-left:6px;'>🟢 En ligne</span>" : "";
               const checklistTotal = d.checklistTaches ? d.checklistTaches.length : 10;
               const checklistCochees = d.checklistCochees ? d.checklistCochees.length : 0;
               const checklistAujourdhui = d.checklistDate === today;
@@ -230,7 +244,7 @@ function initBeautyAddictLogin() {
               const pct = objectif > 0 ? Math.min(100, Math.round(realise / objectif * 100)) : 0;
               const taux = realise >= 100 ? 30 : 20; const commission = (realise * taux / 100).toFixed(2);
               var avatarAdmin = d.photoURL ? "<img src='" + d.photoURL + "' style='width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #e8d4b0;margin-right:12px;' />" : "<div style='width:40px;height:40px;border-radius:50%;background:#c9a86a;display:flex;align-items:center;justify-content:center;border:2px solid #e8d4b0;margin-right:12px;min-width:40px;'><span style='color:white;font-size:14px;font-weight:bold;'>" + (d.prenom ? d.prenom[0].toUpperCase() : "") + (d.nom ? d.nom[0].toUpperCase() : "") + "</span></div>";
-              card.innerHTML = "<div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:8px;'><div style='display:flex;align-items:center;'>" + avatarAdmin + "<div><div style='font-weight:bold;color:#3a3a3a;font-size:15px;'>" + d.prenom + " " + d.nom + "</div><div style='color:#888;font-size:12px;margin-top:2px;'>Derniere connexion : " + derniereConnexion + "</div></div><span style='background:" + checklistColor + ";color:white;padding:4px 10px;border-radius:10px;font-size:12px;font-weight:bold;'>" + checklistText + "</span></div><div style='display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;'><div style='text-align:center;padding:8px;background:#f8f3ee;border-radius:8px;'><div style='color:#888;font-size:11px;'>Objectif</div><div style='color:#3a3a3a;font-size:14px;font-weight:bold;'>" + (objectif || "-") + " euros</div></div><div style='text-align:center;padding:8px;background:#f8f3ee;border-radius:8px;'><div style='color:#888;font-size:11px;'>CA realise</div><div style='color:#3a3a3a;font-size:14px;font-weight:bold;'>" + (realise || "-") + " euros</div></div><div style='text-align:center;padding:8px;background:#f8f3ee;border-radius:8px;'><div style='color:#888;font-size:11px;'>Commission</div><div style='color:#c9a86a;font-size:14px;font-weight:bold;'>" + commission + " euros</div></div></div><div style='background:#f0e6d3;border-radius:20px;height:8px;overflow:hidden;'><div style='background:#c9a86a;height:100%;border-radius:20px;width:" + pct + "%;'></div></div><div style='text-align:right;color:#888;font-size:11px;margin-top:4px;'>" + pct + "% de l objectif</div>";
+              card.innerHTML = "<div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:8px;'><div style='display:flex;align-items:center;'>" + avatarAdmin + "<div><div style='font-weight:bold;color:#3a3a3a;font-size:15px;'>" + d.prenom + " " + d.nom + badgeEnLigneD + "</div><div style='color:#888;font-size:12px;margin-top:2px;'>Derniere connexion : " + derniereConnexion + "</div></div><span style='background:" + checklistColor + ";color:white;padding:4px 10px;border-radius:10px;font-size:12px;font-weight:bold;'>" + checklistText + "</span></div><div style='display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;'><div style='text-align:center;padding:8px;background:#f8f3ee;border-radius:8px;'><div style='color:#888;font-size:11px;'>Objectif</div><div style='color:#3a3a3a;font-size:14px;font-weight:bold;'>" + (objectif || "-") + " euros</div></div><div style='text-align:center;padding:8px;background:#f8f3ee;border-radius:8px;'><div style='color:#888;font-size:11px;'>CA realise</div><div style='color:#3a3a3a;font-size:14px;font-weight:bold;'>" + (realise || "-") + " euros</div></div><div style='text-align:center;padding:8px;background:#f8f3ee;border-radius:8px;'><div style='color:#888;font-size:11px;'>Commission</div><div style='color:#c9a86a;font-size:14px;font-weight:bold;'>" + commission + " euros</div></div></div><div style='background:#f0e6d3;border-radius:20px;height:8px;overflow:hidden;'><div style='background:#c9a86a;height:100%;border-radius:20px;width:" + pct + "%;'></div></div><div style='text-align:right;color:#888;font-size:11px;margin-top:4px;'>" + pct + "% de l objectif</div>";
               list.appendChild(card);
             });
           });
