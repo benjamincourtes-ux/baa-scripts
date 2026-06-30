@@ -13,7 +13,7 @@ function initBeautyAddictLogin() {
       if (document.getElementById("baa-login-overlay")) return;
       const overlay = document.createElement("div");
       overlay.id = "baa-login-overlay";
-      overlay.innerHTML = "<div id='baa-login-card'><h1>Bienvenue dans l'Academie Beauty Addict</h1><p>Plus qu'une formation, cette academie est un tremplin.<br>Un espace pour apprendre, grandir et deployer pleinement ton potentiel.</p><div class='baa-tabs'><button id='login-tab' class='baa-tab baa-active'>Se connecter</button><button id='signup-tab' class='baa-tab baa-inactive'>Creer mon compte</button></div><div id='login-view'><input id='login-email' class='baa-input' placeholder='Email' /><input id='login-password' type='password' class='baa-input' placeholder='Mot de passe' /><button id='login-btn' class='baa-btn'>Se connecter</button></div><div id='signup-view' style='display:none;'><input id='signup-firstname' class='baa-input' placeholder='Prenom' /><input id='signup-lastname' class='baa-input' placeholder='Nom' /><input id='signup-email' class='baa-input' placeholder='Email' /><input id='signup-password' type='password' class='baa-input' placeholder='Mot de passe' /><input id='signup-password2' type='password' class='baa-input' placeholder='Confirmer mot de passe' /><button id='signup-btn' class='baa-btn'>Creer mon compte</button></div><div id='baa-message'></div></div>";
+      overlay.innerHTML = "<div id='baa-login-card'><h1>Bienvenue dans l'Academie Beauty Addict</h1><p>Plus qu'une formation, cette academie est un tremplin.<br>Un espace pour apprendre, grandir et deployer pleinement ton potentiel.</p><div class='baa-tabs'><button id='login-tab' class='baa-tab baa-active'>Se connecter</button><button id='signup-tab' class='baa-tab baa-inactive'>Creer mon compte</button></div><div id='login-view'><input id='login-email' class='baa-input' placeholder='Email' /><input id='login-password' type='password' class='baa-input' placeholder='Mot de passe' /><button id='login-btn' class='baa-btn'>Se connecter</button><div id='forgot-password-link' style='text-align:center;margin-top:12px;color:#8a6a35;font-size:13px;cursor:pointer;text-decoration:underline;'>Mot de passe oublie ?</div></div><div id='signup-view' style='display:none;'><input id='signup-firstname' class='baa-input' placeholder='Prenom' /><input id='signup-lastname' class='baa-input' placeholder='Nom' /><input id='signup-email' class='baa-input' placeholder='Email' /><input id='signup-password' type='password' class='baa-input' placeholder='Mot de passe' /><input id='signup-password2' type='password' class='baa-input' placeholder='Confirmer mot de passe' /><button id='signup-btn' class='baa-btn'>Creer mon compte</button></div><div id='baa-message'></div></div>";
       document.body.appendChild(overlay);
 
       (function() {
@@ -92,6 +92,18 @@ function initBeautyAddictLogin() {
           emailjs.init("D_JtKhPDgOQWi_ECO");
           emailjs.send("service_wr9mlhk", "template_qffpmql", { prenom: firstname, nom: lastname, email: email, date: new Date().toLocaleDateString("fr-FR") }).catch(function(err) { console.log("EmailJS erreur:", err); });
         } catch (e) { document.getElementById("baa-message").innerHTML = e.message; }
+      };
+      document.getElementById("forgot-password-link").onclick = function() {
+        const email = document.getElementById("login-email").value.trim();
+        const msg = document.getElementById("baa-message");
+        if (!email) { msg.innerHTML = "Merci de saisir ton email ci-dessus avant de cliquer sur ce lien."; return; }
+        auth.sendPasswordResetEmail(email).then(function() {
+          msg.innerHTML = "Un email de reinitialisation a ete envoye a " + email + ". Verifie aussi tes spams.";
+        }).catch(function(e) {
+          if (e.code === "auth/user-not-found") { msg.innerHTML = "Aucun compte n est associe a cet email."; }
+          else if (e.code === "auth/invalid-email") { msg.innerHTML = "Adresse email invalide."; }
+          else { msg.innerHTML = "Une erreur est survenue. Reessaie plus tard."; }
+        });
       };
       return;
     }
