@@ -1,60 +1,135 @@
-(function() {
-  var interval = setInterval(function() {
-    if (!sessionStorage.getItem("baa-show-dashboard")) return;
-    if (document.getElementById("baa-dashboard-panel")) { clearInterval(interval); return; }
-    if (!window.firebase || !firebase.auth().currentUser) return;
-    clearInterval(interval);
-    sessionStorage.removeItem("baa-show-dashboard");
-    var auth = firebase.auth();
-    var db = firebase.firestore();
-    var user = auth.currentUser;
-    var today = new Date().toDateString();
-    db.collection("users").doc(user.uid).get().then(function(snap) {
-      var data = snap.data();
-      if (!data || data.accountStatus !== "active") return;
-      var panel = document.createElement("div");
-      panel.id = "baa-dashboard-panel";
-      panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999999;display:flex;justify-content:center;align-items:center;padding:20px;";
-      var box = document.createElement("div");
-      box.style.cssText = "background:#f8f3ee;width:90%;max-width:500px;border-radius:24px;padding:28px;font-family:Arial,sans-serif;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);";
-      box.innerHTML = "<div style='text-align:center;margin-bottom:20px;'><div style='font-size:36px;margin-bottom:8px;'>&#10024;</div><div id='dash-bonjour' style='color:#8b735d;font-size:20px;font-weight:bold;margin-bottom:4px;'>Bonjour !</div><div style='color:#bbb;font-size:13px;'>" + new Date().toLocaleDateString("fr-FR", {weekday:"long", day:"numeric", month:"long"}) + "</div></div><div style='background:white;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid #e8d4b0;'><div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;'><div style='color:#8b735d;font-size:13px;font-weight:bold;'>Checklist du jour</div><div id='dash-check-pct' style='color:#c9a86a;font-size:13px;font-weight:bold;'>...</div></div><div style='background:#f0e6d3;border-radius:20px;height:10px;overflow:hidden;'><div id='dash-check-barre' style='background:#c9a86a;height:100%;border-radius:20px;width:0%;transition:width 0.6s;'></div></div><div id='dash-check-msg' style='color:#999;font-size:12px;margin-top:8px;'></div></div><div style='background:white;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid #e8d4b0;'><div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;'><div style='color:#8b735d;font-size:13px;font-weight:bold;'>Objectif du mois</div><div id='dash-obj-pct' style='color:#c9a86a;font-size:13px;font-weight:bold;'>...</div></div><div style='background:#f0e6d3;border-radius:20px;height:10px;overflow:hidden;'><div id='dash-obj-barre' style='background:#c9a86a;height:100%;border-radius:20px;width:0%;transition:width 0.6s;'></div></div><div id='dash-obj-detail' style='color:#999;font-size:12px;margin-top:8px;'></div></div><div style='background:white;border-radius:14px;padding:16px;margin-bottom:20px;border:1px solid #e8d4b0;'><div style='color:#8b735d;font-size:13px;font-weight:bold;margin-bottom:8px;'>Ce mois-ci</div><div id='dash-cmd' style='color:#999;font-size:13px;'>Chargement...</div></div><div id='dash-motiv' style='text-align:center;color:#8b735d;font-size:13px;font-style:italic;margin-bottom:20px;'></div><button id='close-dashboard' style='width:100%;background:linear-gradient(135deg,#c9a86a,#e8d4b0);color:white;border:none;padding:14px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:15px;'>Commencer ma journee !</button>";
-      panel.appendChild(box);
-      document.body.appendChild(panel);
-      document.getElementById("close-dashboard").onclick = function() { panel.remove(); };
-      document.getElementById("dash-bonjour").innerText = "Bonjour " + (data.prenom || "") + " !";
-      var taches = data.checklistTaches || [];
-      var cochees = data.checklistCochees || [];
-      if (data.checklistDate !== today) { taches = []; cochees = []; }
-      var total = taches.length || 10;
-      var pctCheck = total === 0 ? 0 : Math.round(cochees.length / total * 100);
-      document.getElementById("dash-check-pct").innerText = pctCheck + "%";
-      setTimeout(function() { document.getElementById("dash-check-barre").style.width = pctCheck + "%"; }, 100);
-      document.getElementById("dash-check-barre").style.background = pctCheck === 100 ? "#2ecc71" : "#c9a86a";
-      document.getElementById("dash-check-msg").innerText = pctCheck === 100 ? "Checklist completee, bravo !" : cochees.length + " / " + total + " taches";
-      var objectif = data.suiviObjectif || 0;
-      var realise = data.suiviRealise || 0;
-      if (objectif > 0) {
-        var pctObj = Math.min(100, Math.round(realise / objectif * 100));
-        document.getElementById("dash-obj-pct").innerText = pctObj + "%";
-        setTimeout(function() { document.getElementById("dash-obj-barre").style.width = pctObj + "%"; }, 200);
-        document.getElementById("dash-obj-barre").style.background = pctObj >= 100 ? "#2ecc71" : pctObj >= 50 ? "#c9a86a" : "#f39c12";
-        var taux = realise >= 100 ? 30 : 20;
-        document.getElementById("dash-obj-detail").innerText = realise + " / " + objectif + " euros - Commission : " + (realise * taux / 100).toFixed(2) + " euros";
-      } else {
-        document.getElementById("dash-obj-pct").innerText = "-";
-        document.getElementById("dash-obj-detail").innerText = "Aucun objectif defini";
-      }
-      var messages = ["Chaque action te rapproche de tes reves !", "Ta regularite fait toute la difference.", "Aujourd hui est une nouvelle chance de briller !", "Tu construis quelque chose de beau.", "Les grandes reussites commencent par de petites actions."];
-      document.getElementById("dash-motiv").innerText = messages[Math.floor(Math.random() * messages.length)];
-      var moisDebut = new Date(); moisDebut.setDate(1); moisDebut.setHours(0,0,0,0);
-      db.collection("users").doc(user.uid).collection("commandes").get().then(function(snapshot) {
-        var totalMois = 0; var nbCommandes = 0;
-        snapshot.forEach(function(docSnap) {
-          var c = docSnap.data();
-          if (c.date) { var d = new Date(c.date); if (d >= moisDebut) { totalMois += parseFloat(c.montant) || 0; nbCommandes++; } }
-        });
-        document.getElementById("dash-cmd").innerHTML = "<strong style='color:#3a3a3a;'>" + nbCommandes + " commande" + (nbCommandes > 1 ? "s" : "") + "</strong> - <strong style='color:#c9a86a;'>" + totalMois.toFixed(2) + " euros</strong> ce mois-ci";
-      });
+function openQuizBonDemarrage() {
+  if (document.getElementById("baa-quiz-panel")) return;
+  var auth = firebase.auth();
+  var db = firebase.firestore();
+  var uid = auth.currentUser ? auth.currentUser.uid : null;
+
+  var questions = [
+    { q: "Combien de jours dure le programme Bon Demarrage Mihi ?", options: ["5 jours", "7 jours", "10 jours", "14 jours"], correct: 1, explain: "Le programme Bon Demarrage dure exactement 7 jours, un par etape cle de votre lancement." },
+    { q: "Quelle est la premiere action a faire le Jour 1 ?", options: ["Publier sur Facebook", "Definir ses objectifs", "Envoyer le catalogue", "Passer sa premiere commande"], correct: 1, explain: "Tout commence par definir ses objectifs personnels et professionnels avec precision." },
+    { q: "Pourquoi passer sa premiere commande avant de vendre ?", options: ["Pour avoir une reduction", "Pour devenir cliente avant vendeuse et vendre avec authenticite", "C'est obligatoire administrativement", "Pour remplir son stock"], correct: 1, explain: "Devenir cliente avant d'etre vendeuse permet de vendre avec naturel et conviction, car on croit reellement aux produits." },
+    { q: "Combien de personnes minimum doit-on viser dans sa liste de contacts initiale ?", options: ["20 contacts", "30 contacts", "50 contacts", "100 contacts"], correct: 2, explain: "Le guide recommande de viser un minimum de 50 contacts pour multiplier les opportunites." },
+    { q: "Quel type de photo de profil est recommande sur Facebook ?", options: ["Une photo de groupe", "Une photo sombre avec filtre", "Une photo lumineuse, souriante et seule", "Une photo de produit uniquement"], correct: 2, explain: "Une photo lumineuse, souriante, ou vous etes seule et bien mise en valeur inspire confiance et credibilite." },
+    { q: "Qu'est-ce qu'un 'pitch' personnel selon le Jour 2 ?", options: ["Un argumentaire de vente agressif", "Une presentation de 3 a 5 phrases sur qui vous etes et pourquoi vous aimez Mihi", "Un script obligatoire impose par Mihi", "Une liste de produits a vendre"], correct: 1, explain: "Le pitch est une presentation courte et sincere en 3 a 5 phrases, a repeter jusqu'a ce qu'elle sonne naturelle." },
+    { q: "Combien de produits favoris faut-il identifier au Jour 3 ?", options: ["1 a 3 produits", "5 a 10 produits", "15 a 20 produits", "Tout le catalogue"], correct: 1, explain: "Il est conseille d'identifier 5 a 10 produits favoris que vous connaissez et aimez le plus." },
+    { q: "Quelle est la difference entre une vendeuse et une conseillere de beaute ?", options: ["Le salaire", "La connaissance approfondie des produits", "Le nombre de clientes", "Aucune difference"], correct: 1, explain: "Une partenaire qui connait ses produits par coeur inspire confiance : c'est la difference entre vendeuse et conseillere." },
+    { q: "Que recommande le guide pour les stories du Jour 4 ?", options: ["Ne jamais montrer son quotidien", "Montrer des stories coulisses pour creer de la proximite", "Publier uniquement des prix", "Eviter de poser des questions a l'audience"], correct: 1, explain: "Les stories coulisses (espace de travail, routine, preparation de commandes) creent une proximite precieuse avec l'audience." },
+    { q: "Combien de hashtags pertinents est-il conseille d'utiliser ?", options: ["1 a 2", "5 a 10", "20 a 30", "Aucun"], correct: 1, explain: "Le guide recommande d'utiliser 5 a 10 hashtags pertinents pour booster la visibilite." },
+    { q: "Selon le Jour 5, quand se concluent la majorite des ventes ?", options: ["Des la premiere interaction", "Apres la deuxieme ou troisieme interaction", "Jamais avant un mois", "Uniquement lors d'evenements"], correct: 1, explain: "La majorite des ventes se concluent apres la deuxieme ou troisieme interaction, pas la premiere : la relance est essentielle." },
+    { q: "Qu'est-ce qu'une bonne relance selon le guide ?", options: ["Un message generique envoye en masse", "Un message court, chaleureux et personnalise", "Un appel telephonique insistant", "Un rappel quotidien"], correct: 1, explain: "Une relance efficace est courte, chaleureuse et personnalisee avec le prenom et le contexte de la personne." },
+    { q: "Quel est le pilier principal de la reussite durable selon le Jour 6 ?", options: ["Travailler 12h par jour", "La discipline et la regularite", "Avoir un gros budget publicitaire", "Ne jamais faire de pause"], correct: 1, explain: "Il ne s'agit pas de travailler dur un jour, mais de travailler chaque jour : meme 30 minutes regulieres valent mieux qu'une journee suivie d'inactivite." },
+    { q: "A quoi sert le journal de gratitude professionnel ?", options: ["A noter ses depenses", "A noter chaque soir 3 avancees de sa journee", "A lister ses clientes", "A planifier les vacances"], correct: 1, explain: "Le journal de gratitude transforme la perception du chemin parcouru et maintient la motivation dans la duree." },
+    { q: "Que doit-on faire au Jour 7 pour cloturer le programme ?", options: ["Tout recommencer depuis le debut", "Faire un bilan et definir un plan d'action pour les 30 jours suivants", "Arreter l'activite si les resultats ne sont pas parfaits", "Ignorer les resultats de la semaine"], correct: 1, explain: "Le Jour 7 est dedie au bilan de la semaine et a la definition d'objectifs clairs pour le mois a venir." }
+  ];
+
+  var currentIndex = 0;
+  var score = 0;
+  var answered = false;
+
+  var panel = document.createElement("div");
+  panel.id = "baa-quiz-panel";
+  panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;justify-content:center;align-items:flex-start;padding-top:40px;padding-bottom:40px;overflow-y:auto;";
+  var box = document.createElement("div");
+  box.style.cssText = "background:#f8f3ee;width:90%;max-width:600px;border-radius:20px;padding:30px;font-family:Arial,sans-serif;max-height:90vh;overflow-y:auto;";
+  box.innerHTML = "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'><h2 style='color:#8b735d;margin:0;'>Quiz Bon Demarrage</h2><span id='close-quiz' style='cursor:pointer;font-size:28px;color:#8b735d;'>X</span></div><div style='color:#999;font-size:13px;margin-bottom:20px;'>Teste tes connaissances sur le programme 7 jours</div><div id='quiz-progress-container' style='margin-bottom:20px;'><div style='display:flex;justify-content:space-between;margin-bottom:6px;'><span id='quiz-progress-text' style='color:#8b735d;font-size:13px;font-weight:bold;'>Question 1 / 15</span><span id='quiz-score-text' style='color:#c9a86a;font-size:13px;font-weight:bold;'>Score : 0</span></div><div style='background:#f0e6d3;border-radius:20px;height:10px;overflow:hidden;'><div id='quiz-progress-barre' style='background:#c9a86a;height:100%;border-radius:20px;width:0%;transition:width 0.4s ease;'></div></div></div><div id='quiz-content'></div>";
+  panel.appendChild(box);
+  document.body.appendChild(panel);
+  document.getElementById("close-quiz").onclick = function() { panel.remove(); };
+
+  function renderQuestion() {
+    answered = false;
+    var qData = questions[currentIndex];
+    document.getElementById("quiz-progress-text").innerText = "Question " + (currentIndex + 1) + " / " + questions.length;
+    document.getElementById("quiz-score-text").innerText = "Score : " + score;
+    var pct = Math.round((currentIndex / questions.length) * 100);
+    document.getElementById("quiz-progress-barre").style.width = pct + "%";
+
+    var html = "<div style='background:white;border-radius:14px;padding:20px;border:1px solid #e8d4b0;margin-bottom:16px;'>";
+    html += "<div style='color:#3a3a3a;font-size:16px;font-weight:bold;margin-bottom:16px;line-height:1.4;'>" + qData.q + "</div>";
+    html += "<div id='quiz-options'>";
+    qData.options.forEach(function(opt, idx) {
+      html += "<div class='quiz-option' data-idx='" + idx + "' style='background:#f8f3ee;border:1px solid #e8d4b0;border-radius:10px;padding:12px 16px;margin-bottom:10px;cursor:pointer;color:#3a3a3a;font-size:14px;'>" + opt + "</div>";
     });
-  }, 300);
-})();
+    html += "</div>";
+    html += "<div id='quiz-explain' style='display:none;margin-top:12px;padding:14px;border-radius:10px;font-size:13px;line-height:1.5;'></div>";
+    html += "</div>";
+    html += "<button id='quiz-next-btn' style='width:100%;background:#c9a86a;color:white;border:none;padding:14px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:15px;display:none;'>" + (currentIndex === questions.length - 1 ? "Voir mon resultat" : "Question suivante") + "</button>";
+    document.getElementById("quiz-content").innerHTML = html;
+
+    document.querySelectorAll(".quiz-option").forEach(function(optEl) {
+      optEl.onclick = function() {
+        if (answered) return;
+        answered = true;
+        var chosenIdx = parseInt(optEl.getAttribute("data-idx"));
+        var allOpts = document.querySelectorAll(".quiz-option");
+        allOpts.forEach(function(el) {
+          var idx = parseInt(el.getAttribute("data-idx"));
+          if (idx === qData.correct) {
+            el.style.background = "#e6f7ec";
+            el.style.border = "1px solid #2ecc71";
+            el.style.color = "#1e8449";
+            el.style.fontWeight = "bold";
+          } else if (idx === chosenIdx) {
+            el.style.background = "#fdecec";
+            el.style.border = "1px solid #e74c3c";
+            el.style.color = "#c0392b";
+          }
+          el.style.cursor = "default";
+        });
+        var explainBox = document.getElementById("quiz-explain");
+        if (chosenIdx === qData.correct) {
+          score++;
+          document.getElementById("quiz-score-text").innerText = "Score : " + score;
+          explainBox.style.background = "#e6f7ec";
+          explainBox.style.color = "#1e8449";
+          explainBox.innerHTML = "<strong>Bonne reponse !</strong> " + qData.explain;
+        } else {
+          explainBox.style.background = "#fdecec";
+          explainBox.style.color = "#c0392b";
+          explainBox.innerHTML = "<strong>Pas tout a fait.</strong> " + qData.explain;
+        }
+        explainBox.style.display = "block";
+        document.getElementById("quiz-next-btn").style.display = "block";
+      };
+    });
+
+    document.getElementById("quiz-next-btn").onclick = function() {
+      currentIndex++;
+      if (currentIndex >= questions.length) {
+        renderResult();
+      } else {
+        renderQuestion();
+      }
+    };
+  }
+
+  function renderResult() {
+    document.getElementById("quiz-progress-barre").style.width = "100%";
+    document.getElementById("quiz-progress-text").innerText = "Quiz termine !";
+    document.getElementById("quiz-score-text").innerText = "Score : " + score + " / " + questions.length;
+    var pctFinal = Math.round((score / questions.length) * 100);
+    var message = pctFinal === 100 ? "Parfait ! Tu maitrises totalement le programme !" : pctFinal >= 80 ? "Excellent ! Tu connais tres bien le programme." : pctFinal >= 60 ? "Bien joue ! Quelques points a revoir." : "N'hesite pas a relire le guide pour bien ancrer les bases.";
+    var couleur = pctFinal >= 80 ? "#2ecc71" : pctFinal >= 60 ? "#c9a86a" : "#f39c12";
+    var html = "<div style='text-align:center;background:white;border-radius:14px;padding:30px 20px;border:1px solid #e8d4b0;'>";
+    html += "<div style='font-size:48px;margin-bottom:12px;'>" + (pctFinal >= 80 ? "🎉" : pctFinal >= 60 ? "👏" : "💪") + "</div>";
+    html += "<div style='font-size:32px;font-weight:bold;color:" + couleur + ";margin-bottom:8px;'>" + score + " / " + questions.length + "</div>";
+    html += "<div style='color:#8b735d;font-size:15px;margin-bottom:20px;'>" + message + "</div>";
+    html += "<button id='quiz-restart-btn' style='background:#c9a86a;color:white;border:none;padding:12px 24px;border-radius:10px;cursor:pointer;font-weight:bold;font-size:14px;'>Recommencer le quiz</button>";
+    html += "</div>";
+    document.getElementById("quiz-content").innerHTML = html;
+    document.getElementById("quiz-restart-btn").onclick = function() {
+      currentIndex = 0;
+      score = 0;
+      renderQuestion();
+    };
+    if (uid) {
+      db.collection("users").doc(uid).update({
+        quizBonDemarrageScore: score,
+        quizBonDemarrageTotal: questions.length,
+        quizBonDemarrageDate: new Date().toISOString()
+      }).catch(function(e) { console.log("Erreur sauvegarde quiz:", e); });
+    }
+  }
+
+  renderQuestion();
+}
