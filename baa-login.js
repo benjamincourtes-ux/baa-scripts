@@ -368,6 +368,7 @@ function initBeautyAddictLogin() {
         loadCommandes();
       }
       function openOutilsPanel() {
+        window.__baaOpenOutilsPanel = openOutilsPanel;
         if (document.getElementById("baa-outils-panel")) return;
         const panel = document.createElement("div"); panel.id = "baa-outils-panel";
         panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;justify-content:center;align-items:flex-start;padding-top:60px;";
