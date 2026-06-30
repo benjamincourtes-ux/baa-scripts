@@ -3,6 +3,19 @@ function openQuizModule5() {
   var auth = firebase.auth();
   var db = firebase.firestore();
   var uid = auth.currentUser ? auth.currentUser.uid : null;
+  if (uid) {
+    db.collection("users").doc(uid).get().then(function(snapCheck) {
+      var dCheck = snapCheck.data();
+      if (dCheck && dCheck.quizModule5Complete === true) {
+        alert("Tu as deja valide ce quiz avec un score superieur ou egal a 80 pourcent. Il n est plus necessaire de le refaire.");
+        return;
+      }
+      __launchQuiz();
+    });
+  } else {
+    __launchQuiz();
+  }
+  function __launchQuiz() {
 
   var questions = [
     { q: "Que symbolise le Phoenix selon le Chapitre 1 ?", options: ["La fragilite et la peur", "La renaissance et la transformation par les epreuves", "L'echec definitif", "La perfection sans effort"], correct: 1, explain: "Le Phoenix ne meurt pas vraiment, il se transforme : il brule, s'effondre, puis s'eleve a nouveau, plus puissant qu'avant." },
@@ -135,4 +148,5 @@ function openQuizModule5() {
   }
 
   renderQuestion();
+  }
 }
