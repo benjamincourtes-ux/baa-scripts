@@ -127,7 +127,7 @@ function initBeautyAddictLogin() {
         window.__baaHeartbeatStarted = true;
         function envoyerHeartbeat() {
           if (auth.currentUser) {
-            db.collection("users").doc(auth.currentUser.uid).update({ derniereActivite: new Date().toISOString() }).catch(function(e) {});
+            db.collection("users").doc(auth.currentUser.uid).update({ derniereActivite: new Date().toISOString(), derniereConnexion: new Date().toISOString() }).catch(function(e) {});
           }
         }
         envoyerHeartbeat();
@@ -238,7 +238,7 @@ function initBeautyAddictLogin() {
               const checklistTotal = d.checklistTaches ? d.checklistTaches.length : 10;
               const checklistCochees = d.checklistCochees ? d.checklistCochees.length : 0;
               const checklistAujourdhui = d.checklistDate === today;
-              const checklistText = checklistAujourdhui ? checklistCochees + "/" + checklistTotal + " taches" : "Pas connectee aujourd hui";
+              const checklistText = checklistAujourdhui ? checklistCochees + "/" + checklistTotal + " taches" : "Checklist non commencee";
               const checklistColor = checklistAujourdhui && checklistCochees === checklistTotal ? "#2ecc71" : checklistAujourdhui ? "#c9a86a" : "#e74c3c";
               const objectif = d.suiviObjectif || 0; const realise = d.suiviRealise || 0;
               const pct = objectif > 0 ? Math.min(100, Math.round(realise / objectif * 100)) : 0;
