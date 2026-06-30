@@ -151,7 +151,7 @@ function initBeautyAddictLogin() {
         panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;justify-content:center;align-items:flex-start;padding-top:60px;";
         const box = document.createElement("div");
         box.style.cssText = "background:#f8f3ee;width:90%;max-width:700px;border-radius:20px;padding:30px;max-height:80vh;overflow-y:auto;font-family:Arial,sans-serif;";
-        box.innerHTML = "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;'><h2 style='color:#8b735d;margin:0;'>Panneau Admin</h2><span id='close-admin' style='cursor:pointer;font-size:28px;color:#8b735d;'>X</span></div><div style='display:flex;gap:10px;margin-bottom:20px;border-bottom:1px solid #e8d4b0;padding-bottom:12px;flex-wrap:wrap;'><button id='tab-pending' style='background:#c9a86a;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>En attente</button><button id='tab-all' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>Tous les membres</button><button id='tab-dashboard' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>Tableau de bord</button></div><div id='admin-members-list'><p style='color:#999;'>Chargement...</p></div>";
+        box.innerHTML = "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;'><h2 style='color:#8b735d;margin:0;'>Panneau Admin</h2><span id='close-admin' style='cursor:pointer;font-size:28px;color:#8b735d;'>X</span></div><div style='display:flex;gap:10px;margin-bottom:20px;border-bottom:1px solid #e8d4b0;padding-bottom:12px;flex-wrap:wrap;'><button id='tab-pending' style='background:#c9a86a;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>En attente</button><button id='tab-all' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>Tous les membres</button><button id='tab-dashboard' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>Tableau de bord</button><button id='tab-quiz' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>Quiz</button></div><div id='admin-members-list'><p style='color:#999;'>Chargement...</p></div>";
         panel.appendChild(box); document.body.appendChild(panel);
         document.getElementById("close-admin").onclick = function() { panel.remove(); };
         function loadPending() {
@@ -222,9 +222,48 @@ function initBeautyAddictLogin() {
             });
           });
         }
-        document.getElementById("tab-pending").onclick = function() { document.getElementById("tab-pending").style.cssText += "background:#c9a86a;color:white;border:none;"; document.getElementById("tab-all").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-dashboard").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; loadPending(); };
-        document.getElementById("tab-all").onclick = function() { document.getElementById("tab-all").style.cssText += "background:#c9a86a;color:white;border:none;"; document.getElementById("tab-pending").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-dashboard").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; loadAllMembers(); };
-        document.getElementById("tab-dashboard").onclick = function() { document.getElementById("tab-dashboard").style.cssText += "background:#c9a86a;color:white;border:none;"; document.getElementById("tab-pending").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-all").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; loadDashboard(); };
+        function loadQuiz() {
+          const list = document.getElementById("admin-members-list"); list.innerHTML = "<p style='color:#999;'>Chargement...</p>";
+          db.collection("users").where("accountStatus", "==", "active").get().then(function(snapshot) {
+            if (snapshot.empty) { list.innerHTML = "<p style='color:#999;'>Aucun membre actif.</p>"; return; }
+            list.innerHTML = "";
+            function humaniserNomQuiz(key) {
+              var nom = key.replace(/^quiz/, "").replace(/Score$/, "");
+              nom = nom.replace(/([A-Z])/g, " $1").trim();
+              return nom;
+            }
+            snapshot.forEach(function(docSnap) {
+              const d = docSnap.data();
+              const card = document.createElement("div"); card.style.cssText = "background:white;border-radius:12px;padding:16px 20px;margin-bottom:12px;border:1px solid #e8d4b0;";
+              var avatarAdmin = d.photoURL ? "<img src='" + d.photoURL + "' style='width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #e8d4b0;margin-right:12px;' />" : "<div style='width:40px;height:40px;border-radius:50%;background:#c9a86a;display:flex;align-items:center;justify-content:center;border:2px solid #e8d4b0;margin-right:12px;min-width:40px;'><span style='color:white;font-size:14px;font-weight:bold;'>" + (d.prenom ? d.prenom[0].toUpperCase() : "") + (d.nom ? d.nom[0].toUpperCase() : "") + "</span></div>";
+              var quizKeys = Object.keys(d).filter(function(k) { return k.indexOf("quiz") === 0 && k.endsWith("Score"); });
+              var quizBadgesHTML = "<div style='display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;'>";
+              if (quizKeys.length === 0) {
+                quizBadgesHTML += "<span style='color:#bbb;font-size:12px;'>Aucun quiz commence</span>";
+              } else {
+                quizKeys.sort().forEach(function(scoreKey) {
+                  var baseName = scoreKey.replace(/Score$/, "");
+                  var totalKey = baseName + "Total";
+                  var completeKey = baseName + "Complete";
+                  var label = humaniserNomQuiz(baseName);
+                  var score = d[scoreKey];
+                  var total = d[totalKey] || "?";
+                  var bg, txt;
+                  if (d[completeKey] === true) { bg = "#2ecc71"; txt = label + " : " + score + "/" + total + " ✓"; }
+                  else { bg = "#f39c12"; txt = label + " : " + score + "/" + total; }
+                  quizBadgesHTML += "<span style='background:" + bg + ";color:white;padding:4px 10px;border-radius:10px;font-size:11px;font-weight:bold;'>" + txt + "</span>";
+                });
+              }
+              quizBadgesHTML += "</div>";
+              card.innerHTML = "<div style='display:flex;align-items:center;'>" + avatarAdmin + "<div><div style='font-weight:bold;color:#3a3a3a;font-size:15px;'>" + d.prenom + " " + d.nom + "</div></div></div>" + quizBadgesHTML;
+              list.appendChild(card);
+            });
+          });
+        }
+        document.getElementById("tab-pending").onclick = function() { document.getElementById("tab-pending").style.cssText += "background:#c9a86a;color:white;border:none;"; document.getElementById("tab-all").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-dashboard").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-quiz").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; loadPending(); };
+        document.getElementById("tab-all").onclick = function() { document.getElementById("tab-all").style.cssText += "background:#c9a86a;color:white;border:none;"; document.getElementById("tab-pending").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-dashboard").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-quiz").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; loadAllMembers(); };
+        document.getElementById("tab-dashboard").onclick = function() { document.getElementById("tab-dashboard").style.cssText += "background:#c9a86a;color:white;border:none;"; document.getElementById("tab-pending").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-all").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-quiz").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; loadDashboard(); };
+        document.getElementById("tab-quiz").onclick = function() { document.getElementById("tab-quiz").style.cssText += "background:#c9a86a;color:white;border:none;"; document.getElementById("tab-pending").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-all").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-dashboard").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; loadQuiz(); };
         loadPending();
       }
       function openInfoPanel() {
