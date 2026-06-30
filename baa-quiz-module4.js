@@ -3,6 +3,19 @@ function openQuizModule4() {
   var auth = firebase.auth();
   var db = firebase.firestore();
   var uid = auth.currentUser ? auth.currentUser.uid : null;
+  if (uid) {
+    db.collection("users").doc(uid).get().then(function(snapCheck) {
+      var dCheck = snapCheck.data();
+      if (dCheck && dCheck.quizModule4Complete === true) {
+        alert("Tu as deja valide ce quiz avec un score superieur ou egal a 80 pourcent. Il n est plus necessaire de le refaire.");
+        return;
+      }
+      __launchQuiz();
+    });
+  } else {
+    __launchQuiz();
+  }
+  function __launchQuiz() {
 
   var questions = [
     { q: "Selon la Partie 1, a quoi servent vraiment les messages ?", options: ["A vendre le plus vite possible", "A creer une relation humaine, sincere et naturelle", "A convaincre par la pression", "A presenter immediatement Mihi"], correct: 1, explain: "Les messages ne servent pas a vendre mais a creer une relation humaine, sincere et naturelle : c'est cette posture qui change tout." },
@@ -135,4 +148,5 @@ function openQuizModule4() {
   }
 
   renderQuestion();
+  }
 }
