@@ -190,7 +190,7 @@ function initBeautyAddictLogin() {
               list.appendChild(row);
               document.getElementById("accept-" + uid).onclick = function() {
                 db.collection("users").doc(uid).update({ accountStatus: "active" }).then(function() {
-                  emailjs.send("service_wr9mlhk", "template_wk2j4mg", { prenom: d.prenom, nom: d.nom, email: d.email, date: new Date().toLocaleDateString("fr-FR") }).then(function() { console.log("Email bienvenue envoye"); }).catch(function(err) { console.log(err); });
+                  emailjs.send("service_wr9mlhk", "template_wk2j4mg", { prenom: d.prenom, nom: d.nom, email: d.email, date: new Date().toLocaleDateString("fr-FR"), titre_message: "Bienvenue", corps_message: "Ton compte sur l Academie Beauty Addict vient d etre active. Tu peux maintenant te connecter et acceder a tout le contenu de l academie.", lien_action: "Ton envol vers la liberte commence maintenant." }).then(function() { console.log("Email bienvenue envoye"); }).catch(function(err) { console.log(err); });
                   document.getElementById("row-" + uid).remove();
                   if (document.getElementById("admin-members-list").children.length === 0) { document.getElementById("admin-members-list").innerHTML = "<p style='color:#999;'>Aucun membre en attente.</p>"; }
                 });
@@ -294,7 +294,7 @@ function initBeautyAddictLogin() {
         function loadAnnonces() {
           const list = document.getElementById("admin-members-list");
           list.innerHTML = "<div style='background:white;border-radius:14px;padding:20px;border:1px solid #e8d4b0;margin-bottom:16px;'><h3 style='color:#8b735d;margin:0 0 14px 0;font-size:15px;'>📚 Annoncer une nouvelle formation</h3><input id='annonce-formation-titre' placeholder='Titre de la formation' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:10px;' /><textarea id='annonce-formation-desc' placeholder='Courte description de la formation' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;height:70px;resize:vertical;margin-bottom:10px;'></textarea><button id='envoyer-annonce-formation' style='width:100%;background:#c9a86a;color:white;border:none;padding:12px;border-radius:10px;cursor:pointer;font-weight:bold;font-size:14px;'>Envoyer a toutes les membres</button><div id='annonce-formation-msg' style='color:#8b735d;font-size:13px;margin-top:8px;text-align:center;'></div></div><div style='background:white;border-radius:14px;padding:20px;border:1px solid #e8d4b0;'><h3 style='color:#8b735d;margin:0 0 14px 0;font-size:15px;'>🔧 Annoncer un nouvel outil</h3><input id='annonce-outil-nom' placeholder='Nom du nouvel outil' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:10px;' /><textarea id='annonce-outil-desc' placeholder='A quoi sert cet outil ?' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;height:70px;resize:vertical;margin-bottom:10px;'></textarea><button id='envoyer-annonce-outil' style='width:100%;background:#c9a86a;color:white;border:none;padding:12px;border-radius:10px;cursor:pointer;font-weight:bold;font-size:14px;'>Envoyer a toutes les membres</button><div id='annonce-outil-msg' style='color:#8b735d;font-size:13px;margin-top:8px;text-align:center;'></div></div>";
-          function envoyerATous(emailTemplate, dataExtra, msgElId, btnElId) {
+          function envoyerATous(dataExtra, msgElId, btnElId) {
             var msgEl = document.getElementById(msgElId);
             var btnEl = document.getElementById(btnElId);
             btnEl.disabled = true; btnEl.innerText = "Envoi en cours...";
@@ -306,7 +306,7 @@ function initBeautyAddictLogin() {
               snapshot.forEach(function(docSnap) {
                 var d = docSnap.data();
                 var payload = Object.assign({ prenom: d.prenom, nom: d.nom, email: d.email, date: new Date().toLocaleDateString("fr-FR") }, dataExtra);
-                promises.push(emailjs.send("service_wr9mlhk", emailTemplate, payload).catch(function(err) { console.log("Erreur envoi a " + d.email, err); }));
+                promises.push(emailjs.send("service_wr9mlhk", "template_wk2j4mg", payload).catch(function(err) { console.log("Erreur envoi a " + d.email, err); }));
               });
               Promise.all(promises).then(function() {
                 msgEl.innerText = "Email envoye a " + snapshot.size + " membre" + (snapshot.size > 1 ? "s" : "") + " !";
@@ -318,13 +318,13 @@ function initBeautyAddictLogin() {
             var titre = document.getElementById("annonce-formation-titre").value.trim();
             var desc = document.getElementById("annonce-formation-desc").value.trim();
             if (!titre) { alert("Merci de saisir un titre."); return; }
-            envoyerATous("template_nouvelle_formation", { titre_formation: titre, description_formation: desc }, "annonce-formation-msg", "envoyer-annonce-formation");
+            envoyerATous({ titre_message: "Nouvelle formation disponible :", corps_message: titre + (desc ? " - " + desc : ""), lien_action: "Connecte-toi sur l Academie pour la decouvrir." }, "annonce-formation-msg", "envoyer-annonce-formation");
           };
           document.getElementById("envoyer-annonce-outil").onclick = function() {
             var nom = document.getElementById("annonce-outil-nom").value.trim();
             var desc = document.getElementById("annonce-outil-desc").value.trim();
             if (!nom) { alert("Merci de saisir un nom d outil."); return; }
-            envoyerATous("template_nouvel_outil", { nom_outil: nom, description_outil: desc }, "annonce-outil-msg", "envoyer-annonce-outil");
+            envoyerATous({ titre_message: "Nouvel outil disponible :", corps_message: nom + (desc ? " - " + desc : ""), lien_action: "Va dans la section Outils de l Academie pour l utiliser." }, "annonce-outil-msg", "envoyer-annonce-outil");
           };
         }
         document.getElementById("tab-annonces").onclick = function() { document.getElementById("tab-annonces").style.cssText += "background:#c9a86a;color:white;border:none;"; document.getElementById("tab-pending").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-all").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-dashboard").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-quiz").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; loadAnnonces(); };
