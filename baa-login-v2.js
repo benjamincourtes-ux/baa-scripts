@@ -7,6 +7,7 @@ function initBeautyAddictLogin() {
     firebase.initializeApp({ apiKey: "AIzaSyC94wzVrEtrqxhshdFsRHR7HiL5wJEkYG0", authDomain: "beauty-addict-academy.firebaseapp.com", projectId: "beauty-addict-academy", storageBucket: "beauty-addict-academy.firebasestorage.app", messagingSenderId: "311669980538", appId: "1:311669980538:web:eaf8a95e987473c6412ac3" });
   }
   const auth = firebase.auth();
+  auth.languageCode = "fr";
   const db = firebase.firestore();
   auth.onAuthStateChanged(async (user) => {
     if (!user) {
