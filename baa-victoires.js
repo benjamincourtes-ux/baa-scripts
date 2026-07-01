@@ -16,7 +16,7 @@ function openVictoiresPanel() {
 
   var content = document.createElement("div");
   content.style.cssText = "flex:1;overflow-y:auto;padding:24px;max-width:800px;width:100%;margin:0 auto;box-sizing:border-box;";
-  content.innerHTML = "<div id='victoire-form' style='background:white;border-radius:14px;padding:20px;border:1px solid #e8d4b0;margin-bottom:20px;'><p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 12px 0;'>Partager une victoire</p><div style='display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;' id='categorie-btns'><button class='cat-btn' data-cat='Objectif' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;'>&#127942; Objectif</button><button class='cat-btn' data-cat='Vente' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;'>&#128176; Vente</button><button class='cat-btn' data-cat='Recrue' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;'>&#128101; Recrue</button><button class='cat-btn' data-cat='Autre' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;'>&#11088; Autre</button></div><textarea id='victoire-texte' placeholder='Raconte ta victoire...' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;height:70px;resize:vertical;margin-bottom:10px;font-family:Arial,sans-serif;'></textarea><div style='display:flex;gap:10px;align-items:center;'><label style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>&#128247; Photo<input type='file' id='victoire-photo' accept='image/*' style='display:none;' /></label><span id='victoire-photo-name' style='color:#999;font-size:12px;'></span><button id='publier-victoire' style='margin-left:auto;background:#c9a86a;color:white;border:none;padding:10px 20px;border-radius:10px;cursor:pointer;font-weight:bold;font-size:13px;'>Publier !</button></div><div id='victoire-form-msg' style='color:#8b735d;font-size:12px;margin-top:8px;'></div></div><div id='victoires-list'><p style='color:#999;text-align:center;'>Chargement...</p></div>";
+  content.innerHTML = "<div id='victoire-form' style='background:white;border-radius:14px;padding:20px;border:1px solid #e8d4b0;margin-bottom:20px;'><p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 12px 0;'>Partager une victoire</p><div style='display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;' id='categorie-btns'><button class='cat-btn' data-cat='Objectif' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;'>&#127942; Objectif</button><button class='cat-btn' data-cat='Vente' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;'>&#128176; Vente</button><button class='cat-btn' data-cat='Recrue' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;'>&#128101; Recrue</button><button class='cat-btn' data-cat='Autre' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;'>&#11088; Autre</button></div><div style='position:relative;'><textarea id='victoire-texte' placeholder='Raconte ta victoire... (@ pour mentionner)' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;height:70px;resize:vertical;margin-bottom:10px;font-family:Arial,sans-serif;'></textarea><div id='mention-list-form' style='display:none;position:absolute;top:80px;left:0;background:white;border:1px solid #e8d4b0;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);z-index:99;max-height:150px;overflow-y:auto;min-width:200px;'></div></div><div style='display:flex;gap:10px;align-items:center;'><label style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>&#128247; Photo<input type='file' id='victoire-photo' accept='image/*' style='display:none;' /></label><span id='victoire-photo-name' style='color:#999;font-size:12px;'></span><button id='publier-victoire' style='margin-left:auto;background:#c9a86a;color:white;border:none;padding:10px 20px;border-radius:10px;cursor:pointer;font-weight:bold;font-size:13px;'>Publier !</button></div><div id='victoire-form-msg' style='color:#8b735d;font-size:12px;margin-top:8px;'></div></div><div id='victoires-list'><p style='color:#999;text-align:center;'>Chargement...</p></div>";
 
   panel.appendChild(header);
   panel.appendChild(content);
@@ -55,6 +55,37 @@ function openVictoiresPanel() {
     var name = this.files[0] ? this.files[0].name : "";
     document.getElementById("victoire-photo-name").innerText = name ? name : "";
   };
+
+  var victoireTexte = document.getElementById("victoire-texte");
+  victoireTexte.addEventListener("input", function() {
+    var val = this.value;
+    var atIdx = val.lastIndexOf("@");
+    var mentionList = document.getElementById("mention-list-form");
+    if (atIdx > -1) {
+      var search = val.slice(atIdx + 1).toLowerCase();
+      var filtered = tousLesMembres.filter(function(m) { return (m.prenom + " " + m.nom).toLowerCase().indexOf(search) > -1; });
+      if (filtered.length > 0) {
+        mentionList.innerHTML = "";
+        filtered.forEach(function(m) {
+          var item = document.createElement("div");
+          item.style.cssText = "padding:8px 12px;cursor:pointer;font-size:13px;color:#3a3a3a;";
+          item.innerText = m.prenom + " " + m.nom;
+          item.onmouseenter = function() { item.style.background = "#f8f3ee"; };
+          item.onmouseleave = function() { item.style.background = "white"; };
+          item.onclick = function() {
+            victoireTexte.value = val.slice(0, atIdx) + "@" + m.prenom + " " + m.nom + " ";
+            mentionList.style.display = "none";
+          };
+          mentionList.appendChild(item);
+        });
+        mentionList.style.display = "block";
+      } else {
+        mentionList.style.display = "none";
+      }
+    } else {
+      mentionList.style.display = "none";
+    }
+  });
 
   var EMOJIS = [
     { key: "feu", html: "&#128293;" },
