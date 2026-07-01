@@ -342,9 +342,25 @@ function initBeautyAddictLogin() {
         panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;justify-content:center;align-items:flex-start;padding-top:60px;";
         const box = document.createElement("div");
         box.style.cssText = "background:#f8f3ee;width:90%;max-width:500px;border-radius:20px;padding:30px;font-family:Arial,sans-serif;max-height:85vh;overflow-y:auto;";
-        box.innerHTML = "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;'><h2 style='color:#8b735d;margin:0;'>Mes informations</h2><span id='close-info' style='cursor:pointer;font-size:28px;color:#8b735d;'>X</span></div><div style='display:flex;flex-direction:column;gap:14px;'><div><label style='color:#8b735d;font-size:13px;font-weight:bold;display:block;margin-bottom:4px;'>Prenom</label><input id='field-prenom' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:14px;box-sizing:border-box;' /></div><div><label style='color:#8b735d;font-size:13px;font-weight:bold;display:block;margin-bottom:4px;'>Nom</label><input id='field-nom' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:14px;box-sizing:border-box;' /></div><div><label style='color:#8b735d;font-size:13px;font-weight:bold;display:block;margin-bottom:4px;'>Date de naissance</label><input id='field-ddn' type='date' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:14px;box-sizing:border-box;' /></div><div><label style='color:#8b735d;font-size:13px;font-weight:bold;display:block;margin-bottom:4px;'>Email</label><input id='field-email' disabled style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:14px;background:#f0f0f0;box-sizing:border-box;' /></div><button id='save-info' style='background:#c9a86a;color:white;border:none;padding:12px;border-radius:10px;cursor:pointer;font-weight:bold;font-size:14px;margin-top:8px;'>Sauvegarder</button><div id='info-msg' style='color:#8b735d;font-size:13px;text-align:center;'></div></div>";
+        box.innerHTML = "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;'><h2 style='color:#8b735d;margin:0;'>Mon compte</h2><span id='close-info' style='cursor:pointer;font-size:28px;color:#8b735d;'>X</span></div><div style='display:flex;flex-direction:column;gap:14px;'><div id='btn-mes-infos' style='background:white;border:1px solid #e8d4b0;border-radius:14px;padding:20px;cursor:pointer;display:flex;align-items:center;gap:16px;'><span style='font-size:32px;'>👤</span><div><div style='font-weight:bold;color:#3a3a3a;font-size:15px;'>Mes informations</div><div style='color:#999;font-size:13px;margin-top:4px;'>Modifier mon profil, ma photo</div></div></div><div id='btn-suivi-objectif' style='background:white;border:1px solid #e8d4b0;border-radius:14px;padding:20px;cursor:pointer;display:flex;align-items:center;gap:16px;'><span style='font-size:32px;'>🎯</span><div><div style='font-weight:bold;color:#3a3a3a;font-size:15px;'>Suivi objectif du mois</div><div style='color:#999;font-size:13px;margin-top:4px;'>Suivre mon CA et mes commissions</div></div></div></div>";
         panel.appendChild(box); document.body.appendChild(panel);
         document.getElementById("close-info").onclick = function() { panel.remove(); var mb = document.getElementById("baa-menu-btn"); if (mb) mb.click(); };
+        document.getElementById("btn-mes-infos").onmouseenter = function() { this.style.background = "#f0e6d3"; };
+        document.getElementById("btn-mes-infos").onmouseleave = function() { this.style.background = "white"; };
+        document.getElementById("btn-suivi-objectif").onmouseenter = function() { this.style.background = "#f0e6d3"; };
+        document.getElementById("btn-suivi-objectif").onmouseleave = function() { this.style.background = "white"; };
+        document.getElementById("btn-mes-infos").onclick = function() { panel.remove(); openMesInfosPanel(); };
+        document.getElementById("btn-suivi-objectif").onclick = function() { panel.remove(); openSuiviObjectifPanel(); };
+      }
+      function openMesInfosPanel() {
+        if (document.getElementById("baa-mesinfos-panel")) return;
+        const panel = document.createElement("div"); panel.id = "baa-mesinfos-panel";
+        panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;justify-content:center;align-items:flex-start;padding-top:60px;";
+        const box = document.createElement("div");
+        box.style.cssText = "background:#f8f3ee;width:90%;max-width:500px;border-radius:20px;padding:30px;font-family:Arial,sans-serif;max-height:85vh;overflow-y:auto;";
+        box.innerHTML = "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;'><h2 style='color:#8b735d;margin:0;'>Mes informations</h2><span id='close-mesinfos' style='cursor:pointer;font-size:28px;color:#8b735d;'>X</span></div><div style='display:flex;flex-direction:column;gap:14px;'><div><label style='color:#8b735d;font-size:13px;font-weight:bold;display:block;margin-bottom:4px;'>Prenom</label><input id='field-prenom' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:14px;box-sizing:border-box;' /></div><div><label style='color:#8b735d;font-size:13px;font-weight:bold;display:block;margin-bottom:4px;'>Nom</label><input id='field-nom' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:14px;box-sizing:border-box;' /></div><div><label style='color:#8b735d;font-size:13px;font-weight:bold;display:block;margin-bottom:4px;'>Date de naissance</label><input id='field-ddn' type='date' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:14px;box-sizing:border-box;' /></div><div><label style='color:#8b735d;font-size:13px;font-weight:bold;display:block;margin-bottom:4px;'>Email</label><input id='field-email' disabled style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:14px;background:#f0f0f0;box-sizing:border-box;' /></div><button id='save-info' style='background:#c9a86a;color:white;border:none;padding:12px;border-radius:10px;cursor:pointer;font-weight:bold;font-size:14px;margin-top:8px;'>Sauvegarder</button><div id='info-msg' style='color:#8b735d;font-size:13px;text-align:center;'></div></div>";
+        panel.appendChild(box); document.body.appendChild(panel);
+        document.getElementById("close-mesinfos").onclick = function() { panel.remove(); openInfoPanel(); };
         const u = auth.currentUser;
         db.collection("users").doc(u.uid).get().then(function(snap) {
           const d = snap.data();
@@ -381,11 +397,6 @@ function initBeautyAddictLogin() {
             setTimeout(function() { document.getElementById("info-msg").innerText = ""; }, 3000);
           });
         };
-        var btnSuivi = document.createElement("button");
-        btnSuivi.innerText = "🎯 Suivi objectif du mois";
-        btnSuivi.style.cssText = "width:100%;background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:12px;border-radius:10px;cursor:pointer;font-weight:bold;font-size:14px;margin-top:16px;";
-        btnSuivi.onclick = function() { panel.remove(); openSuiviObjectifPanel(); };
-        box.appendChild(btnSuivi);
       }
       function openNotesPanel() {
         if (document.getElementById("baa-notes-panel")) return;
