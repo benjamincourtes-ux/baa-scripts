@@ -122,14 +122,69 @@ function openVictoiresPanel() {
         var cid = docSnap.id;
         var avatarC = c.photoURL ? "<img src='" + c.photoURL + "' style='width:28px;height:28px;border-radius:50%;object-fit:cover;' />" : "<div style='width:28px;height:28px;border-radius:50%;background:#c9a86a;display:flex;align-items:center;justify-content:center;min-width:28px;'><span style='color:white;font-size:11px;font-weight:bold;'>" + (c.prenom ? c.prenom[0].toUpperCase() : "?") + "</span></div>";
         var deleteCommentBtn = (isAdmin || c.uid === uid) ? "<span id='del-c-" + cid + "-" + vid + "' style='color:#e74c3c;cursor:pointer;font-size:11px;margin-left:6px;'>🗑️</span>" : "";
+        var likes = c.likes || [];
+        var likeCount = likes.length;
+        var likedByMe = likes.indexOf(uid) > -1;
+        var likeStyle = likedByMe ? "color:#c9a86a;font-weight:bold;" : "color:#999;";
         var div = document.createElement("div");
-        div.style.cssText = "display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;";
-        div.innerHTML = avatarC + "<div style='background:#f8f3ee;border-radius:10px;padding:8px 12px;flex:1;'><div style='font-weight:bold;color:#3a3a3a;font-size:12px;'>" + (c.prenom || "") + " " + (c.nom || "") + deleteCommentBtn + "</div><div style='color:#3a3a3a;font-size:13px;'>" + c.texte + "</div></div>";
+        div.id = "comment-div-" + cid + "-" + vid;
+        div.style.cssText = "margin-bottom:10px;";
+        div.innerHTML = "<div style='display:flex;gap:8px;align-items:flex-start;'>" + avatarC + "<div style='background:#f8f3ee;border-radius:10px;padding:8px 12px;flex:1;'><div style='font-weight:bold;color:#3a3a3a;font-size:12px;'>" + (c.prenom || "") + " " + (c.nom || "") + deleteCommentBtn + "</div><div style='color:#3a3a3a;font-size:13px;margin-top:2px;'>" + c.texte + "</div><div style='display:flex;gap:12px;margin-top:6px;'><span id='like-c-" + cid + "-" + vid + "' style='cursor:pointer;font-size:12px;" + likeStyle + "'>❤️ " + (likeCount > 0 ? likeCount : "") + " J aime</span><span id='reply-c-" + cid + "-" + vid + "' style='cursor:pointer;font-size:12px;color:#999;'>💬 Repondre</span></div></div></div><div id='replies-" + cid + "-" + vid + "' style='margin-left:36px;margin-top:4px;'></div><div id='reply-form-" + cid + "-" + vid + "' style='display:none;margin-left:36px;margin-top:6px;'><div style='display:flex;gap:6px;'><input id='reply-input-" + cid + "-" + vid + "' placeholder='Repondre...' style='flex:1;padding:7px;border:1px solid #e8d4b0;border-radius:8px;font-size:12px;' /><button id='reply-btn-" + cid + "-" + vid + "' style='background:#c9a86a;color:white;border:none;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>OK</button></div></div>";
         container.appendChild(div);
+        chargerReponses(vid, cid);
         var delCBtn = document.getElementById("del-c-" + cid + "-" + vid);
         if (delCBtn) {
           delCBtn.onclick = function() {
             db.collection("victoires").doc(vid).collection("commentaires").doc(cid).delete().then(function() { chargerCommentaires(vid); });
+          };
+        }
+        document.getElementById("like-c-" + cid + "-" + vid).onclick = function() {
+          var ref = db.collection("victoires").doc(vid).collection("commentaires").doc(cid);
+          ref.get().then(function(s) {
+            var ls = s.data().likes || [];
+            var idx = ls.indexOf(uid);
+            if (idx > -1) { ls.splice(idx, 1); } else { ls.push(uid); }
+            ref.update({ likes: ls }).then(function() { chargerCommentaires(vid); });
+          });
+        };
+        document.getElementById("reply-c-" + cid + "-" + vid).onclick = function() {
+          var form = document.getElementById("reply-form-" + cid + "-" + vid);
+          form.style.display = form.style.display === "none" ? "block" : "none";
+        };
+        document.getElementById("reply-btn-" + cid + "-" + vid).onclick = function() {
+          var input = document.getElementById("reply-input-" + cid + "-" + vid);
+          var texte = input.value.trim();
+          if (!texte) return;
+          db.collection("users").doc(uid).get().then(function(snap) {
+            var d = snap.data() || {};
+            db.collection("victoires").doc(vid).collection("commentaires").doc(cid).collection("reponses").add({
+              uid: uid, prenom: d.prenom || "", nom: d.nom || "", photoURL: d.photoURL || null,
+              texte: texte, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(function() { input.value = ""; document.getElementById("reply-form-" + cid + "-" + vid).style.display = "none"; chargerReponses(vid, cid); });
+          });
+        };
+      });
+    });
+  }
+
+  function chargerReponses(vid, cid) {
+    db.collection("victoires").doc(vid).collection("commentaires").doc(cid).collection("reponses").orderBy("createdAt").get().then(function(snapshot) {
+      var container = document.getElementById("replies-" + cid + "-" + vid);
+      if (!container) return;
+      container.innerHTML = "";
+      snapshot.forEach(function(docSnap) {
+        var r = docSnap.data();
+        var rid = docSnap.id;
+        var avatarR = r.photoURL ? "<img src='" + r.photoURL + "' style='width:22px;height:22px;border-radius:50%;object-fit:cover;' />" : "<div style='width:22px;height:22px;border-radius:50%;background:#c9a86a;display:flex;align-items:center;justify-content:center;min-width:22px;'><span style='color:white;font-size:9px;font-weight:bold;'>" + (r.prenom ? r.prenom[0].toUpperCase() : "?") + "</span></div>";
+        var delRBtn = (isAdmin || r.uid === uid) ? "<span id='del-r-" + rid + "' style='color:#e74c3c;cursor:pointer;font-size:11px;margin-left:6px;'>🗑️</span>" : "";
+        var div = document.createElement("div");
+        div.style.cssText = "display:flex;gap:6px;align-items:flex-start;margin-bottom:6px;";
+        div.innerHTML = avatarR + "<div style='background:#fff;border-radius:8px;padding:6px 10px;flex:1;border:1px solid #f0e6d3;'><div style='font-weight:bold;color:#3a3a3a;font-size:11px;'>" + (r.prenom || "") + " " + (r.nom || "") + delRBtn + "</div><div style='color:#3a3a3a;font-size:12px;'>" + r.texte + "</div></div>";
+        container.appendChild(div);
+        var delR = document.getElementById("del-r-" + rid);
+        if (delR) {
+          delR.onclick = function() {
+            db.collection("victoires").doc(vid).collection("commentaires").doc(cid).collection("reponses").doc(rid).delete().then(function() { chargerReponses(vid, cid); });
           };
         }
       });
