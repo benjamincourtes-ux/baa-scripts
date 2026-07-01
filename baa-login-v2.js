@@ -778,3 +778,4 @@ function initBeautyAddictLogin() {
 }
 if (document.readyState === "complete") { setTimeout(initBeautyAddictLogin, 1500); }
 else { window.addEventListener("load", function() { setTimeout(initBeautyAddictLogin, 2000); }); }
+ 
