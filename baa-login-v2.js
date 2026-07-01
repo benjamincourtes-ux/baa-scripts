@@ -547,6 +547,7 @@ function initBeautyAddictLogin() {
         };
       }
       function openQuizPanel() {
+        window.__baaOpenQuizPanel = openQuizPanel;
         if (document.getElementById("baa-quiz-panel-menu")) return;
         var auth2 = auth; var db2 = db;
         var uid2 = auth2.currentUser ? auth2.currentUser.uid : null;
