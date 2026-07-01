@@ -565,7 +565,7 @@ function initBeautyAddictLogin() {
           { key: "quizModule5", label: "Module 5 - Developpement Personnel", fn: "openQuizModule5" },
           { key: "quizModule6", label: "Module 6", fn: "openQuizModule6" }
         ];
-        var fns = { openQuizBonDemarrage: openQuizBonDemarrage, openQuizModule2: openQuizModule2, openQuizModule3: openQuizModule3, openQuizModule4: openQuizModule4, openQuizModule5: openQuizModule5, openQuizModule6: openQuizModule6 };
+        var fns = { openQuizBonDemarrage: openQuizBonDemarrage, openQuizModule2: openQuizModule2, openQuizModule3: openQuizModule3, openQuizModule4: openQuizModule4, openQuizModule5: openQuizModule5, openQuizModule6: openQuizModule6, openQuizModule7: openQuizModule7 };
         if (uid2) {
           db2.collection("users").doc(uid2).get().then(function(snap) {
             var d = snap.data() || {};
