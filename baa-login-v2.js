@@ -563,7 +563,8 @@ function initBeautyAddictLogin() {
           { key: "quizModule3", label: "Module 3 - Reseaux Sociaux", fn: "openQuizModule3" },
           { key: "quizModule4", label: "Module 4 - Guide des Messages", fn: "openQuizModule4" },
           { key: "quizModule5", label: "Module 5 - Developpement Personnel", fn: "openQuizModule5" },
-          { key: "quizModule6", label: "Module 6", fn: "openQuizModule6" }
+          { key: "quizModule6", label: "Module 6", fn: "openQuizModule6" },
+          { key: "quizModule7", label: "Module 7", fn: "openQuizModule7" }
         ];
         var fns = { openQuizBonDemarrage: openQuizBonDemarrage, openQuizModule2: openQuizModule2, openQuizModule3: openQuizModule3, openQuizModule4: openQuizModule4, openQuizModule5: openQuizModule5, openQuizModule6: openQuizModule6, openQuizModule7: openQuizModule7 };
         if (uid2) {
@@ -778,4 +779,3 @@ function initBeautyAddictLogin() {
 }
 if (document.readyState === "complete") { setTimeout(initBeautyAddictLogin, 1500); }
 else { window.addEventListener("load", function() { setTimeout(initBeautyAddictLogin, 2000); }); }
- 
