@@ -7,14 +7,43 @@ function openVictoiresPanel() {
 
   var panel = document.createElement("div");
   panel.id = "baa-victoires-panel";
-  panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;justify-content:center;align-items:flex-start;padding-top:40px;padding-bottom:40px;overflow-y:auto;";
-  var box = document.createElement("div");
-  box.style.cssText = "background:#f8f3ee;width:90%;max-width:650px;border-radius:20px;padding:30px;font-family:Arial,sans-serif;max-height:90vh;overflow-y:auto;";
-  box.innerHTML = "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;'><h2 style='color:#8b735d;margin:0;'>🏆 Mur des Victoires</h2><span id='close-victoires' style='cursor:pointer;font-size:28px;color:#8b735d;'>X</span></div><div id='victoire-form' style='background:white;border-radius:14px;padding:20px;border:1px solid #e8d4b0;margin-bottom:20px;'><p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 12px 0;'>Partager une victoire</p><div style='display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;' id='categorie-btns'><button class='cat-btn' data-cat='🏆 Objectif' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;'>🏆 Objectif</button><button class='cat-btn' data-cat='💰 Vente' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;'>💰 Vente</button><button class='cat-btn' data-cat='👥 Recrue' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;'>👥 Recrue</button><button class='cat-btn' data-cat='⭐ Autre' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;'>⭐ Autre</button></div><textarea id='victoire-texte' placeholder='Raconte ta victoire...' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;height:70px;resize:vertical;margin-bottom:10px;font-family:Arial,sans-serif;'></textarea><div style='display:flex;gap:10px;align-items:center;'><label style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>📷 Photo<input type='file' id='victoire-photo' accept='image/*' style='display:none;' /></label><span id='victoire-photo-name' style='color:#999;font-size:12px;'></span><button id='publier-victoire' style='margin-left:auto;background:#c9a86a;color:white;border:none;padding:10px 20px;border-radius:10px;cursor:pointer;font-weight:bold;font-size:13px;'>Publier 🎉</button></div><div id='victoire-form-msg' style='color:#8b735d;font-size:12px;margin-top:8px;'></div></div><div id='victoires-list'><p style='color:#999;text-align:center;'>Chargement...</p></div>";
-  panel.appendChild(box);
+  panel.style.cssText = "position:fixed;inset:0;background:#f8f3ee;z-index:999999;display:flex;flex-direction:column;font-family:Arial,sans-serif;";
+  var header = document.createElement("div");
+  header.style.cssText = "background:linear-gradient(135deg,#f3e7d3,#e8d4b0);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e8d4b0;flex-shrink:0;";
+  var isMobile = window.innerWidth < 768;
+  header.innerHTML = "<h2 style='color:#8b735d;margin:0;font-size:18px;'>🏆 Mur des Victoires</h2><div style='display:flex;gap:8px;align-items:center;'>" + (isMobile ? "" : "<span id='victoires-resize' title='Reduire' style='cursor:pointer;font-size:18px;color:#8b735d;background:rgba(255,255,255,0.5);width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;'>⊡</span>") + "<span id='close-victoires' style='cursor:pointer;font-size:18px;color:#8b735d;background:rgba(255,255,255,0.5);width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;'>✕</span></div>";
+  var content = document.createElement("div");
+  content.style.cssText = "flex:1;overflow-y:auto;padding:24px;max-width:800px;width:100%;margin:0 auto;";
+  content.innerHTML = "<div id='victoire-form' style='background:white;border-radius:14px;padding:20px;border:1px solid #e8d4b0;margin-bottom:20px;'><p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 12px 0;'>Partager une victoire</p><div style='display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;' id='categorie-btns'><button class='cat-btn' data-cat='🏆 Objectif' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;'>🏆 Objectif</button><button class='cat-btn' data-cat='💰 Vente' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;'>💰 Vente</button><button class='cat-btn' data-cat='👥 Recrue' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;'>👥 Recrue</button><button class='cat-btn' data-cat='⭐ Autre' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;'>⭐ Autre</button></div><textarea id='victoire-texte' placeholder='Raconte ta victoire...' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;height:70px;resize:vertical;margin-bottom:10px;font-family:Arial,sans-serif;'></textarea><div style='display:flex;gap:10px;align-items:center;'><label style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>📷 Photo<input type='file' id='victoire-photo' accept='image/*' style='display:none;' /></label><span id='victoire-photo-name' style='color:#999;font-size:12px;'></span><button id='publier-victoire' style='margin-left:auto;background:#c9a86a;color:white;border:none;padding:10px 20px;border-radius:10px;cursor:pointer;font-weight:bold;font-size:13px;'>Publier 🎉</button></div><div id='victoire-form-msg' style='color:#8b735d;font-size:12px;margin-top:8px;'></div></div><div id='victoires-list'><p style='color:#999;text-align:center;'>Chargement...</p></div>";
+  var box = content;
+  panel.appendChild(header);
+  panel.appendChild(content);
   document.body.appendChild(panel);
 
-  document.getElementById("close-victoires").onclick = function() { panel.remove(); var mb = document.getElementById("baa-menu-btn"); if (mb) mb.click(); };
+  if (!isMobile) {
+    var isReduced = false;
+    document.getElementById("victoires-resize").onclick = function() {
+      if (!isReduced) {
+        panel.style.cssText = "position:fixed;bottom:20px;right:80px;width:420px;height:600px;background:#f8f3ee;z-index:999999;display:flex;flex-direction:column;font-family:Arial,sans-serif;border-radius:20px;box-shadow:0 8px 30px rgba(0,0,0,0.2);overflow:hidden;";
+        content.style.cssText = "flex:1;overflow-y:auto;padding:16px;";
+        document.getElementById("victoires-resize").innerHTML = "⛶";
+        document.getElementById("victoires-resize").title = "Agrandir";
+        isReduced = true;
+      } else {
+        panel.style.cssText = "position:fixed;inset:0;background:#f8f3ee;z-index:999999;display:flex;flex-direction:column;font-family:Arial,sans-serif;";
+        content.style.cssText = "flex:1;overflow-y:auto;padding:24px;max-width:800px;width:100%;margin:0 auto;";
+        document.getElementById("victoires-resize").innerHTML = "⊡";
+        document.getElementById("victoires-resize").title = "Reduire";
+        isReduced = false;
+      }
+    };
+  }
+
+  document.getElementById("close-victoires").onclick = function() { 
+    clearInterval(window.__baaVictoiresRefresh);
+    panel.remove(); 
+    var mb = document.getElementById("baa-menu-btn"); if (mb) mb.click(); 
+  };
 
   var categorieSelectionnee = "";
   document.querySelectorAll(".cat-btn").forEach(function(btn) {
@@ -34,6 +63,13 @@ function openVictoiresPanel() {
     var d = snap.data() || {};
     isAdmin = d.role === "admin";
     chargerVictoires(d);
+    window.__baaVictoiresRefresh = setInterval(function() {
+      if (document.getElementById("baa-victoires-panel")) {
+        chargerVictoires(d);
+      } else {
+        clearInterval(window.__baaVictoiresRefresh);
+      }
+    }, 30000);
   });
 
   function chargerVictoires(userData) {
@@ -64,23 +100,34 @@ function openVictoiresPanel() {
             }
           };
         }
-        var emojis = ["🔥", "💪", "🎉", "👏", "⭐"];
+        var emojis = [{"key":"feu","icon":"&#128293;"},{"key":"muscle","icon":"&#128170;"},{"key":"fete","icon":"&#127881;"},{"key":"clap","icon":"&#128079;"},{"key":"etoile","icon":"&#11088;"}];
         emojis.forEach(function(emoji) {
-          var btn = document.getElementById("react-" + emoji.charCodeAt(0) + "-" + vid);
+          var btn = document.getElementById("react-" + emoji.key + "-" + vid);
           if (btn) {
             btn.onclick = function() {
               var reactionsRef = db.collection("victoires").doc(vid);
               reactionsRef.get().then(function(s) {
                 var reactions = s.data().reactions || {};
-                if (!reactions[emoji]) reactions[emoji] = [];
-                var idx = reactions[emoji].indexOf(uid);
-                if (idx > -1) { reactions[emoji].splice(idx, 1); if (reactions[emoji].length === 0) delete reactions[emoji]; }
-                else { reactions[emoji].push(uid); }
+                if (!reactions[emoji.key]) reactions[emoji.key] = [];
+                var idx = reactions[emoji.key].indexOf(uid);
+                if (idx > -1) { reactions[emoji.key].splice(idx, 1); if (reactions[emoji.key].length === 0) delete reactions[emoji.key]; }
+                else { reactions[emoji.key].push(uid); }
                 reactionsRef.update({ reactions: reactions }).then(function() {
                   document.getElementById("reactions-" + vid).innerHTML = afficherReactions(reactions, vid);
-                  emojis.forEach(function(e) {
-                    var b = document.getElementById("react-" + e.charCodeAt(0) + "-" + vid);
-                    if (b) b.onclick = arguments.callee;
+                  var reDiv = document.getElementById("reactions-" + vid);
+                  reDiv.querySelectorAll("button").forEach(function(b2) {
+                    var k = b2.id.replace("react-","").replace("-"+vid,"");
+                    b2.onclick = function() {
+                      reactionsRef.get().then(function(s2) {
+                        var r2 = s2.data().reactions || {};
+                        if (!r2[k]) r2[k] = [];
+                        var i2 = r2[k].indexOf(uid);
+                        if (i2 > -1) { r2[k].splice(i2,1); if(r2[k].length===0) delete r2[k]; } else { r2[k].push(uid); }
+                        reactionsRef.update({ reactions: r2 }).then(function() {
+                          document.getElementById("reactions-" + vid).innerHTML = afficherReactions(r2, vid);
+                        });
+                      });
+                    };
                   });
                 });
               });
@@ -101,13 +148,13 @@ function openVictoiresPanel() {
   }
 
   function afficherReactions(reactions, vid) {
-    var emojis = ["🔥", "💪", "🎉", "👏", "⭐"];
+    var emojis = [{"key":"feu","icon":"&#128293;"},{"key":"muscle","icon":"&#128170;"},{"key":"fete","icon":"&#127881;"},{"key":"clap","icon":"&#128079;"},{"key":"etoile","icon":"&#11088;"}];
     var html = "";
     emojis.forEach(function(emoji) {
-      var count = reactions[emoji] ? reactions[emoji].length : 0;
-      var active = reactions[emoji] && reactions[emoji].indexOf(uid) > -1;
+      var count = reactions[emoji.key] ? reactions[emoji.key].length : 0;
+      var active = reactions[emoji.key] && reactions[emoji.key].indexOf(uid) > -1;
       var style = active ? "background:#c9a86a;color:white;border:1px solid #c9a86a;" : "background:#f8f3ee;color:#3a3a3a;border:1px solid #e8d4b0;";
-      html += "<button id='react-" + emoji.charCodeAt(0) + "-" + vid + "' style='" + style + "padding:5px 10px;border-radius:20px;cursor:pointer;font-size:13px;'>" + emoji + (count > 0 ? " " + count : "") + "</button>";
+      html += "<button id='react-" + emoji.key + "-" + vid + "' style='" + style + "padding:5px 10px;border-radius:20px;cursor:pointer;font-size:13px;'>" + emoji.icon + (count > 0 ? " " + count : "") + "</button>";
     });
     return html;
   }
