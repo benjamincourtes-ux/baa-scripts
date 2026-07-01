@@ -158,6 +158,23 @@ function openVictoiresPanel() {
       texte: texte, imageURL: imageURL, categorie: categorieSelectionnee,
       reactions: {}, createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
+    emailjs.init("D_JtKhPDgOQWi_ECO");
+    db.collection("users").where("accountStatus", "==", "active").get().then(function(snapshot) {
+      snapshot.forEach(function(docSnap) {
+        var membre = docSnap.data();
+        if (membre.email && docSnap.id !== uid) {
+          emailjs.send("service_wr9mlhk", "template_wk2j4mg", {
+            prenom: membre.prenom || "",
+            nom: membre.nom || "",
+            email: membre.email,
+            titre_message: "Nouvelle victoire sur le Mur !",
+            corps_message: (d.prenom || "") + " vient de partager une victoire" + (categorieSelectionnee ? " (" + categorieSelectionnee + ")" : "") + " : " + texte,
+            lien_action: "Connecte-toi sur l Academie pour reagir et la feliciter !",
+            date: new Date().toLocaleDateString("fr-FR")
+          }).catch(function(err) { console.log("Erreur email victoire:", err); });
+        }
+      });
+    });
     document.getElementById("victoire-texte").value = "";
     document.getElementById("victoire-photo").value = "";
     document.getElementById("victoire-photo-name").innerText = "";
