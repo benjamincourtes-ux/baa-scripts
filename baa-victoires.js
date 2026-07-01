@@ -12,7 +12,7 @@ function openVictoiresPanel() {
 
   var header = document.createElement("div");
   header.style.cssText = "background:linear-gradient(135deg,#f3e7d3,#e8d4b0);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e8d4b0;flex-shrink:0;";
-  header.innerHTML = "<h2 style='color:#8b735d;margin:0;font-size:18px;'>🏆 Mur des Victoires</h2><div style='display:flex;gap:8px;align-items:center;'><span id='victoires-resize' title='Reduire' style='cursor:pointer;font-size:18px;color:#8b735d;background:rgba(255,255,255,0.5);width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;'>⊡</span><span id='close-victoires' style='cursor:pointer;font-size:18px;color:#8b735d;background:rgba(255,255,255,0.5);width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;'>✕</span></div>";
+  header.innerHTML = "<h2 style='color:#8b735d;margin:0;font-size:18px;'>🏆 Mur des Victoires</h2><div style='display:flex;gap:8px;align-items:center;'><button id='victoires-refresh' style='background:rgba(255,255,255,0.5);border:none;cursor:pointer;color:#8b735d;font-size:13px;font-weight:bold;padding:6px 12px;border-radius:6px;'>🔄 Rafraichir</button><span id='victoires-resize' title='Reduire' style='cursor:pointer;font-size:18px;color:#8b735d;background:rgba(255,255,255,0.5);width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;'>⊡</span><span id='close-victoires' style='cursor:pointer;font-size:18px;color:#8b735d;background:rgba(255,255,255,0.5);width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;'>✕</span></div>";
 
   var content = document.createElement("div");
   content.style.cssText = "flex:1;overflow-y:auto;padding:24px;max-width:800px;width:100%;margin:0 auto;box-sizing:border-box;";
@@ -260,6 +260,7 @@ function openVictoiresPanel() {
   db.collection("users").doc(uid).get().then(function(snap) {
     var d = snap.data() || {};
     isAdmin = d.role === "admin";
+    document.getElementById("victoires-refresh").onclick = function() { chargerVictoires(d); };
     chargerVictoires(d);
   });
 
