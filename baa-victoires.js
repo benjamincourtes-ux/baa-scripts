@@ -209,7 +209,7 @@ function openVictoiresPanel() {
 
   // ===================== VICTOIRES =====================
   function afficherVictoires() {
-    content.innerHTML = "<div id='vform' style='background:white;border-radius:14px;padding:18px;border:1px solid #e8d4b0;margin-bottom:16px;'><p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 10px;'>Partager une victoire</p><div style='display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;'><button class='cat-btn' data-cat='Objectif' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:12px;'>&#127942; Objectif</button><button class='cat-btn' data-cat='Vente' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:12px;'>&#128176; Vente</button><button class='cat-btn' data-cat='Recrue' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:12px;'>&#128101; Recrue</button><button class='cat-btn' data-cat='Autre' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:12px;'>&#11088; Autre</button></div><div style='position:relative;'><textarea id='vtexte' placeholder='Raconte ta victoire... (@ pour mentionner)' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;height:65px;resize:vertical;font-family:Arial,sans-serif;'></textarea><div id='mention-v' style='display:none;position:absolute;top:70px;left:0;background:white;border:1px solid #e8d4b0;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);z-index:99;max-height:140px;overflow-y:auto;min-width:180px;'></div></div><div style='display:flex;gap:8px;align-items:center;margin-top:8px;'><label style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>&#128247; Photo<input type='file' id='vphoto' accept='image/*' style='display:none;' /></label><span id='vphoto-name' style='color:#999;font-size:12px;'></span><button id='vpublier' style='margin-left:auto;background:#c9a86a;color:white;border:none;padding:9px 18px;border-radius:10px;cursor:pointer;font-weight:bold;font-size:13px;'>Publier !</button></div><div id='vmsg' style='color:#8b735d;font-size:12px;margin-top:6px;'></div></div><div id='vlist'><p style='color:#999;text-align:center;'>Chargement...</p></div>";
+    content.innerHTML = "<div id='vform' style='background:white;border-radius:14px;padding:18px;border:1px solid #e8d4b0;margin-bottom:16px;'><p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 10px;'>Partager une victoire</p><div style='display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;'><button class='cat-btn' data-cat='Objectif' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:12px;'>&#127942; Objectif</button><button class='cat-btn' data-cat='Vente' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:12px;'>&#128176; Vente</button><button class='cat-btn' data-cat='Recrue' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:12px;'>&#128101; Recrue</button><button class='cat-btn' data-cat='Autre' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:12px;'>&#11088; Autre</button></div><div style='position:relative;'><div id='vtexte' contenteditable='true' data-placeholder='Raconte ta victoire... (@ pour mentionner)' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;min-height:65px;font-family:Arial,sans-serif;outline:none;'></div><style>#vtexte:empty:before{content:attr(data-placeholder);color:#aaa;pointer-events:none;display:block;}</style><div id='mention-v' style='display:none;position:absolute;top:70px;left:0;background:white;border:1px solid #e8d4b0;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);z-index:99;max-height:140px;overflow-y:auto;min-width:180px;'></div></div><div style='display:flex;gap:8px;align-items:center;margin-top:8px;'><label style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>&#128247; Photo<input type='file' id='vphoto' accept='image/*' style='display:none;' /></label><span id='vphoto-name' style='color:#999;font-size:12px;'></span><button id='vpublier' style='margin-left:auto;background:#c9a86a;color:white;border:none;padding:9px 18px;border-radius:10px;cursor:pointer;font-weight:bold;font-size:13px;'>Publier !</button></div><div id='vmsg' style='color:#8b735d;font-size:12px;margin-top:6px;'></div></div><div id='vlist'><p style='color:#999;text-align:center;'>Chargement...</p></div>";
 
     // Catégories
     document.querySelectorAll(".cat-btn").forEach(function(btn) {
@@ -222,7 +222,7 @@ function openVictoiresPanel() {
 
     // Mentions dans textarea
     document.getElementById("vtexte").addEventListener("input", function() {
-      var val = this.value; var at = val.lastIndexOf("@");
+      var val = this.innerText; var at = val.lastIndexOf("@");
       var ml = document.getElementById("mention-v");
       if (at > -1) {
         var search = val.slice(at + 1).toLowerCase();
@@ -235,7 +235,18 @@ function openVictoiresPanel() {
             item.innerText = m.prenom + " " + m.nom;
             item.onmouseenter = function() { item.style.background = "#f8f3ee"; };
             item.onmouseleave = function() { item.style.background = "white"; };
-            item.onclick = function() { ta.value = val.slice(0, at) + "@" + m.prenom + " " + m.nom + " "; ml.style.display = "none"; ta.style.border = "2px solid #c9a86a"; ta.style.boxShadow = "0 0 0 3px rgba(201,168,106,0.2)"; setTimeout(function(){ta.style.border="1px solid #e8d4b0";ta.style.boxShadow="none";},2000); };
+            item.onclick = function() {
+              var texteAvant = val.slice(0, at);
+              ta.innerHTML = texteAvant + "<span style='color:#c9a86a;font-weight:bold;background:rgba(201,168,106,0.15);border-radius:4px;padding:0 2px;'>@" + m.prenom + " " + m.nom + "</span>&nbsp;";
+              ml.style.display = "none";
+              ta.style.border = "2px solid #c9a86a"; ta.style.boxShadow = "0 0 0 3px rgba(201,168,106,0.2)";
+              setTimeout(function(){ta.style.border="1px solid #e8d4b0";ta.style.boxShadow="none";},2000);
+              // Placer le curseur à la fin
+              var range = document.createRange(); var sel = window.getSelection();
+              range.selectNodeContents(ta); range.collapse(false);
+              sel.removeAllRanges(); sel.addRange(range);
+              ta.focus();
+            };
             ml.appendChild(item);
           });
           ml.style.display = "block";
@@ -250,7 +261,7 @@ function openVictoiresPanel() {
 
     // Publier
     document.getElementById("vpublier").onclick = async function() {
-      var texte = document.getElementById("vtexte").value.trim();
+      var texte = document.getElementById("vtexte").innerText.trim();
       var msg = document.getElementById("vmsg");
       if (!texte) { msg.innerText = "Ecris ta victoire avant de publier."; return; }
       msg.innerText = "Publication en cours..."; this.disabled = true;
@@ -281,7 +292,7 @@ function openVictoiresPanel() {
           }).catch(function(){});
         }
       });
-      document.getElementById("vtexte").value = "";
+      document.getElementById("vtexte").innerHTML = "";
       document.getElementById("vphoto").value = "";
       document.getElementById("vphoto-name").innerText = "";
       document.querySelectorAll(".cat-btn").forEach(function(b) { b.style.background = "#f3e7d3"; b.style.color = "#8a6a35"; });
