@@ -26,6 +26,13 @@ function openVictoiresPanel() {
   panel.appendChild(content);
   document.body.appendChild(panel);
 
+  // Écoute temps réel des notifications — démarre après que le DOM est prêt
+  db.collection("notifications").where("destUid", "==", uid).where("lu", "==", false).onSnapshot(function(snap) {
+    var badge = document.getElementById("notif-badge"); if (!badge) return;
+    if (snap.size > 0) { badge.innerText = snap.size > 9 ? "9+" : snap.size; badge.style.display = "inline-block"; }
+    else { badge.style.display = "none"; }
+  }, function() {});
+
   // Handlers immédiats (sans attendre Firebase)
   var isReduced = false;
   document.getElementById("v-close").onclick = function() {
@@ -450,22 +457,39 @@ function openVictoiresPanel() {
   function afficherMessages() {
     if (messageListener) { messageListener(); messageListener = null; }
     content.style.cssText = "flex:1;overflow:hidden;max-width:800px;width:100%;margin:0 auto;box-sizing:border-box;display:flex;flex-direction:column;padding:0;";
-    content.innerHTML = "<div style='display:flex;flex:1;overflow:hidden;'><div id='mlist' style='width:200px;min-width:200px;border-right:1px solid #e8d4b0;overflow-y:auto;background:white;'><div style='padding:12px;color:#8b735d;font-size:12px;font-weight:bold;border-bottom:1px solid #f0e6d3;'>Conversations</div></div><div id='mconv' style='flex:1;display:flex;flex-direction:column;overflow:hidden;'><div style='flex:1;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:13px;'>Selectionne une membre</div></div></div>";
+    content.innerHTML = "<div style='display:flex;flex:1;overflow:hidden;'><div id='mlist' style='width:220px;min-width:220px;border-right:1px solid #e8d4b0;overflow-y:auto;background:white;'><div style='padding:12px;color:#8b735d;font-size:12px;font-weight:bold;border-bottom:1px solid #f0e6d3;'>Conversations</div></div><div id='mconv' style='flex:1;display:flex;flex-direction:column;overflow:hidden;'><div style='flex:1;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:13px;'>Selectionne une membre</div></div></div>";
     var ml = document.getElementById("mlist");
     tousLesMembres.forEach(function(m) {
       if (!m._uid || m._uid === uid) return;
+      var convId = [uid, m._uid].sort().join("_");
       var item = document.createElement("div");
-      item.style.cssText = "display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;border-bottom:1px solid #f8f3ee;";
-      var av = m.photoURL ? "<img src='" + m.photoURL + "' style='width:32px;height:32px;border-radius:50%;object-fit:cover;' />" : "<div style='width:32px;height:32px;border-radius:50%;background:#c9a86a;display:flex;align-items:center;justify-content:center;min-width:32px;'><span style='color:white;font-size:12px;font-weight:bold;'>" + (m.prenom?m.prenom[0].toUpperCase():"?") + "</span></div>";
-      item.innerHTML = av + "<div style='font-size:12px;font-weight:bold;color:#3a3a3a;'>" + (m.prenom||"") + " " + (m.nom||"") + "</div>";
+      item.id = "mitem-" + m._uid;
+      item.style.cssText = "display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;border-bottom:1px solid #f8f3ee;position:relative;";
+      var av = m.photoURL ? "<img src='" + m.photoURL + "' style='width:36px;height:36px;border-radius:50%;object-fit:cover;min-width:36px;' />" : "<div style='width:36px;height:36px;border-radius:50%;background:#c9a86a;display:flex;align-items:center;justify-content:center;min-width:36px;'><span style='color:white;font-size:13px;font-weight:bold;'>" + (m.prenom?m.prenom[0].toUpperCase():"?") + "</span></div>";
+      item.innerHTML = av + "<div style='flex:1;overflow:hidden;'><div style='font-size:12px;font-weight:bold;color:#3a3a3a;'>" + (m.prenom||"") + " " + (m.nom||"") + "</div><div id='preview-" + m._uid + "' style='font-size:11px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;'></div></div><span id='badge-" + m._uid + "' style='display:none;background:#e74c3c;color:white;border-radius:50%;width:16px;height:16px;font-size:9px;font-weight:bold;align-items:center;justify-content:center;min-width:16px;'>1</span>";
       item.onmouseenter = function() { item.style.background = "#f8f3ee"; };
       item.onmouseleave = function() { item.style.background = "white"; };
       item.onclick = function() {
         document.querySelectorAll("#mlist > div").forEach(function(el) { el.style.background = "white"; });
         item.style.background = "#f0e6d3";
+        var badge = document.getElementById("badge-" + m._uid); if (badge) badge.style.display = "none";
         ouvrirConv(m);
       };
       ml.appendChild(item);
+      // Charger aperçu dernier message
+      db.collection("conversations").doc(convId).collection("messages").orderBy("createdAt", "desc").limit(1).get().then(function(snap) {
+        var prev = document.getElementById("preview-" + m._uid); if (!prev) return;
+        if (!snap.empty) {
+          var msg = snap.docs[0].data();
+          var prefix = msg.uid === uid ? "Vous : " : "";
+          prev.innerText = prefix + (msg.texte || "Photo");
+          // Badge non lu
+          if (msg.uid !== uid && (!msg.lu || msg.lu !== uid)) {
+            var badge = document.getElementById("badge-" + m._uid);
+            if (badge) badge.style.display = "flex";
+          }
+        }
+      });
     });
   }
 
@@ -515,14 +539,19 @@ function openVictoiresPanel() {
     messageListener = db.collection("conversations").doc(convId).collection("messages").orderBy("createdAt").onSnapshot(function(snap) {
       var list = document.getElementById("msgs"); if (!list) return;
       list.innerHTML = "";
-      snap.forEach(function(ds) {
-        var msg = ds.data(); var mine = msg.uid === uid;
-        var div = document.createElement("div"); div.style.cssText = "display:flex;justify-content:" + (mine?"flex-end":"flex-start") + ";";
+      var docs = snap.docs;
+      docs.forEach(function(ds, idx) {
+        var msg = ds.data(); var mine = msg.uid === uid; var isLast = idx === docs.length - 1;
+        // Marquer comme lu si message reçu
+        if (!mine && !msg.lu) { ds.ref.update({ lu: true }); }
+        var div = document.createElement("div"); div.style.cssText = "display:flex;justify-content:" + (mine?"flex-end":"flex-start") + ";margin-bottom:2px;";
         var bub = document.createElement("div");
         bub.style.cssText = "max-width:72%;padding:8px 12px;border-radius:" + (mine?"16px 16px 4px 16px":"16px 16px 16px 4px") + ";background:" + (mine?"#c9a86a":"white") + ";color:" + (mine?"white":"#3a3a3a") + ";font-size:12px;border:1px solid " + (mine?"#c9a86a":"#e8d4b0") + ";";
         var h = msg.createdAt ? new Date(msg.createdAt.seconds*1000).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}) : "";
         var imgH = msg.imageURL ? "<img src='" + msg.imageURL + "' style='max-width:200px;border-radius:8px;display:block;margin-bottom:4px;' />" : "";
-        bub.innerHTML = imgH + (msg.texte ? "<div>" + msg.texte + "</div>" : "") + "<div style='font-size:10px;opacity:0.6;text-align:right;margin-top:2px;'>" + h + "</div>";
+        var statut = "";
+        if (mine && isLast) { statut = "<div style='font-size:9px;text-align:right;margin-top:2px;opacity:0.7;'>" + (msg.lu ? "&#10003;&#10003; Lu" : "&#10003; Envoye") + "</div>"; }
+        bub.innerHTML = imgH + (msg.texte ? "<div>" + msg.texte + "</div>" : "") + "<div style='font-size:10px;opacity:0.6;text-align:right;margin-top:2px;'>" + h + "</div>" + statut;
         div.appendChild(bub); list.appendChild(div);
       });
       list.scrollTop = list.scrollHeight;
@@ -544,7 +573,7 @@ function openVictoiresPanel() {
       document.getElementById("emoji-bar").style.display = "none";
       db.collection("conversations").doc(convId).collection("messages").add({
         uid: uid, prenom: userData.prenom||"", texte: t || "", imageURL: imageURL || null,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        lu: false, createdAt: firebase.firestore.FieldValue.serverTimestamp()
       }).then(function() {
         inp.value = "";
         envoyerNotif(membre._uid, "message", (userData.prenom||"") + " vous a envoye un message prive");
