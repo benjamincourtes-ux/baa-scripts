@@ -339,7 +339,7 @@ function initBeautyAddictLogin() {
         document.getElementById("tab-defi").onclick = function() { document.getElementById("tab-defi").style.cssText += "background:#c9a86a;color:white;border:none;"; document.getElementById("tab-pending").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-all").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-dashboard").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-quiz").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-annonces").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; loadDefi(); };
         function loadDefi() {
           var list = document.getElementById("admin-members-list");
-          list.innerHTML = "<div style='background:white;border-radius:14px;padding:20px;border:1px solid #e8d4b0;margin-bottom:16px;'><h3 style='color:#8b735d;margin:0 0 14px 0;font-size:15px;'>&#9889; Lancer un Defi Eclair</h3><input id='defi-titre' placeholder='Titre du defi' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:10px;' /><textarea id='defi-desc' placeholder='Description du defi...' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;height:70px;resize:vertical;margin-bottom:10px;'></textarea><div style='margin-bottom:14px;'><label style='color:#8b735d;font-size:13px;font-weight:bold;display:block;margin-bottom:6px;'>Duree du defi</label><div style='display:flex;gap:8px;flex-wrap:wrap;'><button class='duree-btn' data-h='2' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;'>2h</button><button class='duree-btn' data-h='4' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;'>4h</button><button class='duree-btn' data-h='8' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;'>8h</button><button class='duree-btn' data-h='24' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;'>24h</button></div></div><button id='lancer-defi' style='width:100%;background:linear-gradient(135deg,#ff6b35,#f7931e);color:white;border:none;padding:12px;border-radius:10px;cursor:pointer;font-weight:bold;font-size:14px;'>&#9889; Lancer le Defi !</button><div id='defi-admin-msg' style='color:#8b735d;font-size:13px;margin-top:8px;text-align:center;'></div></div><div style='background:white;border-radius:14px;padding:20px;border:1px solid #e8d4b0;'><h3 style='color:#8b735d;margin:0 0 14px 0;font-size:15px;'>Preuves deposees</h3><div id='preuves-list'><p style='color:#999;'>Chargement...</p></div></div>";
+          list.innerHTML = "<div style='background:white;border-radius:14px;padding:20px;border:1px solid #e8d4b0;margin-bottom:16px;'><h3 style='color:#8b735d;margin:0 0 14px 0;font-size:15px;'>&#9889; Lancer un Defi Eclair</h3><input id='defi-titre' placeholder='Titre du defi' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:10px;' /><textarea id='defi-desc' placeholder='Description du defi...' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;height:70px;resize:vertical;margin-bottom:10px;'></textarea><div style='margin-bottom:14px;'><label style='color:#8b735d;font-size:13px;font-weight:bold;display:block;margin-bottom:6px;'>Duree du defi</label><div style='display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;'><button class='duree-btn' data-h='2' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;'>2h</button><button class='duree-btn' data-h='4' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;'>4h</button><button class='duree-btn' data-h='8' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;'>8h</button><button class='duree-btn' data-h='24' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;'>24h</button></div><div style='display:flex;gap:8px;align-items:center;'><input id='duree-custom' type='number' min='1' max='72' placeholder='Personnaliser (ex: 6)' style='flex:1;padding:8px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;' /><span style='color:#8b735d;font-size:13px;'>heures</span></div></div><button id='lancer-defi' style='width:100%;background:linear-gradient(135deg,#ff6b35,#f7931e);color:white;border:none;padding:12px;border-radius:10px;cursor:pointer;font-weight:bold;font-size:14px;'>&#9889; Lancer le Defi !</button><div id='defi-admin-msg' style='color:#8b735d;font-size:13px;margin-top:8px;text-align:center;'></div></div><div style='background:white;border-radius:14px;padding:20px;border:1px solid #e8d4b0;'><h3 style='color:#8b735d;margin:0 0 14px 0;font-size:15px;'>Preuves deposees</h3><div id='preuves-list'><p style='color:#999;'>Chargement...</p></div></div>";
           var dureeSelectionnee = 2;
           document.querySelectorAll(".duree-btn").forEach(function(btn) {
             btn.onclick = function() { document.querySelectorAll(".duree-btn").forEach(function(b) { b.style.background = "#f3e7d3"; b.style.color = "#8a6a35"; }); btn.style.background = "#c9a86a"; btn.style.color = "white"; dureeSelectionnee = parseInt(btn.getAttribute("data-h")); };
@@ -349,14 +349,32 @@ function initBeautyAddictLogin() {
             var desc = document.getElementById("defi-desc").value.trim();
             var msg = document.getElementById("defi-admin-msg");
             if (!titre) { msg.innerText = "Merci de saisir un titre."; return; }
-            var expiration = new Date(new Date().getTime() + dureeSelectionnee * 3600000);
+            var custom = parseInt(document.getElementById("duree-custom").value);
+            var duree = custom > 0 ? custom : dureeSelectionnee;
+            var expiration = new Date(new Date().getTime() + duree * 3600000);
             db.collection("defis").where("actif", "==", true).get().then(function(snap) {
               var batch = db.batch(); snap.forEach(function(d) { batch.update(d.ref, { actif: false }); });
               batch.commit().then(function() {
-                db.collection("defis").add({ titre: titre, description: desc, actif: true, duree: dureeSelectionnee, expiration: firebase.firestore.Timestamp.fromDate(expiration), createdAt: firebase.firestore.FieldValue.serverTimestamp() }).then(function() {
-                  msg.innerText = "Defi lance ! Il expire dans " + dureeSelectionnee + "h.";
+                db.collection("defis").add({ titre: titre, description: desc, actif: true, duree: duree, expiration: firebase.firestore.Timestamp.fromDate(expiration), createdAt: firebase.firestore.FieldValue.serverTimestamp() }).then(function() {
+                  msg.innerText = "Defi lance ! Il expire dans " + duree + "h.";
                   window.__baaDefiInitialized = false;
                   if (typeof initDefiEclair === "function") initDefiEclair();
+                  // Email à toutes les membres actives
+                  emailjs.init("D_JtKhPDgOQWi_ECO");
+                  db.collection("users").where("accountStatus", "==", "active").get().then(function(members) {
+                    members.forEach(function(mDoc) {
+                      var m = mDoc.data();
+                      if (m.email) {
+                        emailjs.send("service_wr9mlhk", "template_wk2j4mg", {
+                          prenom: m.prenom || "", nom: m.nom || "", email: m.email,
+                          titre_message: "&#9889; Defi Eclair en cours !",
+                          corps_message: titre + (desc ? " - " + desc : ""),
+                          lien_action: "Tu as " + duree + "h pour relever le defi ! Connecte-toi sur l Academie pour participer.",
+                          date: new Date().toLocaleDateString("fr-FR")
+                        }).catch(function(){});
+                      }
+                    });
+                  });
                   chargerPreuves();
                 });
               });
