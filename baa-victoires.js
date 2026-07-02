@@ -15,7 +15,7 @@ function openVictoiresPanel() {
 
   var header = document.createElement("div");
   header.style.cssText = "background:linear-gradient(135deg,#f3e7d3,#e8d4b0);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e8d4b0;flex-shrink:0;flex-wrap:wrap;gap:8px;";
-  header.innerHTML = "<h2 style='color:#8b735d;margin:0;font-size:16px;'>&#127942; Mur des Victoires</h2><div style='display:flex;gap:6px;'><button id='tab-v-btn' style='background:#c9a86a;color:white;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>Victoires</button><button id='tab-m-btn' style='background:rgba(255,255,255,0.5);color:#8b735d;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>&#128172; Messages</button></div><div style='display:flex;gap:6px;align-items:center;'><button id='v-refresh' style='background:rgba(255,255,255,0.5);border:none;cursor:pointer;color:#8b735d;font-size:12px;font-weight:bold;padding:6px 10px;border-radius:6px;'>&#128260; Rafraichir</button><span id='v-resize' style='cursor:pointer;color:#8b735d;background:rgba(255,255,255,0.5);width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;'>&#8993;</span><span id='v-close' style='cursor:pointer;color:#8b735d;background:rgba(255,255,255,0.5);width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;'>&#10005;</span></div>";
+  header.innerHTML = "<h2 style='color:#8b735d;margin:0;font-size:16px;'>&#127942; Mur des Victoires</h2><div style='display:flex;gap:6px;'><button id='tab-v-btn' style='background:#c9a86a;color:white;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>Victoires</button><button id='tab-m-btn' style='background:rgba(255,255,255,0.5);color:#8b735d;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>&#128172; Messages</button><button id='tab-a-btn' style='display:none;background:rgba(255,255,255,0.5);color:#8b735d;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>&#9881;&#65039; Admin</button></div><div style='display:flex;gap:6px;align-items:center;'><button id='v-refresh' style='background:rgba(255,255,255,0.5);border:none;cursor:pointer;color:#8b735d;font-size:12px;font-weight:bold;padding:6px 10px;border-radius:6px;'>&#128260; Rafraichir</button><span id='v-resize' style='cursor:pointer;color:#8b735d;background:rgba(255,255,255,0.5);width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;'>&#8993;</span><span id='v-close' style='cursor:pointer;color:#8b735d;background:rgba(255,255,255,0.5);width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;'>&#10005;</span></div>";
 
   var content = document.createElement("div");
   content.id = "v-content";
@@ -65,9 +65,20 @@ function openVictoiresPanel() {
     afficherMessages();
   };
 
+  document.getElementById("tab-a-btn").onclick = function() {
+    document.getElementById("tab-a-btn").style.background = "#c9a86a";
+    document.getElementById("tab-a-btn").style.color = "white";
+    document.getElementById("tab-m-btn").style.background = "rgba(255,255,255,0.5)";
+    document.getElementById("tab-m-btn").style.color = "#8b735d";
+    document.getElementById("tab-v-btn").style.background = "rgba(255,255,255,0.5)";
+    document.getElementById("tab-v-btn").style.color = "#8b735d";
+    afficherAdminConversations();
+  };
+
   // Charger les données
   db.collection("users").where("accountStatus", "==", "active").get().then(function(snap) {
     snap.forEach(function(d) { var m = d.data(); m._uid = d.id; tousLesMembres.push(m); if (d.id === uid) { userData = m; isAdmin = m.role === "admin"; } });
+    if (isAdmin) { document.getElementById("tab-a-btn").style.display = "block"; }
     afficherVictoires();
   });
 
@@ -324,8 +335,45 @@ function openVictoiresPanel() {
     if (messageListener) { messageListener(); messageListener = null; }
     var convId = [uid, membre._uid].sort().join("_");
     var mc = document.getElementById("mconv");
-    mc.innerHTML = "<div style='padding:12px 16px;border-bottom:1px solid #e8d4b0;background:white;font-weight:bold;color:#3a3a3a;font-size:13px;flex-shrink:0;'>" + (membre.prenom||"") + " " + (membre.nom||"") + "</div><div id='msgs' style='flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px;'></div><div style='padding:10px;border-top:1px solid #e8d4b0;background:white;display:flex;gap:6px;flex-shrink:0;'><input id='minput' placeholder='Ecrire...' style='flex:1;padding:8px 12px;border:1px solid #e8d4b0;border-radius:20px;font-size:12px;outline:none;' /><button id='msend' style='background:#c9a86a;color:white;border:none;padding:8px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:bold;'>Envoyer</button></div>";
+    mc.innerHTML = "<div style='padding:12px 16px;border-bottom:1px solid #e8d4b0;background:white;font-weight:bold;color:#3a3a3a;font-size:13px;flex-shrink:0;'>" + (membre.prenom||"") + " " + (membre.nom||"") + "</div><div id='msgs' style='flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px;'></div><div style='padding:10px;border-top:1px solid #e8d4b0;background:white;flex-shrink:0;'><div id='emoji-picker' style='display:none;flex-wrap:wrap;gap:4px;padding:8px;background:#f8f3ee;border-radius:10px;margin-bottom:6px;'>&#128293;&#128170;&#127881;&#128079;&#10084;&#128514;&#128513;&#128557;&#129299;&#128526;&#129303;&#127775;&#128591;&#127942;&#128176;&#128640;&#129395;&#128522;&#128578;'.split('').filter(function(c,i,a){return a.indexOf(c)===i;}).map(function(e){return e;}).join('')</div><div id='emoji-bar' style='display:none;flex-wrap:wrap;gap:4px;padding:8px;background:#f8f3ee;border-radius:10px;margin-bottom:6px;'></div><div style='display:flex;gap:6px;align-items:center;'><button id='emoji-btn' style='background:none;border:none;cursor:pointer;font-size:20px;padding:4px;'>&#128515;</button><label style='cursor:pointer;font-size:18px;padding:4px;'>&#128247;<input type='file' id='mphoto' accept='image/*' style='display:none;' /></label><input id='minput' placeholder='Ecrire...' style='flex:1;padding:8px 12px;border:1px solid #e8d4b0;border-radius:20px;font-size:12px;outline:none;' /><button id='msend' style='background:#c9a86a;color:white;border:none;padding:8px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:bold;'>Envoyer</button></div><div id='mphoto-preview' style='display:none;margin-top:6px;position:relative;'><img id='mphoto-img' style='max-height:80px;border-radius:8px;border:1px solid #e8d4b0;' /><span id='mphoto-del' style='position:absolute;top:-6px;right:-6px;background:#e74c3c;color:white;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;'>&#10005;</span></div></div>";
     mc.style.cssText = "flex:1;display:flex;flex-direction:column;overflow:hidden;";
+
+    // Emoji picker
+    var emojisDispos = ["😃","😊","😂","😍","😢","🥰","🤗","😎","🤩","😅","👍","👏","🙌","🎉","🔥","💪","❤️","⭐","🏆","💰","🚀","✨","🌸","🎯","💯"];
+    var emojiBar = document.getElementById("emoji-bar");
+    emojisDispos.forEach(function(e) {
+      var btn = document.createElement("span");
+      btn.innerText = e;
+      btn.style.cssText = "cursor:pointer;font-size:20px;padding:2px;border-radius:4px;";
+      btn.onmouseenter = function() { btn.style.background = "#e8d4b0"; };
+      btn.onmouseleave = function() { btn.style.background = "none"; };
+      btn.onclick = function() {
+        var inp = document.getElementById("minput");
+        inp.value += e; inp.focus();
+      };
+      emojiBar.appendChild(btn);
+    });
+    document.getElementById("emoji-btn").onclick = function() {
+      emojiBar.style.display = emojiBar.style.display === "none" ? "flex" : "none";
+    };
+
+    // Photo preview
+    var photoFileMsg = null;
+    document.getElementById("mphoto").onchange = function() {
+      if (!this.files[0]) return;
+      photoFileMsg = this.files[0];
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById("mphoto-img").src = e.target.result;
+        document.getElementById("mphoto-preview").style.display = "block";
+      };
+      reader.readAsDataURL(photoFileMsg);
+    };
+    document.getElementById("mphoto-del").onclick = function() {
+      photoFileMsg = null;
+      document.getElementById("mphoto").value = "";
+      document.getElementById("mphoto-preview").style.display = "none";
+    };
     messageListener = db.collection("conversations").doc(convId).collection("messages").orderBy("createdAt").onSnapshot(function(snap) {
       var list = document.getElementById("msgs"); if (!list) return;
       list.innerHTML = "";
@@ -335,30 +383,90 @@ function openVictoiresPanel() {
         var bub = document.createElement("div");
         bub.style.cssText = "max-width:72%;padding:8px 12px;border-radius:" + (mine?"16px 16px 4px 16px":"16px 16px 16px 4px") + ";background:" + (mine?"#c9a86a":"white") + ";color:" + (mine?"white":"#3a3a3a") + ";font-size:12px;border:1px solid " + (mine?"#c9a86a":"#e8d4b0") + ";";
         var h = msg.createdAt ? new Date(msg.createdAt.seconds*1000).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}) : "";
-        bub.innerHTML = "<div>" + msg.texte + "</div><div style='font-size:10px;opacity:0.6;text-align:right;margin-top:2px;'>" + h + "</div>";
+        var imgH = msg.imageURL ? "<img src='" + msg.imageURL + "' style='max-width:200px;border-radius:8px;display:block;margin-bottom:4px;' />" : "";
+        bub.innerHTML = imgH + (msg.texte ? "<div>" + msg.texte + "</div>" : "") + "<div style='font-size:10px;opacity:0.6;text-align:right;margin-top:2px;'>" + h + "</div>";
         div.appendChild(bub); list.appendChild(div);
       });
       list.scrollTop = list.scrollHeight;
     });
-    document.getElementById("minput").addEventListener("keydown", function(e) { if (e.key === "Enter") document.getElementById("msend").click(); });
-    document.getElementById("msend").onclick = function() {
-      var inp = document.getElementById("minput"); var t = inp.value.trim(); if (!t) return;
+    document.getElementById("minput").addEventListener("keydown", function(e) { if (e.key === "Enter" && !e.shiftKey) document.getElementById("msend").click(); });
+    document.getElementById("msend").onclick = async function() {
+      var inp = document.getElementById("minput"); var t = inp.value.trim();
+      if (!t && !photoFileMsg) return;
+      var imageURL = null;
+      if (photoFileMsg) {
+        try {
+          var fd = new FormData(); fd.append("file", photoFileMsg); fd.append("upload_preset", "baa_avatars"); fd.append("folder", "messages");
+          var r = await fetch("https://api.cloudinary.com/v1_1/dxcfq3nyl/image/upload", { method: "POST", body: fd });
+          imageURL = (await r.json()).secure_url;
+          photoFileMsg = null; document.getElementById("mphoto").value = "";
+          document.getElementById("mphoto-preview").style.display = "none";
+        } catch(e) { console.log("Erreur photo message", e); }
+      }
+      document.getElementById("emoji-bar").style.display = "none";
       db.collection("conversations").doc(convId).collection("messages").add({
-        uid: uid, prenom: userData.prenom||"", texte: t,
+        uid: uid, prenom: userData.prenom||"", texte: t || "", imageURL: imageURL || null,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       }).then(function() {
         inp.value = "";
-        if (membre.email) {
+        db.collection("conversations-index").doc(convId).set({
+          membres: [uid, membre._uid],
+          prenoms: [(userData.prenom||"") + " " + (userData.nom||""), (membre.prenom||"") + " " + (membre.nom||"")],
+          dernierMessage: t || "Photo",
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        if (membre.email && (t || imageURL)) {
           emailjs.init("D_JtKhPDgOQWi_ECO");
           emailjs.send("service_wr9mlhk", "template_wk2j4mg", {
             prenom: membre.prenom||"", nom: membre.nom||"", email: membre.email,
             titre_message: "Nouveau message de " + (userData.prenom||"") + " !",
-            corps_message: (userData.prenom||"") + " t a envoye un message : " + t,
+            corps_message: (userData.prenom||"") + " t a envoye un message" + (t ? " : " + t : " avec une photo") + ".",
             lien_action: "Connecte-toi sur l Academie pour repondre.",
             date: new Date().toLocaleDateString("fr-FR")
           }).catch(function(){});
         }
       });
     };
+  }
+
+  // ===================== ADMIN CONVERSATIONS =====================
+  function afficherAdminConversations() {
+    if (messageListener) { messageListener(); messageListener = null; }
+    content.style.cssText = "flex:1;overflow-y:auto;padding:20px;max-width:800px;width:100%;margin:0 auto;box-sizing:border-box;";
+    content.innerHTML = "<div style='background:white;border-radius:14px;padding:18px;border:1px solid #e8d4b0;'><p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 14px;'>&#9881; Toutes les conversations privees</p><div id='admin-convs'><p style='color:#999;text-align:center;'>Chargement...</p></div></div>";
+    db.collection("conversations-index").orderBy("updatedAt", "desc").get().then(function(snap) {
+      var c = document.getElementById("admin-convs"); if (!c) return;
+      if (snap.empty) { c.innerHTML = "<p style='color:#999;text-align:center;'>Aucune conversation pour l instant.</p>"; return; }
+      c.innerHTML = "";
+      snap.forEach(function(docSnap) {
+        var conv = docSnap.data(); var convId = docSnap.id;
+        var date = conv.updatedAt ? new Date(conv.updatedAt.seconds*1000).toLocaleDateString("fr-FR",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}) : "";
+        var row = document.createElement("div");
+        row.style.cssText = "display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:10px;margin-bottom:8px;border:1px solid #f0e6d3;cursor:pointer;";
+        row.innerHTML = "<div><div style='font-weight:bold;color:#3a3a3a;font-size:13px;'>&#128172; " + (conv.prenoms||[]).join(" &amp; ") + "</div><div style='color:#999;font-size:12px;margin-top:2px;'>" + (conv.dernierMessage||"") + "</div></div><div style='color:#bbb;font-size:11px;'>" + date + "</div>";
+        row.onmouseenter = function() { row.style.background = "#f8f3ee"; };
+        row.onmouseleave = function() { row.style.background = "white"; };
+        row.onclick = function() { afficherConvAdmin(convId, conv); };
+        c.appendChild(row);
+      });
+    });
+  }
+
+  function afficherConvAdmin(convId, conv) {
+    content.innerHTML = "<div style='display:flex;align-items:center;gap:10px;margin-bottom:14px;'><button id='back-admin' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;'>&#8592; Retour</button><div style='font-weight:bold;color:#3a3a3a;font-size:13px;'>&#128172; " + (conv.prenoms||[]).join(" &amp; ") + "</div></div><div id='admin-msgs' style='background:white;border-radius:14px;padding:14px;border:1px solid #e8d4b0;max-height:500px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;'><p style='color:#999;text-align:center;'>Chargement...</p></div>";
+    document.getElementById("back-admin").onclick = function() { afficherAdminConversations(); };
+    db.collection("conversations").doc(convId).collection("messages").orderBy("createdAt").get().then(function(snap) {
+      var list = document.getElementById("admin-msgs"); if (!list) return;
+      list.innerHTML = "";
+      snap.forEach(function(ds) {
+        var msg = ds.data();
+        var div = document.createElement("div"); div.style.cssText = "padding:8px 12px;border-radius:10px;background:#f8f3ee;border:1px solid #f0e6d3;";
+        var h = msg.createdAt ? new Date(msg.createdAt.seconds*1000).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}) : "";
+        var imgH = msg.imageURL ? "<img src='" + msg.imageURL + "' style='max-width:180px;border-radius:8px;display:block;margin-top:4px;' />" : "";
+        div.innerHTML = "<span style='font-weight:bold;color:#c9a86a;font-size:12px;'>" + (msg.prenom||"") + "</span> <span style='color:#bbb;font-size:11px;'>" + h + "</span><div style='color:#3a3a3a;font-size:13px;margin-top:2px;'>" + (msg.texte||"") + "</div>" + imgH;
+        list.appendChild(div);
+      });
+      list.scrollTop = list.scrollHeight;
+    });
   }
 }
