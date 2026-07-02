@@ -495,6 +495,9 @@ function openVictoiresPanel() {
 
   function ouvrirConv(membre) {
     if (messageListener) { messageListener(); messageListener = null; }
+    // Retirer le badge immédiatement
+    var badge = document.getElementById("badge-" + membre._uid);
+    if (badge) badge.style.display = "none";
     var convId = [uid, membre._uid].sort().join("_");
     var mc = document.getElementById("mconv");
     mc.innerHTML = "<div style='padding:12px 16px;border-bottom:1px solid #e8d4b0;background:white;font-weight:bold;color:#3a3a3a;font-size:13px;flex-shrink:0;'>" + (membre.prenom||"") + " " + (membre.nom||"") + "</div><div id='msgs' style='flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px;'></div><div style='padding:10px;border-top:1px solid #e8d4b0;background:white;flex-shrink:0;'><div id='emoji-picker' style='display:none;flex-wrap:wrap;gap:4px;padding:8px;background:#f8f3ee;border-radius:10px;margin-bottom:6px;'>&#128293;&#128170;&#127881;&#128079;&#10084;&#128514;&#128513;&#128557;&#129299;&#128526;&#129303;&#127775;&#128591;&#127942;&#128176;&#128640;&#129395;&#128522;&#128578;'.split('').filter(function(c,i,a){return a.indexOf(c)===i;}).map(function(e){return e;}).join('')</div><div id='emoji-bar' style='display:none;flex-wrap:wrap;gap:4px;padding:8px;background:#f8f3ee;border-radius:10px;margin-bottom:6px;'></div><div style='display:flex;gap:6px;align-items:center;'><button id='emoji-btn' style='background:none;border:none;cursor:pointer;font-size:20px;padding:4px;'>&#128515;</button><label style='cursor:pointer;font-size:18px;padding:4px;'>&#128247;<input type='file' id='mphoto' accept='image/*' style='display:none;' /></label><input id='minput' placeholder='Ecrire...' style='flex:1;padding:8px 12px;border:1px solid #e8d4b0;border-radius:20px;font-size:12px;outline:none;' /><button id='msend' style='background:#c9a86a;color:white;border:none;padding:8px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:bold;'>Envoyer</button></div><div id='mphoto-preview' style='display:none;margin-top:6px;position:relative;'><img id='mphoto-img' style='max-height:80px;border-radius:8px;border:1px solid #e8d4b0;' /><span id='mphoto-del' style='position:absolute;top:-6px;right:-6px;background:#e74c3c;color:white;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;'>&#10005;</span></div></div>";
@@ -540,20 +543,23 @@ function openVictoiresPanel() {
       var list = document.getElementById("msgs"); if (!list) return;
       list.innerHTML = "";
       var docs = snap.docs;
+      var batch = db.batch();
+      var hasMajLu = false;
       docs.forEach(function(ds, idx) {
         var msg = ds.data(); var mine = msg.uid === uid; var isLast = idx === docs.length - 1;
-        // Marquer comme lu si message reçu
-        if (!mine && !msg.lu) { ds.ref.update({ lu: true }); }
+        // Marquer comme lu seulement à l'ouverture de la conv
+        if (!mine && msg.lu === false) { batch.update(ds.ref, { lu: true }); hasMajLu = true; }
         var div = document.createElement("div"); div.style.cssText = "display:flex;justify-content:" + (mine?"flex-end":"flex-start") + ";margin-bottom:2px;";
         var bub = document.createElement("div");
         bub.style.cssText = "max-width:72%;padding:8px 12px;border-radius:" + (mine?"16px 16px 4px 16px":"16px 16px 16px 4px") + ";background:" + (mine?"#c9a86a":"white") + ";color:" + (mine?"white":"#3a3a3a") + ";font-size:12px;border:1px solid " + (mine?"#c9a86a":"#e8d4b0") + ";";
         var h = msg.createdAt ? new Date(msg.createdAt.seconds*1000).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}) : "";
         var imgH = msg.imageURL ? "<img src='" + msg.imageURL + "' style='max-width:200px;border-radius:8px;display:block;margin-bottom:4px;' />" : "";
         var statut = "";
-        if (mine && isLast) { statut = "<div style='font-size:9px;text-align:right;margin-top:2px;opacity:0.7;'>" + (msg.lu ? "&#10003;&#10003; Lu" : "&#10003; Envoye") + "</div>"; }
+        if (mine && isLast) { statut = "<div style='font-size:9px;text-align:right;margin-top:2px;opacity:0.8;'>" + (msg.lu ? "&#10003;&#10003; Lu" : "&#10003; Envoye") + "</div>"; }
         bub.innerHTML = imgH + (msg.texte ? "<div>" + msg.texte + "</div>" : "") + "<div style='font-size:10px;opacity:0.6;text-align:right;margin-top:2px;'>" + h + "</div>" + statut;
         div.appendChild(bub); list.appendChild(div);
       });
+      if (hasMajLu) { batch.commit().catch(function(){}); }
       list.scrollTop = list.scrollHeight;
     });
     document.getElementById("minput").addEventListener("keydown", function(e) { if (e.key === "Enter" && !e.shiftKey) document.getElementById("msend").click(); });
