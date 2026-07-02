@@ -385,17 +385,31 @@ function initBeautyAddictLogin() {
               var preuvesList = document.getElementById("preuves-list");
               if (snap.empty) { preuvesList.innerHTML = "<p style='color:#999;'>Aucun defi actif.</p>"; return; }
               var did = snap.docs[0].id;
-              db.collection("defis").doc(did).collection("reponses").where("preuve", "==", true).get().then(function(repSnap) {
-                if (repSnap.empty) { preuvesList.innerHTML = "<p style='color:#999;'>Aucune preuve deposee pour l instant.</p>"; return; }
-                preuvesList.innerHTML = "";
+              db.collection("defis").doc(did).collection("reponses").get().then(function(repSnap) {
+                var participent = []; var participentPas = []; var avecPreuve = [];
+                var promises = [];
                 repSnap.forEach(function(repDoc) {
                   var r = repDoc.data();
-                  db.collection("users").doc(repDoc.id).get().then(function(uSnap) {
+                  promises.push(db.collection("users").doc(repDoc.id).get().then(function(uSnap) {
                     var u = uSnap.data() || {};
-                    var card = document.createElement("div"); card.style.cssText = "border:1px solid #e8d4b0;border-radius:10px;padding:14px;margin-bottom:10px;";
-                    card.innerHTML = "<div style='font-weight:bold;color:#3a3a3a;font-size:13px;margin-bottom:6px;'>" + (u.prenom||"") + " " + (u.nom||"") + "</div>" + (r.texte ? "<p style='color:#666;font-size:13px;margin:0 0 8px;'>" + r.texte + "</p>" : "") + (r.imageURL ? "<img src='" + r.imageURL + "' style='width:100%;border-radius:8px;max-height:200px;object-fit:cover;' />" : "");
-                    preuvesList.appendChild(card);
-                  });
+                    var nom = (u.prenom||"") + " " + (u.nom||"");
+                    if (r.preuve) avecPreuve.push({ nom: nom, texte: r.texte, imageURL: r.imageURL });
+                    else if (r.statut === "oui") participent.push(nom);
+                    else if (r.statut === "non") participentPas.push(nom);
+                  }));
+                });
+                Promise.all(promises).then(function() {
+                  var html = "";
+                  html += "<div style='margin-bottom:14px;'><div style='font-weight:bold;color:#16a34a;font-size:13px;margin-bottom:6px;'>&#9989; Participent (" + (participent.length + avecPreuve.length) + ")</div>";
+                  if (participent.length + avecPreuve.length === 0) { html += "<p style='color:#999;font-size:12px;'>Aucune pour l instant.</p>"; }
+                  participent.forEach(function(n) { html += "<div style='background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:8px 12px;margin-bottom:4px;font-size:13px;color:#166534;'>&#128101; " + n + " (pas encore de preuve)</div>"; });
+                  avecPreuve.forEach(function(p) { html += "<div style='background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:8px 12px;margin-bottom:4px;font-size:13px;color:#166534;'>&#127942; " + p.nom + " (preuve deposee)" + (p.imageURL ? "<br><img src='" + p.imageURL + "' style='max-width:100%;border-radius:6px;margin-top:6px;max-height:150px;object-fit:cover;' />" : "") + (p.texte ? "<br><span style='color:#555;font-size:12px;'>" + p.texte + "</span>" : "") + "</div>"; });
+                  html += "</div>";
+                  html += "<div><div style='font-weight:bold;color:#e74c3c;font-size:13px;margin-bottom:6px;'>&#10060; Ne participent pas (" + participentPas.length + ")</div>";
+                  if (participentPas.length === 0) { html += "<p style='color:#999;font-size:12px;'>Aucune pour l instant.</p>"; }
+                  participentPas.forEach(function(n) { html += "<div style='background:#fff5f5;border:1px solid #fca5a5;border-radius:8px;padding:8px 12px;margin-bottom:4px;font-size:13px;color:#991b1b;'>&#128101; " + n + "</div>"; });
+                  html += "</div>";
+                  preuvesList.innerHTML = html;
                 });
               });
             });
