@@ -12,7 +12,7 @@ function openVictoiresPanel() {
 
   var header = document.createElement("div");
   header.style.cssText = "background:linear-gradient(135deg,#f3e7d3,#e8d4b0);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e8d4b0;flex-shrink:0;";
-  header.innerHTML = "<h2 style='color:#8b735d;margin:0;font-size:18px;'>🏆 Mur des Victoires</h2><div style='display:flex;gap:8px;align-items:center;'><button id='victoires-refresh' style='background:rgba(255,255,255,0.5);border:none;cursor:pointer;color:#8b735d;font-size:13px;font-weight:bold;padding:6px 12px;border-radius:6px;'>🔄 Rafraichir</button><span id='victoires-resize' title='Reduire' style='cursor:pointer;font-size:18px;color:#8b735d;background:rgba(255,255,255,0.5);width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;'>⊡</span><span id='close-victoires' style='cursor:pointer;font-size:18px;color:#8b735d;background:rgba(255,255,255,0.5);width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;'>✕</span></div>";
+  header.innerHTML = "<div style='display:flex;align-items:center;gap:16px;flex:1;'><h2 style='color:#8b735d;margin:0;font-size:18px;'>🏆 Mur des Victoires</h2><div style='display:flex;gap:6px;'><button id='tab-victoires-btn' style='background:#c9a86a;color:white;border:none;padding:7px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>Victoires</button><button id='tab-messages-btn' style='background:rgba(255,255,255,0.5);color:#8b735d;border:none;padding:7px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>&#128172; Messages</button></div></div><div style='display:flex;gap:8px;align-items:center;'><button id='victoires-refresh' style='background:rgba(255,255,255,0.5);border:none;cursor:pointer;color:#8b735d;font-size:13px;font-weight:bold;padding:6px 12px;border-radius:6px;'>🔄 Rafraichir</button><span id='victoires-resize' title='Reduire' style='cursor:pointer;font-size:18px;color:#8b735d;background:rgba(255,255,255,0.5);width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;'>⊡</span><span id='close-victoires' style='cursor:pointer;font-size:18px;color:#8b735d;background:rgba(255,255,255,0.5);width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;'>✕</span></div>";
 
   var content = document.createElement("div");
   content.style.cssText = "flex:1;overflow-y:auto;padding:24px;max-width:800px;width:100%;margin:0 auto;box-sizing:border-box;";
@@ -291,55 +291,198 @@ function openVictoiresPanel() {
   db.collection("users").doc(uid).get().then(function(snap) {
     var d = snap.data() || {};
     isAdmin = d.role === "admin";
-    document.getElementById("victoires-refresh").onclick = function() { chargerVictoires(d); };
+    document.getElementById("victoires-refresh").onclick = function() {
+      if (document.getElementById("tab-victoires-btn").style.background === "rgb(201, 168, 106)" || document.getElementById("tab-victoires-btn").style.background === "#c9a86a") {
+        chargerVictoires(d);
+      }
+    };
+    reinitForm(d);
     chargerVictoires(d);
+
+    var messageListener = null;
+
+    document.getElementById("tab-victoires-btn").onclick = function() {
+      document.getElementById("tab-victoires-btn").style.background = "#c9a86a";
+      document.getElementById("tab-victoires-btn").style.color = "white";
+      document.getElementById("tab-messages-btn").style.background = "rgba(255,255,255,0.5)";
+      document.getElementById("tab-messages-btn").style.color = "#8b735d";
+      if (messageListener) { messageListener(); messageListener = null; }
+      content.style.cssText = "flex:1;overflow-y:auto;padding:24px;max-width:800px;width:100%;margin:0 auto;box-sizing:border-box;";
+      content.innerHTML = "<div id='victoire-form' style='background:white;border-radius:14px;padding:20px;border:1px solid #e8d4b0;margin-bottom:20px;'><p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 12px 0;'>Partager une victoire</p><div style='display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;' id='categorie-btns'><button class='cat-btn' data-cat='Objectif' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;'>&#127942; Objectif</button><button class='cat-btn' data-cat='Vente' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;'>&#128176; Vente</button><button class='cat-btn' data-cat='Recrue' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;'>&#128101; Recrue</button><button class='cat-btn' data-cat='Autre' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;'>&#11088; Autre</button></div><div style='position:relative;'><textarea id='victoire-texte' placeholder='Raconte ta victoire... (@ pour mentionner)' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;height:70px;resize:vertical;margin-bottom:10px;font-family:Arial,sans-serif;'></textarea><div id='mention-list-form' style='display:none;position:absolute;top:80px;left:0;background:white;border:1px solid #e8d4b0;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);z-index:99;max-height:150px;overflow-y:auto;min-width:200px;'></div></div><div style='display:flex;gap:10px;align-items:center;'><label style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>&#128247; Photo<input type='file' id='victoire-photo' accept='image/*' style='display:none;' /></label><span id='victoire-photo-name' style='color:#999;font-size:12px;'></span><button id='publier-victoire' style='margin-left:auto;background:#c9a86a;color:white;border:none;padding:10px 20px;border-radius:10px;cursor:pointer;font-weight:bold;font-size:13px;'>Publier !</button></div><div id='victoire-form-msg' style='color:#8b735d;font-size:12px;margin-top:8px;'></div></div><div id='victoires-list'></div>";
+      reinitForm(d);
+      chargerVictoires(d);
+    };
+
+    document.getElementById("tab-messages-btn").onclick = function() {
+      document.getElementById("tab-messages-btn").style.background = "#c9a86a";
+      document.getElementById("tab-messages-btn").style.color = "white";
+      document.getElementById("tab-victoires-btn").style.background = "rgba(255,255,255,0.5)";
+      document.getElementById("tab-victoires-btn").style.color = "#8b735d";
+      afficherMessagesPanel(d, function(listener) { messageListener = listener; });
+    };
   });
 
-  document.getElementById("publier-victoire").onclick = async function() {
-    var texte = document.getElementById("victoire-texte").value.trim();
-    var photoFile = document.getElementById("victoire-photo").files[0];
-    var msg = document.getElementById("victoire-form-msg");
-    if (!texte) { msg.innerText = "Merci d ecrire ta victoire avant de publier."; return; }
-    msg.innerText = "Publication en cours...";
-    document.getElementById("publier-victoire").disabled = true;
-    var imageURL = null;
-    if (photoFile) {
-      try {
-        var formData = new FormData(); formData.append("file", photoFile); formData.append("upload_preset", "baa_avatars"); formData.append("folder", "victoires");
-        var res = await fetch("https://api.cloudinary.com/v1_1/dxcfq3nyl/image/upload", { method: "POST", body: formData });
-        var data = await res.json(); imageURL = data.secure_url;
-      } catch (e) { msg.innerText = "Erreur upload photo."; document.getElementById("publier-victoire").disabled = false; return; }
-    }
-    var snap = await db.collection("users").doc(uid).get();
-    var d = snap.data() || {};
-    await db.collection("victoires").add({
-      uid: uid, prenom: d.prenom || "", nom: d.nom || "", photoURL: d.photoURL || null,
-      texte: texte, imageURL: imageURL, categorie: categorieSelectionnee,
-      reactions: {}, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  function reinitForm(userData) {
+    document.querySelectorAll(".cat-btn").forEach(function(btn) {
+      btn.onclick = function() {
+        document.querySelectorAll(".cat-btn").forEach(function(b) { b.style.background = "#f3e7d3"; b.style.color = "#8a6a35"; });
+        btn.style.background = "#c9a86a"; btn.style.color = "white";
+        categorieSelectionnee = btn.getAttribute("data-cat");
+      };
     });
-    emailjs.init("D_JtKhPDgOQWi_ECO");
-    db.collection("users").where("accountStatus", "==", "active").get().then(function(snapshot) {
-      snapshot.forEach(function(docSnap) {
-        var membre = docSnap.data();
-        if (membre.email && docSnap.id !== uid) {
-          emailjs.send("service_wr9mlhk", "template_wk2j4mg", {
-            prenom: membre.prenom || "", nom: membre.nom || "", email: membre.email,
-            titre_message: "Nouvelle victoire sur le Mur !",
-            corps_message: (d.prenom || "") + " vient de partager une victoire" + (categorieSelectionnee ? " (" + categorieSelectionnee + ")" : "") + " : " + texte,
-            lien_action: "Connecte-toi sur l Academie pour reagir et la feliciter !",
-            date: new Date().toLocaleDateString("fr-FR")
-          }).catch(function(err) { console.log("Erreur email victoire:", err); });
+    var vt = document.getElementById("victoire-texte");
+    if (vt) {
+      vt.addEventListener("input", function() {
+        var val = this.value;
+        var atIdx = val.lastIndexOf("@");
+        var mentionList = document.getElementById("mention-list-form");
+        if (!mentionList) return;
+        if (atIdx > -1) {
+          var search = val.slice(atIdx + 1).toLowerCase();
+          var filtered = tousLesMembres.filter(function(m) { return (m.prenom + " " + m.nom).toLowerCase().indexOf(search) > -1; });
+          if (filtered.length > 0) {
+            mentionList.innerHTML = "";
+            filtered.forEach(function(m) {
+              var item = document.createElement("div");
+              item.style.cssText = "padding:8px 12px;cursor:pointer;font-size:13px;color:#3a3a3a;";
+              item.innerText = m.prenom + " " + m.nom;
+              item.onmouseenter = function() { item.style.background = "#f8f3ee"; };
+              item.onmouseleave = function() { item.style.background = "white"; };
+              item.onclick = function() { vt.value = val.slice(0, atIdx) + "@" + m.prenom + " " + m.nom + " "; mentionList.style.display = "none"; };
+              mentionList.appendChild(item);
+            });
+            mentionList.style.display = "block";
+          } else { mentionList.style.display = "none"; }
+        } else { mentionList.style.display = "none"; }
+      });
+    }
+    var vp = document.getElementById("victoire-photo");
+    if (vp) { vp.onchange = function() { document.getElementById("victoire-photo-name").innerText = this.files[0] ? this.files[0].name : ""; }; }
+    var pb = document.getElementById("publier-victoire");
+    if (pb) {
+      pb.onclick = async function() {
+        var texte = document.getElementById("victoire-texte").value.trim();
+        var photoFile = document.getElementById("victoire-photo").files[0];
+        var msg = document.getElementById("victoire-form-msg");
+        if (!texte) { msg.innerText = "Merci d ecrire ta victoire avant de publier."; return; }
+        msg.innerText = "Publication en cours..."; pb.disabled = true;
+        var imageURL = null;
+        if (photoFile) {
+          try {
+            var formData = new FormData(); formData.append("file", photoFile); formData.append("upload_preset", "baa_avatars"); formData.append("folder", "victoires");
+            var res = await fetch("https://api.cloudinary.com/v1_1/dxcfq3nyl/image/upload", { method: "POST", body: formData });
+            var data = await res.json(); imageURL = data.secure_url;
+          } catch (e) { msg.innerText = "Erreur upload photo."; pb.disabled = false; return; }
         }
+        var snap2 = await db.collection("users").doc(uid).get();
+        var d2 = snap2.data() || {};
+        await db.collection("victoires").add({
+          uid: uid, prenom: d2.prenom || "", nom: d2.nom || "", photoURL: d2.photoURL || null,
+          texte: texte, imageURL: imageURL, categorie: categorieSelectionnee,
+          reactions: {}, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        emailjs.init("D_JtKhPDgOQWi_ECO");
+        db.collection("users").where("accountStatus", "==", "active").get().then(function(snapshot) {
+          snapshot.forEach(function(docSnap) {
+            var membre = docSnap.data();
+            if (membre.email && docSnap.id !== uid) {
+              emailjs.send("service_wr9mlhk", "template_wk2j4mg", {
+                prenom: membre.prenom || "", nom: membre.nom || "", email: membre.email,
+                titre_message: "Nouvelle victoire sur le Mur !",
+                corps_message: (d2.prenom || "") + " vient de partager une victoire" + (categorieSelectionnee ? " (" + categorieSelectionnee + ")" : "") + " : " + texte,
+                lien_action: "Connecte-toi sur l Academie pour reagir et la feliciter !",
+                date: new Date().toLocaleDateString("fr-FR")
+              }).catch(function(err) { console.log("Erreur email victoire:", err); });
+            }
+          });
+        });
+        document.getElementById("victoire-texte").value = "";
+        document.getElementById("victoire-photo").value = "";
+        document.getElementById("victoire-photo-name").innerText = "";
+        document.querySelectorAll(".cat-btn").forEach(function(b) { b.style.background = "#f3e7d3"; b.style.color = "#8a6a35"; });
+        categorieSelectionnee = "";
+        msg.innerText = "Victoire publiee !";
+        setTimeout(function() { msg.innerText = ""; }, 3000);
+        pb.disabled = false;
+        chargerVictoires(userData);
+      };
+    }
+  }
+    content.innerHTML = "<div style='display:flex;gap:0;height:100%;'><div id='membres-list-msg' style='width:220px;min-width:220px;border-right:1px solid #e8d4b0;overflow-y:auto;background:white;border-radius:0 0 0 20px;'><div style='padding:14px;color:#8b735d;font-size:13px;font-weight:bold;border-bottom:1px solid #f0e6d3;'>Conversations</div></div><div id='conv-panel' style='flex:1;display:flex;flex-direction:column;'><div id='conv-placeholder' style='flex:1;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:14px;'>Selectionne une membre pour discuter</div></div></div>";
+    content.style.cssText = "flex:1;overflow:hidden;max-width:800px;width:100%;margin:0 auto;box-sizing:border-box;display:flex;flex-direction:column;padding:0;";
+
+    db.collection("users").where("accountStatus", "==", "active").get().then(function(snapshot) {
+      var membresList = document.getElementById("membres-list-msg");
+      snapshot.forEach(function(docSnap) {
+        if (docSnap.id === uid && !isAdmin) return;
+        var m = docSnap.data();
+        var mid = docSnap.id;
+        if (mid === uid) return;
+        var item = document.createElement("div");
+        item.style.cssText = "display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;border-bottom:1px solid #f8f3ee;";
+        var av = m.photoURL ? "<img src='" + m.photoURL + "' style='width:36px;height:36px;border-radius:50%;object-fit:cover;' />" : "<div style='width:36px;height:36px;border-radius:50%;background:#c9a86a;display:flex;align-items:center;justify-content:center;min-width:36px;'><span style='color:white;font-size:13px;font-weight:bold;'>" + (m.prenom ? m.prenom[0].toUpperCase() : "?") + "</span></div>";
+        item.innerHTML = av + "<div style='font-size:13px;font-weight:bold;color:#3a3a3a;'>" + (m.prenom || "") + " " + (m.nom || "") + "</div>";
+        item.onmouseenter = function() { item.style.background = "#f8f3ee"; };
+        item.onmouseleave = function() { item.style.background = "white"; };
+        item.onclick = function() {
+          document.querySelectorAll("#membres-list-msg div").forEach(function(el) { el.style.background = "white"; });
+          item.style.background = "#f0e6d3";
+          ouvrirConversation(uid, mid, m, userData, onListener);
+        };
+        membresList.appendChild(item);
       });
     });
-    document.getElementById("victoire-texte").value = "";
-    document.getElementById("victoire-photo").value = "";
-    document.getElementById("victoire-photo-name").innerText = "";
-    document.querySelectorAll(".cat-btn").forEach(function(b) { b.style.background = "#f3e7d3"; b.style.color = "#8a6a35"; });
-    categorieSelectionnee = "";
-    msg.innerText = "Victoire publiee !";
-    setTimeout(function() { msg.innerText = ""; }, 3000);
-    document.getElementById("publier-victoire").disabled = false;
-    db.collection("users").doc(uid).get().then(function(s) { chargerVictoires(s.data() || {}); });
-  };
-}
+  }
+
+  function ouvrirConversation(uid1, uid2, membreData, userData, onListener) {
+    var convId = [uid1, uid2].sort().join("_");
+    var convPanel = document.getElementById("conv-panel");
+    convPanel.innerHTML = "<div style='padding:14px 16px;border-bottom:1px solid #e8d4b0;background:white;font-weight:bold;color:#3a3a3a;font-size:14px;'>" + (membreData.prenom || "") + " " + (membreData.nom || "") + "</div><div id='messages-list' style='flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;'></div><div style='padding:12px;border-top:1px solid #e8d4b0;background:white;display:flex;gap:8px;'><input id='msg-input' placeholder='Ecrire un message...' style='flex:1;padding:10px;border:1px solid #e8d4b0;border-radius:20px;font-size:13px;outline:none;' /><button id='msg-send' style='background:#c9a86a;color:white;border:none;padding:10px 18px;border-radius:20px;cursor:pointer;font-weight:bold;font-size:13px;'>Envoyer</button></div>";
+    convPanel.style.cssText = "flex:1;display:flex;flex-direction:column;overflow:hidden;";
+
+    var messagesRef = db.collection("conversations").doc(convId).collection("messages").orderBy("createdAt");
+    var listener = messagesRef.onSnapshot(function(snapshot) {
+      var list = document.getElementById("messages-list");
+      if (!list) return;
+      list.innerHTML = "";
+      snapshot.forEach(function(docSnap) {
+        var msg = docSnap.data();
+        var isMine = msg.uid === uid;
+        var div = document.createElement("div");
+        div.style.cssText = "display:flex;justify-content:" + (isMine ? "flex-end" : "flex-start") + ";";
+        var bubble = document.createElement("div");
+        bubble.style.cssText = "max-width:70%;padding:10px 14px;border-radius:" + (isMine ? "18px 18px 4px 18px" : "18px 18px 18px 4px") + ";background:" + (isMine ? "#c9a86a" : "white") + ";color:" + (isMine ? "white" : "#3a3a3a") + ";font-size:13px;border:1px solid " + (isMine ? "#c9a86a" : "#e8d4b0") + ";";
+        var heure = msg.createdAt ? new Date(msg.createdAt.seconds * 1000).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }) : "";
+        bubble.innerHTML = "<div>" + msg.texte + "</div><div style='font-size:10px;opacity:0.7;text-align:right;margin-top:3px;'>" + heure + "</div>";
+        div.appendChild(bubble);
+        list.appendChild(div);
+      });
+      list.scrollTop = list.scrollHeight;
+    });
+    onListener(listener);
+
+    document.getElementById("msg-input").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") document.getElementById("msg-send").click();
+    });
+    document.getElementById("msg-send").onclick = function() {
+      var input = document.getElementById("msg-input");
+      var texte = input.value.trim();
+      if (!texte) return;
+      db.collection("conversations").doc(convId).collection("messages").add({
+        uid: uid, prenom: userData.prenom || "", texte: texte,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }).then(function() {
+        input.value = "";
+        if (membreData.email) {
+          emailjs.init("D_JtKhPDgOQWi_ECO");
+          emailjs.send("service_wr9mlhk", "template_wk2j4mg", {
+            prenom: membreData.prenom || "", nom: membreData.nom || "", email: membreData.email,
+            titre_message: "Nouveau message de " + (userData.prenom || "") + " !",
+            corps_message: (userData.prenom || "") + " t a envoye un message prive : " + texte,
+            lien_action: "Connecte-toi sur l Academie pour lui repondre.",
+            date: new Date().toLocaleDateString("fr-FR")
+          }).catch(function(err) { console.log("Erreur email message:", err); });
+        }
+      });
+    };
+  }
