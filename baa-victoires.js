@@ -285,10 +285,12 @@ function openVictoiresPanel() {
   }
 
   db.collection("users").where("accountStatus", "==", "active").get().then(function(snapshot) {
-    snapshot.forEach(function(docSnap) { tousLesMembres.push(docSnap.data()); });
-  });
-
-  db.collection("users").doc(uid).get().then(function(snap) {
+    snapshot.forEach(function(docSnap) {
+      var m = docSnap.data(); m._uid = docSnap.id;
+      tousLesMembres.push(m);
+    });
+    return db.collection("users").doc(uid).get();
+  }).then(function(snap) {
     var d = snap.data() || {};
     isAdmin = d.role === "admin";
     document.getElementById("victoires-refresh").onclick = function() {
@@ -411,26 +413,22 @@ function openVictoiresPanel() {
     content.innerHTML = "<div style='display:flex;gap:0;height:100%;'><div id='membres-list-msg' style='width:220px;min-width:220px;border-right:1px solid #e8d4b0;overflow-y:auto;background:white;border-radius:0 0 0 20px;'><div style='padding:14px;color:#8b735d;font-size:13px;font-weight:bold;border-bottom:1px solid #f0e6d3;'>Conversations</div></div><div id='conv-panel' style='flex:1;display:flex;flex-direction:column;'><div id='conv-placeholder' style='flex:1;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:14px;'>Selectionne une membre pour discuter</div></div></div>";
     content.style.cssText = "flex:1;overflow:hidden;max-width:800px;width:100%;margin:0 auto;box-sizing:border-box;display:flex;flex-direction:column;padding:0;";
 
-    db.collection("users").where("accountStatus", "==", "active").get().then(function(snapshot) {
-      var membresList = document.getElementById("membres-list-msg");
-      snapshot.forEach(function(docSnap) {
-        if (docSnap.id === uid && !isAdmin) return;
-        var m = docSnap.data();
-        var mid = docSnap.id;
-        if (mid === uid) return;
-        var item = document.createElement("div");
-        item.style.cssText = "display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;border-bottom:1px solid #f8f3ee;";
-        var av = m.photoURL ? "<img src='" + m.photoURL + "' style='width:36px;height:36px;border-radius:50%;object-fit:cover;' />" : "<div style='width:36px;height:36px;border-radius:50%;background:#c9a86a;display:flex;align-items:center;justify-content:center;min-width:36px;'><span style='color:white;font-size:13px;font-weight:bold;'>" + (m.prenom ? m.prenom[0].toUpperCase() : "?") + "</span></div>";
-        item.innerHTML = av + "<div style='font-size:13px;font-weight:bold;color:#3a3a3a;'>" + (m.prenom || "") + " " + (m.nom || "") + "</div>";
-        item.onmouseenter = function() { item.style.background = "#f8f3ee"; };
-        item.onmouseleave = function() { item.style.background = "white"; };
-        item.onclick = function() {
-          document.querySelectorAll("#membres-list-msg div").forEach(function(el) { el.style.background = "white"; });
-          item.style.background = "#f0e6d3";
-          ouvrirConversation(uid, mid, m, userData, onListener);
-        };
-        membresList.appendChild(item);
-      });
+    var membresList = document.getElementById("membres-list-msg");
+    tousLesMembres.forEach(function(m) {
+      var mid = m._uid;
+      if (!mid || mid === uid) return;
+      var item = document.createElement("div");
+      item.style.cssText = "display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;border-bottom:1px solid #f8f3ee;";
+      var av = m.photoURL ? "<img src='" + m.photoURL + "' style='width:36px;height:36px;border-radius:50%;object-fit:cover;' />" : "<div style='width:36px;height:36px;border-radius:50%;background:#c9a86a;display:flex;align-items:center;justify-content:center;min-width:36px;'><span style='color:white;font-size:13px;font-weight:bold;'>" + (m.prenom ? m.prenom[0].toUpperCase() : "?") + "</span></div>";
+      item.innerHTML = av + "<div style='font-size:13px;font-weight:bold;color:#3a3a3a;'>" + (m.prenom || "") + " " + (m.nom || "") + "</div>";
+      item.onmouseenter = function() { item.style.background = "#f8f3ee"; };
+      item.onmouseleave = function() { item.style.background = "white"; };
+      item.onclick = function() {
+        document.querySelectorAll("#membres-list-msg div").forEach(function(el) { el.style.background = "white"; });
+        item.style.background = "#f0e6d3";
+        ouvrirConversation(uid, mid, m, userData, onListener);
+      };
+      membresList.appendChild(item);
     });
   }
 
