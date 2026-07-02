@@ -16,7 +16,7 @@ function openVictoiresPanel() {
 
   var header = document.createElement("div");
   header.style.cssText = "background:linear-gradient(135deg,#f3e7d3,#e8d4b0);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e8d4b0;flex-shrink:0;flex-wrap:wrap;gap:8px;";
-  header.innerHTML = "<h2 style='color:#8b735d;margin:0;font-size:16px;'>&#127942; Mur des Victoires</h2><div style='display:flex;gap:6px;'><button id='tab-v-btn' style='background:#c9a86a;color:white;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>Victoires</button><button id='tab-m-btn' style='background:rgba(255,255,255,0.5);color:#8b735d;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>&#128172; Messages</button><button id='tab-a-btn' style='display:none;background:rgba(255,255,255,0.5);color:#8b735d;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>&#9881; Admin</button></div><div style='display:flex;gap:6px;align-items:center;'><div id='notif-btn' style='position:relative;cursor:pointer;padding:4px;'><span style='font-size:20px;'>&#128276;</span><span id='notif-badge' style='position:absolute;top:0;right:0;background:#e74c3c;color:white;border-radius:50%;width:14px;height:14px;font-size:9px;font-weight:bold;display:none;align-items:center;justify-content:center;line-height:14px;text-align:center;'>0</span></div><button id='v-refresh' style='background:rgba(255,255,255,0.5);border:none;cursor:pointer;color:#8b735d;font-size:12px;font-weight:bold;padding:6px 10px;border-radius:6px;'>&#128260; Rafraichir</button><span id='v-resize' style='cursor:pointer;color:#8b735d;background:rgba(255,255,255,0.5);width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;'>&#8993;</span><span id='v-close' style='cursor:pointer;color:#8b735d;background:rgba(255,255,255,0.5);width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;'>&#10005;</span></div>";
+  header.innerHTML = "<h2 style='color:#8b735d;margin:0;font-size:16px;'>&#127942; Mur des Victoires</h2><div style='display:flex;gap:6px;'><button id='tab-v-btn' style='background:#c9a86a;color:white;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>Victoires</button><button id='tab-m-btn' style='background:rgba(255,255,255,0.5);color:#8b735d;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>&#128172; Messages<span id='msg-tab-badge' style='display:none;background:#e74c3c;color:white;border-radius:50%;width:14px;height:14px;font-size:9px;font-weight:bold;margin-left:4px;align-items:center;justify-content:center;line-height:14px;vertical-align:middle;display:none;'>!</span></button><button id='tab-a-btn' style='display:none;background:rgba(255,255,255,0.5);color:#8b735d;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>&#9881; Admin</button></div><div style='display:flex;gap:6px;align-items:center;'><div id='notif-btn' style='position:relative;cursor:pointer;padding:4px;'><span style='font-size:20px;'>&#128276;</span><span id='notif-badge' style='position:absolute;top:0;right:0;background:#e74c3c;color:white;border-radius:50%;width:14px;height:14px;font-size:9px;font-weight:bold;display:none;align-items:center;justify-content:center;line-height:14px;text-align:center;'>0</span></div><button id='v-refresh' style='background:rgba(255,255,255,0.5);border:none;cursor:pointer;color:#8b735d;font-size:12px;font-weight:bold;padding:6px 10px;border-radius:6px;'>&#128260; Rafraichir</button><span id='v-resize' style='cursor:pointer;color:#8b735d;background:rgba(255,255,255,0.5);width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;'>&#8993;</span><span id='v-close' style='cursor:pointer;color:#8b735d;background:rgba(255,255,255,0.5);width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;'>&#10005;</span></div>";
 
   var content = document.createElement("div");
   content.id = "v-content";
@@ -457,7 +457,8 @@ function openVictoiresPanel() {
   function afficherMessages() {
     if (messageListener) { messageListener(); messageListener = null; }
     content.style.cssText = "flex:1;overflow:hidden;max-width:800px;width:100%;margin:0 auto;box-sizing:border-box;display:flex;flex-direction:column;padding:0;";
-    content.innerHTML = "<div style='display:flex;flex:1;overflow:hidden;'><div id='mlist' style='width:220px;min-width:220px;border-right:1px solid #e8d4b0;overflow-y:auto;background:white;'><div style='padding:12px;color:#8b735d;font-size:12px;font-weight:bold;border-bottom:1px solid #f0e6d3;'>Conversations</div></div><div id='mconv' style='flex:1;display:flex;flex-direction:column;overflow:hidden;'><div style='flex:1;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:13px;'>Selectionne une membre</div></div></div>";
+    var isMobile = window.innerWidth < 768;
+    content.innerHTML = "<div style='display:flex;flex:1;overflow:hidden;'><div id='mlist' style='width:" + (isMobile ? '100%' : '220px') + ";" + (isMobile ? '' : 'min-width:220px;') + "border-right:1px solid #e8d4b0;overflow-y:auto;background:white;'><div style='padding:12px;color:#8b735d;font-size:12px;font-weight:bold;border-bottom:1px solid #f0e6d3;'>Conversations</div></div><div id='mconv' style='flex:1;display:flex;flex-direction:column;overflow:hidden;'><div style='flex:1;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:13px;'>Selectionne une membre</div></div></div>";
     var ml = document.getElementById("mlist");
     tousLesMembres.forEach(function(m) {
       if (!m._uid || m._uid === uid) return;
@@ -483,10 +484,11 @@ function openVictoiresPanel() {
           var msg = snap.docs[0].data();
           var prefix = msg.uid === uid ? "Vous : " : "";
           prev.innerText = prefix + (msg.texte || "Photo");
-          // Badge non lu
-          if (msg.uid !== uid && (!msg.lu || msg.lu !== uid)) {
+          if (msg.uid !== uid && msg.lu === false) {
             var badge = document.getElementById("badge-" + m._uid);
             if (badge) badge.style.display = "flex";
+            var tabBadge = document.getElementById("msg-tab-badge");
+            if (tabBadge) tabBadge.style.display = "inline-flex";
           }
         }
       });
@@ -495,13 +497,28 @@ function openVictoiresPanel() {
 
   function ouvrirConv(membre) {
     if (messageListener) { messageListener(); messageListener = null; }
-    // Retirer le badge immédiatement
     var badge = document.getElementById("badge-" + membre._uid);
     if (badge) badge.style.display = "none";
+    var tabBadge = document.getElementById("msg-tab-badge");
+    if (tabBadge) tabBadge.style.display = "none";
+    // Sur mobile, cacher la liste et afficher plein écran
+    var isMobile = window.innerWidth < 768;
+    if (isMobile) {
+      var ml = document.getElementById("mlist");
+      if (ml) ml.style.display = "none";
+    }
     var convId = [uid, membre._uid].sort().join("_");
     var mc = document.getElementById("mconv");
-    mc.innerHTML = "<div style='padding:12px 16px;border-bottom:1px solid #e8d4b0;background:white;font-weight:bold;color:#3a3a3a;font-size:13px;flex-shrink:0;'>" + (membre.prenom||"") + " " + (membre.nom||"") + "</div><div id='msgs' style='flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px;'></div><div style='padding:10px;border-top:1px solid #e8d4b0;background:white;flex-shrink:0;'><div id='emoji-picker' style='display:none;flex-wrap:wrap;gap:4px;padding:8px;background:#f8f3ee;border-radius:10px;margin-bottom:6px;'>&#128293;&#128170;&#127881;&#128079;&#10084;&#128514;&#128513;&#128557;&#129299;&#128526;&#129303;&#127775;&#128591;&#127942;&#128176;&#128640;&#129395;&#128522;&#128578;'.split('').filter(function(c,i,a){return a.indexOf(c)===i;}).map(function(e){return e;}).join('')</div><div id='emoji-bar' style='display:none;flex-wrap:wrap;gap:4px;padding:8px;background:#f8f3ee;border-radius:10px;margin-bottom:6px;'></div><div style='display:flex;gap:6px;align-items:center;'><button id='emoji-btn' style='background:none;border:none;cursor:pointer;font-size:20px;padding:4px;'>&#128515;</button><label style='cursor:pointer;font-size:18px;padding:4px;'>&#128247;<input type='file' id='mphoto' accept='image/*' style='display:none;' /></label><input id='minput' placeholder='Ecrire...' style='flex:1;padding:8px 12px;border:1px solid #e8d4b0;border-radius:20px;font-size:12px;outline:none;' /><button id='msend' style='background:#c9a86a;color:white;border:none;padding:8px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:bold;'>Envoyer</button></div><div id='mphoto-preview' style='display:none;margin-top:6px;position:relative;'><img id='mphoto-img' style='max-height:80px;border-radius:8px;border:1px solid #e8d4b0;' /><span id='mphoto-del' style='position:absolute;top:-6px;right:-6px;background:#e74c3c;color:white;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;'>&#10005;</span></div></div>";
+    mc.innerHTML = "<div style='padding:12px 16px;border-bottom:1px solid #e8d4b0;background:white;font-weight:bold;color:#3a3a3a;font-size:13px;flex-shrink:0;display:flex;align-items:center;gap:8px;'>" + (window.innerWidth < 768 ? "<span id='back-conv' style='cursor:pointer;font-size:18px;color:#c9a86a;'>&#8592;</span>" : "") + (membre.prenom||"") + " " + (membre.nom||"") + "</div><div id='msgs' style='flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px;'></div><div style='padding:10px;border-top:1px solid #e8d4b0;background:white;flex-shrink:0;'><div id='emoji-bar' style='display:none;flex-wrap:wrap;gap:4px;padding:8px;background:#f8f3ee;border-radius:10px;margin-bottom:6px;'></div><div style='display:flex;gap:6px;align-items:center;'><button id='emoji-btn' style='background:none;border:none;cursor:pointer;font-size:20px;padding:4px;'>&#128515;</button><label style='cursor:pointer;font-size:18px;padding:4px;'>&#128247;<input type='file' id='mphoto' accept='image/*' style='display:none;' /></label><input id='minput' placeholder='Ecrire...' style='flex:1;padding:8px 12px;border:1px solid #e8d4b0;border-radius:20px;font-size:12px;outline:none;' /><button id='msend' style='background:#c9a86a;color:white;border:none;padding:8px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:bold;'>Envoyer</button></div><div id='mphoto-preview' style='display:none;margin-top:6px;position:relative;'><img id='mphoto-img' style='max-height:80px;border-radius:8px;border:1px solid #e8d4b0;' /><span id='mphoto-del' style='position:absolute;top:-6px;right:-6px;background:#e74c3c;color:white;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;'>&#10005;</span></div></div>";
     mc.style.cssText = "flex:1;display:flex;flex-direction:column;overflow:hidden;";
+    if (window.innerWidth < 768) {
+      var backBtn = document.getElementById("back-conv");
+      if (backBtn) backBtn.onclick = function() {
+        var ml = document.getElementById("mlist"); if (ml) ml.style.display = "block";
+        mc.innerHTML = "<div style='flex:1;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:13px;'>Selectionne une membre</div>";
+        if (messageListener) { messageListener(); messageListener = null; }
+      };
+    }
 
     // Emoji picker
     var emojisDispos = ["😃","😊","😂","😍","😢","🥰","🤗","😎","🤩","😅","👍","👏","🙌","🎉","🔥","💪","❤️","⭐","🏆","💰","🚀","✨","🌸","🎯","💯"];
