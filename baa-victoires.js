@@ -235,7 +235,7 @@ function openVictoiresPanel() {
             item.innerText = m.prenom + " " + m.nom;
             item.onmouseenter = function() { item.style.background = "#f8f3ee"; };
             item.onmouseleave = function() { item.style.background = "white"; };
-            item.onclick = function() { ta.value = val.slice(0, at) + "@" + m.prenom + " " + m.nom + " "; ml.style.display = "none"; };
+            item.onclick = function() { ta.value = val.slice(0, at) + "@" + m.prenom + " " + m.nom + " "; ml.style.display = "none"; ta.style.border = "2px solid #c9a86a"; ta.style.boxShadow = "0 0 0 3px rgba(201,168,106,0.2)"; setTimeout(function(){ta.style.border="1px solid #e8d4b0";ta.style.boxShadow="none";},2000); };
             ml.appendChild(item);
           });
           ml.style.display = "block";
@@ -371,7 +371,7 @@ function openVictoiresPanel() {
                 var it = document.createElement("div"); it.style.cssText = "padding:7px 10px;cursor:pointer;font-size:12px;";
                 it.innerText = m.prenom + " " + m.nom;
                 it.onmouseenter = function() { it.style.background = "#f8f3ee"; }; it.onmouseleave = function() { it.style.background = "white"; };
-                it.onclick = function() { inp.value = val.slice(0, at) + "@" + m.prenom + " " + m.nom + " "; ml.style.display = "none"; };
+                it.onclick = function() { inp.value = val.slice(0, at) + "@" + m.prenom + " " + m.nom + " "; ml.style.display = "none"; inp.style.border = "2px solid #c9a86a"; inp.style.boxShadow = "0 0 0 3px rgba(201,168,106,0.2)"; setTimeout(function(){inp.style.border="1px solid #e8d4b0";inp.style.boxShadow="none";},2000); };
                 ml.appendChild(it);
               }); ml.style.display = "block";
             } else { ml.style.display = "none"; }
