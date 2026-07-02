@@ -48,16 +48,37 @@ function initBadges() {
 
   function flameSVG(pct, couleur, size) {
     size = size || 120;
-    var fillY = 460 - (pct / 100) * 330;
-    return '<svg width="' + size + '" height="' + Math.round(size * 1.3) + '" viewBox="0 0 340 460" xmlns="http://www.w3.org/2000/svg">' +
+    var totalH = 460;
+    var fillH = Math.round((pct / 100) * totalH);
+    var fillY = totalH - fillH;
+    fillY = Math.max(0, Math.min(totalH, fillY));
+    var glowY = Math.max(0, fillY - 25);
+    return '<svg width="' + size + '" height="' + Math.round(size * 1.35) + '" viewBox="0 0 340 460" xmlns="http://www.w3.org/2000/svg">' +
       '<defs><clipPath id="fc' + size + '"><path d="M170 30 C185 55 210 65 220 90 C235 125 228 155 222 178 C238 158 248 135 242 108 C252 140 250 170 238 195 C252 180 260 158 256 135 C263 165 258 200 242 222 C252 212 256 192 252 172 C258 202 252 235 236 255 C246 242 248 222 244 205 C248 230 242 260 224 278 C232 265 234 245 230 228 C232 252 225 275 212 290 C216 272 218 252 214 235 C208 258 202 280 192 293 C195 273 196 253 192 237 C186 260 181 282 172 293 C174 273 175 253 173 237 C167 258 162 280 153 293 C155 273 156 253 154 237 C148 258 140 278 131 290 C134 270 135 250 131 233 C122 253 116 275 116 295 C110 272 114 245 122 222 C108 240 102 265 104 288 C96 262 100 230 112 205 C100 218 94 242 96 265 C88 238 92 202 108 178 C96 192 90 215 92 238 C84 208 88 172 106 148 C94 162 88 188 90 210 C82 178 86 140 104 115 C110 98 124 85 137 75 C148 66 160 61 167 50 C174 35 175 20 176 10 C181 30 175 45 170 30Z"/></clipPath></defs>' +
       '<path d="M170 30 C185 55 210 65 220 90 C235 125 228 155 222 178 C238 158 248 135 242 108 C252 140 250 170 238 195 C252 180 260 158 256 135 C263 165 258 200 242 222 C252 212 256 192 252 172 C258 202 252 235 236 255 C246 242 248 222 244 205 C248 230 242 260 224 278 C232 265 234 245 230 228 C232 252 225 275 212 290 C216 272 218 252 214 235 C208 258 202 280 192 293 C195 273 196 253 192 237 C186 260 181 282 172 293 C174 273 175 253 173 237 C167 258 162 280 153 293 C155 273 156 253 154 237 C148 258 140 278 131 290 C134 270 135 250 131 233 C122 253 116 275 116 295 C110 272 114 245 122 222 C108 240 102 265 104 288 C96 262 100 230 112 205 C100 218 94 242 96 265 C88 238 92 202 108 178 C96 192 90 215 92 238 C84 208 88 172 106 148 C94 162 88 188 90 210 C82 178 86 140 104 115 C110 98 124 85 137 75 C148 66 160 61 167 50 C174 35 175 20 176 10 C181 30 175 45 170 30Z" fill="#1a0c02" stroke="#3d1f05" stroke-width="1.5"/>' +
       '<g clip-path="url(#fc' + size + ')">' +
-      '<rect x="0" y="' + fillY + '" width="340" height="' + (460 - fillY) + '" fill="' + couleur + '"/>' +
-      '<rect x="0" y="' + (fillY - 30) + '" width="340" height="35" fill="#FAC775" opacity="0.4"/>' +
+      (fillH > 0 ? '<rect x="0" y="' + fillY + '" width="340" height="' + fillH + '" fill="' + couleur + '"/>' : '') +
+      (fillH > 25 ? '<rect x="0" y="' + glowY + '" width="340" height="30" fill="#FAC775" opacity="0.35"/>' : '') +
       '</g>' +
       '<path d="M170 30 C185 55 210 65 220 90 C235 125 228 155 222 178 C238 158 248 135 242 108 C252 140 250 170 238 195 C252 180 260 158 256 135 C263 165 258 200 242 222 C252 212 256 192 252 172 C258 202 252 235 236 255 C246 242 248 222 244 205 C248 230 242 260 224 278 C232 265 234 245 230 228 C232 252 225 275 212 290 C216 272 218 252 214 235 C208 258 202 280 192 293 C195 273 196 253 192 237 C186 260 181 282 172 293 C174 273 175 253 173 237 C167 258 162 280 153 293 C155 273 156 253 154 237 C148 258 140 278 131 290 C134 270 135 250 131 233 C122 253 116 275 116 295 C110 272 114 245 122 222 C108 240 102 265 104 288 C96 262 100 230 112 205 C100 218 94 242 96 265 C88 238 92 202 108 178 C96 192 90 215 92 238 C84 208 88 172 106 148 C94 162 88 188 90 210 C82 178 86 140 104 115 C110 98 124 85 137 75 C148 66 160 61 167 50 C174 35 175 20 176 10 C181 30 175 45 170 30Z" fill="none" stroke="' + couleur + '" stroke-width="2"/>' +
       '</svg>';
+  }
+
+  function afficherMiniFlamme(pts, niveau, pct) {
+    var existing = document.getElementById("baa-mini-flamme");
+    if (existing) existing.remove();
+    var menuBtn = document.getElementById("baa-menu-btn");
+    if (!menuBtn) return;
+    var mini = document.createElement("div");
+    mini.id = "baa-mini-flamme";
+    mini.style.cssText = "position:fixed;bottom:72px;right:12px;z-index:99998;display:flex;flex-direction:column;align-items:center;cursor:pointer;";
+    mini.innerHTML = flameSVG(pct, niveau.couleur, 36) +
+      "<div style='background:rgba(26,12,2,0.85);border-radius:6px;padding:2px 7px;margin-top:2px;text-align:center;'>" +
+      "<div style='color:" + niveau.couleur + ";font-size:9px;font-weight:bold;font-family:Arial;'>" + pts + " pts</div>" +
+      "<div style='color:#FAC775;font-size:8px;font-family:Arial;'>" + niveau.emoji + " " + niveau.nom + "</div>" +
+      "</div>";
+    mini.onclick = function() { if (typeof openBadgesPanel === "function") openBadgesPanel(); };
+    document.body.appendChild(mini);
   }
 
   function ouvrirBadgesPanel() {
@@ -136,6 +157,9 @@ function initBadges() {
     if (pts !== d.badgePoints || !d.badgeMois) {
       db.collection("users").doc(uid).update({ badgePoints: pts, badgeMois: moisActuel }).catch(function(){});
     }
+    var niveau = getNiveau(pts);
+    var pct = getProgression(pts);
+    afficherMiniFlamme(pts, niveau, pct);
   }, function(){});
 }
 
