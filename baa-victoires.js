@@ -16,7 +16,7 @@ function openVictoiresPanel() {
 
   var header = document.createElement("div");
   header.style.cssText = "background:linear-gradient(135deg,#f3e7d3,#e8d4b0);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e8d4b0;flex-shrink:0;flex-wrap:wrap;gap:8px;";
-  header.innerHTML = "<h2 style='color:#8b735d;margin:0;font-size:16px;'>&#127942; Mur des Victoires</h2><div style='display:flex;gap:6px;'><button id='tab-v-btn' style='background:#c9a86a;color:white;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>Victoires</button><button id='tab-m-btn' style='background:rgba(255,255,255,0.5);color:#8b735d;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>&#128172; Messages</button><button id='tab-a-btn' style='display:none;background:rgba(255,255,255,0.5);color:#8b735d;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>&#9881; Admin</button></div><div style='display:flex;gap:6px;align-items:center;'><button id='v-refresh' style='background:rgba(255,255,255,0.5);border:none;cursor:pointer;color:#8b735d;font-size:12px;font-weight:bold;padding:6px 10px;border-radius:6px;'>&#128260; Rafraichir</button><span id='v-resize' style='cursor:pointer;color:#8b735d;background:rgba(255,255,255,0.5);width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;'>&#8993;</span><span id='v-close' style='cursor:pointer;color:#8b735d;background:rgba(255,255,255,0.5);width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;'>&#10005;</span></div>";
+  header.innerHTML = "<h2 style='color:#8b735d;margin:0;font-size:16px;'>&#127942; Mur des Victoires</h2><div style='display:flex;gap:6px;'><button id='tab-v-btn' style='background:#c9a86a;color:white;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>Victoires</button><button id='tab-m-btn' style='background:rgba(255,255,255,0.5);color:#8b735d;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>&#128172; Messages</button><button id='tab-a-btn' style='display:none;background:rgba(255,255,255,0.5);color:#8b735d;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>&#9881; Admin</button></div><div style='display:flex;gap:6px;align-items:center;'><div id='notif-btn' style='position:relative;cursor:pointer;padding:4px;'><span style='font-size:20px;'>&#128276;</span><span id='notif-badge' style='position:absolute;top:0;right:0;background:#e74c3c;color:white;border-radius:50%;width:14px;height:14px;font-size:9px;font-weight:bold;display:none;align-items:center;justify-content:center;line-height:14px;text-align:center;'>0</span></div><button id='v-refresh' style='background:rgba(255,255,255,0.5);border:none;cursor:pointer;color:#8b735d;font-size:12px;font-weight:bold;padding:6px 10px;border-radius:6px;'>&#128260; Rafraichir</button><span id='v-resize' style='cursor:pointer;color:#8b735d;background:rgba(255,255,255,0.5);width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;'>&#8993;</span><span id='v-close' style='cursor:pointer;color:#8b735d;background:rgba(255,255,255,0.5);width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px;'>&#10005;</span></div>";
 
   var content = document.createElement("div");
   content.id = "v-content";
@@ -71,6 +71,133 @@ function openVictoiresPanel() {
     document.getElementById("tab-m-btn").style.background = "rgba(255,255,255,0.5)"; document.getElementById("tab-m-btn").style.color = "#8b735d";
     ongletActif = "admin"; afficherAdminConversations();
   };
+
+  document.getElementById("notif-btn").onclick = function() {
+    document.getElementById("tab-v-btn").style.background = "rgba(255,255,255,0.5)"; document.getElementById("tab-v-btn").style.color = "#8b735d";
+    document.getElementById("tab-m-btn").style.background = "rgba(255,255,255,0.5)"; document.getElementById("tab-m-btn").style.color = "#8b735d";
+    document.getElementById("tab-a-btn").style.background = "rgba(255,255,255,0.5)"; document.getElementById("tab-a-btn").style.color = "#8b735d";
+    if (messageListener) { messageListener(); messageListener = null; }
+    ongletActif = "notifs";
+    content.style.cssText = "flex:1;overflow-y:auto;padding:20px;max-width:800px;width:100%;margin:0 auto;box-sizing:border-box;";
+    content.innerHTML = "<div style='background:white;border-radius:14px;padding:18px;border:1px solid #e8d4b0;'><div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;'><p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0;'>&#128276; Notifications</p><button id='notif-tout-lu' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:11px;'>Tout marquer comme lu</button></div><div id='notif-list'><p style='color:#999;text-align:center;'>Chargement...</p></div></div>";
+    document.getElementById("notif-tout-lu").onclick = function() {
+      db.collection("notifications").where("destUid", "==", uid).where("lu", "==", false).get().then(function(snap) {
+        var batch = db.batch();
+        snap.forEach(function(d) { batch.update(d.ref, { lu: true }); });
+        batch.commit().then(function() { chargerNotifications(); majBadge(); });
+      }).catch(function(e) { console.log("Erreur notif:", e); });
+    };
+    chargerNotifications();
+  };
+
+  function majBadge() {
+    db.collection("notifications").where("destUid", "==", uid).where("lu", "==", false).get().then(function(snap) {
+      var badge = document.getElementById("notif-badge"); if (!badge) return;
+      if (snap.size > 0) { badge.innerText = snap.size > 9 ? "9+" : snap.size; badge.style.display = "inline-block"; }
+      else { badge.style.display = "none"; }
+    }).catch(function() {});
+  }
+
+  function envoyerNotif(destUid, type, texte) {
+    if (destUid === uid) return;
+    db.collection("notifications").add({
+      destUid: destUid, type: type, texte: texte, lu: false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(function() {});
+  }
+
+  function chargerNotifications() {
+    db.collection("notifications").where("destUid", "==", uid).orderBy("createdAt", "desc").limit(30).get().then(function(snap) {
+      var list = document.getElementById("notif-list"); if (!list) return;
+      if (snap.empty) { list.innerHTML = "<p style='color:#999;text-align:center;'>Aucune notification.</p>"; return; }
+      list.innerHTML = "";
+      snap.forEach(function(docSnap) {
+        var n = docSnap.data(); var nid = docSnap.id;
+        var date = n.createdAt ? new Date(n.createdAt.seconds*1000).toLocaleDateString("fr-FR",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}) : "";
+        var icons = { victoire:"&#127942;", reaction:"&#10084;", commentaire:"&#128172;", message:"&#128172;" };
+        var icon = icons[n.type] || "&#128276;";
+        var row = document.createElement("div");
+        row.style.cssText = "display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;margin-bottom:6px;cursor:pointer;background:" + (n.lu?"white":"#fdf6ec") + ";border:1px solid " + (n.lu?"#f0e6d3":"#e8d4b0") + ";";
+        row.innerHTML = "<span style='font-size:20px;'>" + icon + "</span><div style='flex:1;'><div style='color:#3a3a3a;font-size:12px;'>" + n.texte + "</div><div style='color:#bbb;font-size:11px;margin-top:2px;'>" + date + "</div></div>" + (!n.lu ? "<span style='width:8px;height:8px;background:#e74c3c;border-radius:50%;min-width:8px;display:block;'></span>" : "");
+        row.onclick = function() {
+          db.collection("notifications").doc(nid).update({ lu: true }).catch(function(){});
+          majBadge();
+          if (n.type === "message") { document.getElementById("tab-m-btn").click(); }
+          else { document.getElementById("tab-v-btn").click(); }
+        };
+        list.appendChild(row);
+      });
+      majBadge();
+    }).catch(function(e) { console.log("Erreur chargement notifs:", e); });
+  }
+
+  document.getElementById("notif-btn").onclick = function() { afficherNotifications(); };
+
+  function envoyerNotif(destUid, type, texte) {
+    if (!destUid || destUid === uid) return;
+    db.collection("notifications").add({
+      destUid: destUid, type: type, texte: texte,
+      lu: false, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(function() {});
+  }
+
+  function mettreAJourBadge() {
+    db.collection("notifications").where("destUid", "==", uid).where("lu", "==", false).get().then(function(snap) {
+      var badge = document.getElementById("notif-badge");
+      if (!badge) return;
+      if (snap.size > 0) { badge.innerText = snap.size > 9 ? "9+" : snap.size; badge.style.display = "inline-block"; }
+      else { badge.style.display = "none"; }
+    }).catch(function() {});
+  }
+
+  function afficherNotifications() {
+    if (messageListener) { messageListener(); messageListener = null; }
+    ongletActif = "notifs";
+    ["tab-v-btn","tab-m-btn","tab-a-btn"].forEach(function(id) {
+      var el = document.getElementById(id); if (el) { el.style.background = "rgba(255,255,255,0.5)"; el.style.color = "#8b735d"; }
+    });
+    content.style.cssText = "flex:1;overflow-y:auto;padding:20px;max-width:800px;width:100%;margin:0 auto;box-sizing:border-box;";
+    content.innerHTML = "<div style='background:white;border-radius:14px;padding:18px;border:1px solid #e8d4b0;'><div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;'><p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0;'>&#128276; Notifications</p><button id='notif-tout-lu' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:11px;'>Tout marquer comme lu</button></div><div id='notif-list'><p style='color:#999;text-align:center;'>Chargement...</p></div></div>";
+    document.getElementById("notif-tout-lu").onclick = function() {
+      db.collection("notifications").where("destUid", "==", uid).where("lu", "==", false).get().then(function(snap) {
+        var batch = db.batch();
+        snap.forEach(function(d) { batch.update(d.ref, { lu: true }); });
+        batch.commit().then(function() { afficherNotifications(); majBadge(); });
+      }).catch(function() {});
+    };
+    db.collection("notifications").where("destUid", "==", uid).orderBy("createdAt", "desc").limit(30).get().then(function(snap) {
+      var list = document.getElementById("notif-list"); if (!list) return;
+      if (snap.empty) { list.innerHTML = "<p style='color:#999;text-align:center;'>Aucune notification.</p>"; return; }
+      list.innerHTML = "";
+      snap.forEach(function(docSnap) {
+        var n = docSnap.data(); var nid = docSnap.id;
+        var date = n.createdAt ? new Date(n.createdAt.seconds*1000).toLocaleDateString("fr-FR",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}) : "";
+        var icons = { victoire: "&#127942;", reaction: "&#10084;", commentaire: "&#128172;", message: "&#128172;" };
+        var row = document.createElement("div");
+        row.style.cssText = "display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;margin-bottom:6px;cursor:pointer;background:" + (n.lu ? "white" : "#fdf6ec") + ";border:1px solid " + (n.lu ? "#f0e6d3" : "#e8d4b0") + ";";
+        row.innerHTML = "<span style='font-size:18px;'>" + (icons[n.type]||"&#128276;") + "</span><div style='flex:1;'><div style='color:#3a3a3a;font-size:12px;'>" + n.texte + "</div><div style='color:#bbb;font-size:11px;margin-top:2px;'>" + date + "</div></div>" + (!n.lu ? "<span style='width:8px;height:8px;background:#e74c3c;border-radius:50%;display:inline-block;'></span>" : "");
+        row.onclick = function() {
+          db.collection("notifications").doc(nid).update({ lu: true });
+          majBadge();
+          if (n.type === "message") { document.getElementById("tab-m-btn").click(); }
+          else { document.getElementById("tab-v-btn").click(); }
+        };
+        list.appendChild(row);
+      });
+    }).catch(function(e) { var list = document.getElementById("notif-list"); if (list) list.innerHTML = "<p style='color:#999;text-align:center;'>Erreur chargement.</p>"; });
+  }
+
+  // Chargement Firebase initial
+  db.collection("users").where("accountStatus", "==", "active").get().then(function(snap) {
+    snap.forEach(function(d) {
+      var m = d.data(); m._uid = d.id;
+      tousLesMembres.push(m);
+      if (d.id === uid) { userData = m; isAdmin = m.role === "admin"; }
+    });
+    if (isAdmin) document.getElementById("tab-a-btn").style.display = "block";
+    majBadge();
+    afficherVictoires();
+  });
 
   // ===================== VICTOIRES =====================
   function afficherVictoires() {
@@ -135,8 +262,7 @@ function openVictoiresPanel() {
       });
       emailjs.init("D_JtKhPDgOQWi_ECO");
       tousLesMembres.forEach(function(m) {
-        if (m._uid !== uid) {
-        }
+        if (m._uid !== uid) envoyerNotif(m._uid, "victoire", (userData.prenom||"") + " a partage une nouvelle victoire !" + (categorieSelectionnee ? " (" + categorieSelectionnee + ")" : ""));
         if (m.email && m._uid !== uid) {
           emailjs.send("service_wr9mlhk", "template_wk2j4mg", {
             prenom: m.prenom || "", nom: m.nom || "", email: m.email,
@@ -185,6 +311,14 @@ function openVictoiresPanel() {
           if (i > -1) { r[k].splice(i, 1); if (!r[k].length) delete r[k]; } else { r[k].push(uid); }
           db.collection("victoires").doc(vid).update({ reactions: r }).then(function() {
             c.innerHTML = afficherReactions(r, vid); attachReactions(vid);
+            db.collection("victoires").doc(vid).get().then(function(vs) {
+              var vd = vs.data();
+              if (vd && vd.uid) {
+                var ea = EMOJIS.find(function(e) { return r[e.k] && r[e.k].indexOf(uid) > -1; });
+                if (ea) envoyerNotif(vd.uid, "reaction", (userData.prenom||"") + " a reagi a ta victoire avec " + ea.h);
+              }
+              majBadge();
+            });
           });
         });
       };
@@ -247,6 +381,7 @@ function openVictoiresPanel() {
             db.collection("victoires").doc(vid).get().then(function(vs) {
               var vData = vs.data();
               if (vData && vData.uid && vData.uid !== uid) {
+                envoyerNotif(vData.uid, "commentaire", (userData.prenom||"") + " a commente ta victoire : " + texte.slice(0,50));
               }
             });
           });
@@ -411,6 +546,7 @@ function openVictoiresPanel() {
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       }).then(function() {
         inp.value = "";
+        envoyerNotif(membre._uid, "message", (userData.prenom||"") + " vous a envoye un message prive");
         db.collection("conversations-index").doc(convId).set({
           membres: [uid, membre._uid],
           prenoms: [(userData.prenom||"") + " " + (userData.nom||""), (membre.prenom||"") + " " + (membre.nom||"")],
