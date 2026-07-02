@@ -8,6 +8,7 @@ function openVictoiresPanel() {
   var categorieSelectionnee = "";
   var messageListener = null;
   var userData = {};
+  var ongletActif = 'victoires';
 
   var panel = document.createElement("div");
   panel.id = "baa-victoires-panel";
@@ -45,7 +46,12 @@ function openVictoiresPanel() {
     panel.remove();
     var mb = document.getElementById("baa-menu-btn"); if (mb) mb.click();
   };
-  document.getElementById("v-refresh").onclick = function() { afficherVictoires(); };
+  document.getElementById("v-refresh").onclick = function() {
+    if (ongletActif === "victoires") afficherVictoires();
+    else if (ongletActif === "messages") afficherMessages();
+    else if (ongletActif === "admin") ongletActif = 'admin';
+    afficherAdminConversations();
+  };
 
   // Onglets
   document.getElementById("tab-v-btn").onclick = function() {
@@ -53,6 +59,7 @@ function openVictoiresPanel() {
     document.getElementById("tab-v-btn").style.color = "white";
     document.getElementById("tab-m-btn").style.background = "rgba(255,255,255,0.5)";
     document.getElementById("tab-m-btn").style.color = "#8b735d";
+    ongletActif = 'victoires';
     if (messageListener) { messageListener(); messageListener = null; }
     content.style.cssText = "flex:1;overflow-y:auto;padding:20px;max-width:800px;width:100%;margin:0 auto;box-sizing:border-box;";
     afficherVictoires();
@@ -62,6 +69,7 @@ function openVictoiresPanel() {
     document.getElementById("tab-m-btn").style.color = "white";
     document.getElementById("tab-v-btn").style.background = "rgba(255,255,255,0.5)";
     document.getElementById("tab-v-btn").style.color = "#8b735d";
+    ongletActif = 'messages';
     afficherMessages();
   };
 
@@ -89,8 +97,8 @@ function openVictoiresPanel() {
     // Catégories
     document.querySelectorAll(".cat-btn").forEach(function(btn) {
       btn.onclick = function() {
-        document.querySelectorAll(".cat-btn").forEach(function(b) { b.style.background = "#f3e7d3"; b.style.color = "#8a6a35"; });
-        btn.style.background = "#c9a86a"; btn.style.color = "white";
+        document.querySelectorAll(".cat-btn").forEach(function(b) { b.style.background = "#f3e7d3"; b.style.color = "#8a6a35"; b.style.border = "1px solid #c8a96b"; });
+        btn.style.background = "#c9a86a"; btn.style.color = "white"; btn.style.border = "1px solid #c9a86a";
         categorieSelectionnee = btn.getAttribute("data-cat");
       };
     });
