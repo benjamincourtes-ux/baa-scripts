@@ -49,7 +49,7 @@ function openVictoiresPanel() {
       } else {
         badge.style.display = "none";
       }
-    });
+    }).catch(function(e) { console.log("Index notif pas encore pret:", e.message); });
   }
 
   function afficherNotifications() {
@@ -72,8 +72,7 @@ function openVictoiresPanel() {
     };
     db.collection("notifications").where("destUid", "==", uid).orderBy("createdAt", "desc").limit(30).get().then(function(snap) {
       var list = document.getElementById("notif-list"); if (!list) return;
-      if (snap.empty) { list.innerHTML = "<p style='color:#999;text-align:center;'>Aucune notification.</p>"; return; }
-      list.innerHTML = "";
+      if (snap.empty) { list.innerHTML = "<p style='color:#999;text-align:center;'>Aucune notification.</p>"; return; }      list.innerHTML = "";
       snap.forEach(function(docSnap) {
         var n = docSnap.data(); var nid = docSnap.id;
         var date = n.createdAt ? new Date(n.createdAt.seconds*1000).toLocaleDateString("fr-FR",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}) : "";
