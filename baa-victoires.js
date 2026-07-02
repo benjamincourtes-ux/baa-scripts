@@ -193,6 +193,9 @@ function openVictoiresPanel() {
         var k = btn.getAttribute("data-k");
         db.collection("victoires").doc(vid).get().then(function(s) {
           var r = s.data().reactions || {};
+          // Retirer uid de toutes les autres réactions d'abord
+          EMOJIS.forEach(function(e) { if (e.k !== k && r[e.k]) { var i = r[e.k].indexOf(uid); if (i > -1) { r[e.k].splice(i, 1); if (!r[e.k].length) delete r[e.k]; } } });
+          // Toggler la réaction cliquée
           if (!r[k]) r[k] = [];
           var i = r[k].indexOf(uid);
           if (i > -1) { r[k].splice(i, 1); if (!r[k].length) delete r[k]; } else { r[k].push(uid); }
