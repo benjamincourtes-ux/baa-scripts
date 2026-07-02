@@ -151,7 +151,6 @@ function openVictoiresPanel() {
   db.collection("users").where("accountStatus", "==", "active").get().then(function(snap) {
     snap.forEach(function(d) { var m = d.data(); m._uid = d.id; tousLesMembres.push(m); if (d.id === uid) { userData = m; isAdmin = m.role === "admin"; } });
     if (isAdmin) { document.getElementById("tab-a-btn").style.display = "block"; }
-    mettreAJourBadge();
     afficherVictoires();
   });
 
