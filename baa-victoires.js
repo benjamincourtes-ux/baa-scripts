@@ -47,9 +47,10 @@ function openVictoiresPanel() {
     }
   };
   document.getElementById("v-refresh").onclick = function() {
-    if (ongletActif === "victoires") chargerVictoires();
+    if (ongletActif === "victoires") afficherVictoires();
     else if (ongletActif === "messages") afficherMessages();
     else if (ongletActif === "admin") afficherAdminConversations();
+    else if (ongletActif === "notifs") chargerNotifications();
   };
   document.getElementById("tab-v-btn").onclick = function() {
     document.getElementById("tab-v-btn").style.background = "#c9a86a"; document.getElementById("tab-v-btn").style.color = "white";
