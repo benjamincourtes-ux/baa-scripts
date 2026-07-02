@@ -26,10 +26,53 @@ function openVictoiresPanel() {
   panel.appendChild(content);
   document.body.appendChild(panel);
 
-  // Boutons header
+  // Handlers immédiats (sans attendre Firebase)
   var isReduced = false;
+  document.getElementById("v-close").onclick = function() {
+    if (messageListener) { messageListener(); }
+    panel.remove();
+    var mb = document.getElementById("baa-menu-btn"); if (mb) mb.click();
+  };
+  document.getElementById("v-resize").onclick = function() {
+    if (!isReduced) {
+      panel.style.cssText = "position:fixed;bottom:20px;right:80px;width:400px;height:580px;background:#f8f3ee;z-index:999999;display:flex;flex-direction:column;font-family:Arial,sans-serif;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,0.2);overflow:hidden;";
+      content.style.padding = "12px";
+      document.getElementById("v-resize").innerHTML = "&#9645;";
+      isReduced = true;
+    } else {
+      panel.style.cssText = "position:fixed;inset:0;background:#f8f3ee;z-index:999999;display:flex;flex-direction:column;font-family:Arial,sans-serif;overflow:hidden;";
+      content.style.padding = "20px";
+      document.getElementById("v-resize").innerHTML = "&#8993;";
+      isReduced = false;
+    }
+  };
+  document.getElementById("v-refresh").onclick = function() {
+    if (ongletActif === "victoires") chargerVictoires();
+    else if (ongletActif === "messages") afficherMessages();
+    else if (ongletActif === "admin") afficherAdminConversations();
+  };
+  document.getElementById("tab-v-btn").onclick = function() {
+    document.getElementById("tab-v-btn").style.background = "#c9a86a"; document.getElementById("tab-v-btn").style.color = "white";
+    document.getElementById("tab-m-btn").style.background = "rgba(255,255,255,0.5)"; document.getElementById("tab-m-btn").style.color = "#8b735d";
+    document.getElementById("tab-a-btn").style.background = "rgba(255,255,255,0.5)"; document.getElementById("tab-a-btn").style.color = "#8b735d";
+    if (messageListener) { messageListener(); messageListener = null; }
+    content.style.cssText = "flex:1;overflow-y:auto;padding:20px;max-width:800px;width:100%;margin:0 auto;box-sizing:border-box;";
+    ongletActif = "victoires"; afficherVictoires();
+  };
+  document.getElementById("tab-m-btn").onclick = function() {
+    document.getElementById("tab-m-btn").style.background = "#c9a86a"; document.getElementById("tab-m-btn").style.color = "white";
+    document.getElementById("tab-v-btn").style.background = "rgba(255,255,255,0.5)"; document.getElementById("tab-v-btn").style.color = "#8b735d";
+    document.getElementById("tab-a-btn").style.background = "rgba(255,255,255,0.5)"; document.getElementById("tab-a-btn").style.color = "#8b735d";
+    ongletActif = "messages"; afficherMessages();
+  };
+  document.getElementById("tab-a-btn").onclick = function() {
+    document.getElementById("tab-a-btn").style.background = "#c9a86a"; document.getElementById("tab-a-btn").style.color = "white";
+    document.getElementById("tab-v-btn").style.background = "rgba(255,255,255,0.5)"; document.getElementById("tab-v-btn").style.color = "#8b735d";
+    document.getElementById("tab-m-btn").style.background = "rgba(255,255,255,0.5)"; document.getElementById("tab-m-btn").style.color = "#8b735d";
+    ongletActif = "admin"; afficherAdminConversations();
+  };
 
-    // ===================== VICTOIRES =====================
+  // ===================== VICTOIRES =====================
   function afficherVictoires() {
     content.innerHTML = "<div id='vform' style='background:white;border-radius:14px;padding:18px;border:1px solid #e8d4b0;margin-bottom:16px;'><p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 10px;'>Partager une victoire</p><div style='display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;'><button class='cat-btn' data-cat='Objectif' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:12px;'>&#127942; Objectif</button><button class='cat-btn' data-cat='Vente' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:12px;'>&#128176; Vente</button><button class='cat-btn' data-cat='Recrue' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:12px;'>&#128101; Recrue</button><button class='cat-btn' data-cat='Autre' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:12px;'>&#11088; Autre</button></div><div style='position:relative;'><textarea id='vtexte' placeholder='Raconte ta victoire... (@ pour mentionner)' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;height:65px;resize:vertical;font-family:Arial,sans-serif;'></textarea><div id='mention-v' style='display:none;position:absolute;top:70px;left:0;background:white;border:1px solid #e8d4b0;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);z-index:99;max-height:140px;overflow-y:auto;min-width:180px;'></div></div><div style='display:flex;gap:8px;align-items:center;margin-top:8px;'><label style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>&#128247; Photo<input type='file' id='vphoto' accept='image/*' style='display:none;' /></label><span id='vphoto-name' style='color:#999;font-size:12px;'></span><button id='vpublier' style='margin-left:auto;background:#c9a86a;color:white;border:none;padding:9px 18px;border-radius:10px;cursor:pointer;font-weight:bold;font-size:13px;'>Publier !</button></div><div id='vmsg' style='color:#8b735d;font-size:12px;margin-top:6px;'></div></div><div id='vlist'><p style='color:#999;text-align:center;'>Chargement...</p></div>";
 
