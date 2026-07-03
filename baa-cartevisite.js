@@ -55,8 +55,9 @@ function openCarteVisitePanel() {
     champ("cv-fb", "Lien Facebook", cv.fb || "") +
     champ("cv-insta", "Lien Instagram", cv.insta || "") +
     "</div><div style='margin-top:12px;'><label style='color:#8b735d;font-size:12px;font-weight:bold;display:block;margin-bottom:6px;'>Photo de profil</label><div style='display:flex;align-items:center;gap:12px;'>" +
-    (userData.photoURL ? "<img src='" + userData.photoURL + "' style='width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid #e8d4b0;' />" : "<div style='width:50px;height:50px;border-radius:50%;background:#c9a86a;display:flex;align-items:center;justify-content:center;color:white;font-size:18px;font-weight:bold;'>" + ((userData.prenom||"?")[0]).toUpperCase() + "</div>") +
-    "<span style='color:#999;font-size:12px;'>La photo de ton profil sera utilisée</span></div></div></div>" +
+    "<div id='carte-photo-preview' style='width:50px;height:50px;border-radius:50%;border:2px solid #e8d4b0;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#c9a86a;flex-shrink:0;'>" +
+    (cv.photoURL || userData.photoURL ? "<img id='carte-photo-img' src='" + (cv.photoURL || userData.photoURL) + "' style='width:100%;height:100%;object-fit:cover;' />" : "<span style='color:white;font-size:18px;font-weight:bold;'>" + ((userData.prenom||"?")[0]).toUpperCase() + "</span>") +
+    "</div><div><label style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;display:inline-block;'>📷 Changer la photo<input type='file' id='carte-photo-input' accept='image/*' style='display:none;' /></label><div id='carte-photo-msg' style='color:#999;font-size:11px;margin-top:4px;'>JPG ou PNG recommandé</div></div></div></div></div>" +
 
     "<div style='display:flex;gap:10px;'>" +
     "<button id='save-carte' style='flex:1;background:#c9a86a;color:white;border:none;padding:12px;border-radius:10px;cursor:pointer;font-weight:bold;font-size:14px;'>Sauvegarder</button>" +
@@ -66,6 +67,24 @@ function openCarteVisitePanel() {
     "<div id='carte-msg' style='color:#8b735d;font-size:12px;text-align:center;margin-top:8px;'></div>";
 
     document.getElementById("close-carte").onclick = function() { panel.remove(); var mb = document.getElementById("baa-menu-btn"); if (mb) mb.click(); };
+
+    var cartePhotoURL = cv.photoURL || userData.photoURL || "";
+
+    document.getElementById("carte-photo-input").onchange = async function() {
+      var file = this.files[0]; if (!file) return;
+      document.getElementById("carte-photo-msg").innerText = "Upload en cours...";
+      try {
+        var fd = new FormData(); fd.append("file", file); fd.append("upload_preset", "baa_avatars"); fd.append("folder", "cartes");
+        var r = await fetch("https://api.cloudinary.com/v1_1/dxcfq3nyl/image/upload", { method: "POST", body: fd });
+        var data = await r.json();
+        cartePhotoURL = data.secure_url;
+        var preview = document.getElementById("carte-photo-preview");
+        preview.innerHTML = "<img src='" + cartePhotoURL + "' style='width:100%;height:100%;object-fit:cover;' />";
+        document.getElementById("carte-photo-msg").innerText = "Photo mise à jour !";
+        setTimeout(function() { document.getElementById("carte-photo-msg").innerText = "JPG ou PNG recommandé"; }, 3000);
+        renderPreview(themeActuel, getFormData());
+      } catch(e) { document.getElementById("carte-photo-msg").innerText = "Erreur upload."; }
+    };
 
     renderPreview(themeActuel, getFormData());
 
@@ -122,7 +141,7 @@ function openCarteVisitePanel() {
 
   function getFormData() {
     function v(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
-    return { prenom: v("cv-prenom"), nom: v("cv-nom"), email: v("cv-email"), tel: v("cv-tel"), societe: v("cv-societe"), catalogue: v("cv-catalogue"), fb: v("cv-fb"), insta: v("cv-insta"), photoURL: userData.photoURL || "" };
+    return { prenom: v("cv-prenom"), nom: v("cv-nom"), email: v("cv-email"), tel: v("cv-tel"), societe: v("cv-societe"), catalogue: v("cv-catalogue"), fb: v("cv-fb"), insta: v("cv-insta"), photoURL: typeof cartePhotoURL !== "undefined" ? cartePhotoURL : (userData.photoURL || "") };
   }
 
   function renderPreview(theme, d) {
