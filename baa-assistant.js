@@ -81,16 +81,19 @@ function openAssistantPanel() {
 
   // Récupérer la clé API depuis Firebase (stockée par l'admin)
   var apiKey = "";
-  async function chargerApiKey() {
-    try {
-      var snap = await firebase.firestore().collection("config").doc("assistant").get();
-      if (snap.exists) apiKey = snap.data().apiKey || "";
-    } catch(e) {}
-  }
-  chargerApiKey();
+  firebase.firestore().collection("config").doc("assistant").get().then(function(snap) {
+    if (snap.exists) apiKey = snap.data().apiKey || "";
+  }).catch(function(){});
 
   async function envoyer() {
-    if (!apiKey) { ajouterMessage("assistant", "Configuration en cours... Réessaie dans quelques secondes ! 🙏"); return; }
+    if (!apiKey) {
+      // Réessayer de charger la clé
+      try {
+        var snap = await firebase.firestore().collection("config").doc("assistant").get();
+        if (snap.exists) apiKey = snap.data().apiKey || "";
+      } catch(e) {}
+      if (!apiKey) { ajouterMessage("assistant", "La configuration n'est pas encore prête. Réessaie dans quelques secondes ! 🙏"); return; }
+    }
     var input = document.getElementById("assistant-input");
     var texte = input.value.trim(); if (!texte) return;
     input.value = ""; input.style.height = "auto";
@@ -104,9 +107,11 @@ function openAssistantPanel() {
       var response = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
-        body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 1000, system: SYSTEM, messages: messages })
+        body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 1000, system: SYSTEM, messages: messages })
       });
       var data = await response.json();
+      console.log("Réponse API:", JSON.stringify(data).slice(0, 200));
+      if (data.error) throw new Error(data.error.message);
       var reponse = data.content[0].text;
       var typing = document.getElementById("typing-indicator"); if (typing) typing.remove();
       ajouterMessage("assistant", reponse);
