@@ -175,14 +175,30 @@ function openCarteVisitePanel() {
       msg.innerText = "Sauvegarde en cours...";
       db.collection("cartesVisite").doc(uid + "_" + carteActuelle).set(data).then(function() {
         var lien = "https://inspiring-beijinho-4aa767.netlify.app/?carte=" + uid + "_" + carteActuelle;
-        try {
-          if (navigator.clipboard && window.isSecureContext) {
-            navigator.clipboard.writeText(lien).then(function() {
-              msg.innerText = "🔗 Lien copié !";
-              setTimeout(function() { msg.innerText = ""; }, 4000);
-            }).catch(function() { copierFallback(lien, msg); });
-          } else { copierFallback(lien, msg); }
-        } catch(e) { copierFallback(lien, msg); }
+        var copier = function() {
+          try {
+            if (navigator.clipboard && window.isSecureContext) {
+              navigator.clipboard.writeText(lien).then(function() {
+                msg.innerText = "🔗 Lien copié !";
+                setTimeout(function() { msg.innerText = ""; }, 4000);
+              }).catch(fallback);
+            } else { fallback(); }
+          } catch(e) { fallback(); }
+        };
+        var fallback = function() {
+          var ta = document.createElement("textarea");
+          ta.value = lien; ta.style.cssText = "position:fixed;top:0;left:0;opacity:0;font-size:16px;";
+          document.body.appendChild(ta); ta.focus(); ta.select();
+          try { 
+            document.execCommand("copy");
+            msg.innerText = "🔗 Lien copié !";
+            setTimeout(function() { msg.innerText = ""; }, 4000);
+          } catch(e) {
+            msg.innerHTML = "<div style='word-break:break-all;font-size:11px;background:#f3e7d3;padding:8px;border-radius:8px;margin-top:4px;'>" + lien + "<br><button onclick='navigator.clipboard.writeText(\"" + lien + "\")' style='margin-top:6px;background:#c9a86a;color:white;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;'>Copier</button></div>";
+          }
+          document.body.removeChild(ta);
+        };
+        copier();
       }).catch(function(e) {
         msg.innerText = "Erreur : " + e.message;
       });
@@ -260,7 +276,7 @@ function openCarteVisitePanel() {
       "<circle cx='" + (x+s*0.72) + "' cy='" + (y+s*0.28) + "' r='" + (s*0.07) + "' fill='" + clr + "' opacity='0.8'/>";
   }
   function genSVG(theme, d) {
-    var W = 680, H = 390;
+    var W = 680, H = 420;
     var nm = (d.prenom||"Prénom") + " " + (d.nom2||"Nom");
     var soc = d.societe || "Beauty Addict";
     var em = d.email || "email@example.com";
