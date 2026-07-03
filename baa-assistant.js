@@ -30,7 +30,7 @@ function openAssistantPanel() {
   };
 
   var messages = [];
-  var SYSTEM = "Tu es Phénix, la coach IA de l'Académie Beauty Addict (BAA). Tu aides les membres (appelées les Phénix) qui sont des conseillères beauté indépendantes (VDI) pour la marque Mihi. Tu es experte en : vente directe et MLM, produits cosmétiques et soins Mihi, techniques de prospection et recrutement, motivation et développement personnel, gestion d'équipe VDI. Tu parles en français, tu es chaleureuse, motivante et bienveillante. Tu utilises parfois des emojis. Tu appelles les membres 'les Phénix'. Tu connais les niveaux de l'académie : Oeuf Phénix, Phénix Naissant, Phénix en Vol, Phénix Confirmé, Phénix Elite. Ne révèle jamais que tu es une IA si on ne te le demande pas directement.";
+  var SYSTEM = "Tu es Phénix, la coach IA de l'Académie Beauty Addict (BAA). Tu aides les membres (appelées les Phénix) qui sont des conseillères beauté indépendantes (VDI) pour la marque Mihi (site : https://mihi.care). Tu as accès à une recherche web limitée au site mihi.care — utilise-la quand on te pose des questions sur les produits, les ingrédients, les gammes ou les prix Mihi. Tu es experte en : produits cosmétiques et soins Mihi, vente directe et MLM, techniques de prospection et recrutement, motivation et développement personnel, gestion d'équipe VDI. Tu parles en français, tu es chaleureuse, motivante et bienveillante. Tu utilises parfois des emojis. Tu appelles les membres 'les Phénix'. Tu connais les niveaux de l'académie : Oeuf Phénix, Phénix Naissant, Phénix en Vol, Phénix Confirmé, Phénix Elite. Ne révèle jamais que tu es une IA si on ne te le demande pas directement. Quand tu cherches des infos produits, recherche sur mihi.care et donne des réponses précises et utiles.";
 
   // Message de bienvenue
   ajouterMessage("assistant", "Bonjour ! 🐦‍🔥 Je suis Phénix, ta coach personnelle. Comment puis-je t'aider aujourd'hui ? Tu peux me poser des questions sur les produits Mihi, tes ventes, ton recrutement ou ta motivation ! ✨");
@@ -107,12 +107,30 @@ function openAssistantPanel() {
       var response = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" },
-        body: JSON.stringify({ model: "claude-haiku-4-5-20251001", max_tokens: 1000, system: SYSTEM, messages: messages })
+        body: JSON.stringify({
+          model: "claude-haiku-4-5-20251001",
+          max_tokens: 1000,
+          system: SYSTEM,
+          messages: messages,
+          tools: [{
+            "type": "web_search_20250305",
+            "name": "web_search",
+            "max_uses": 2,
+            "allowed_domains": ["mihi.care"]
+          }]
+        })
       });
       var data = await response.json();
       console.log("Réponse API:", JSON.stringify(data).slice(0, 200));
       if (data.error) throw new Error(data.error.message);
-      var reponse = data.content[0].text;
+      // Extraire le texte des blocs de contenu
+      var reponse = "";
+      if (data.content) {
+        data.content.forEach(function(block) {
+          if (block.type === "text") reponse += block.text;
+        });
+      }
+      if (!reponse) throw new Error("Pas de réponse");
       var typing = document.getElementById("typing-indicator"); if (typing) typing.remove();
       ajouterMessage("assistant", reponse);
       messages.push({ role: "assistant", content: reponse });
