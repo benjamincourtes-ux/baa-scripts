@@ -16,20 +16,30 @@ function initBeautyAddictLogin() {
     var jour = new Date().getDay();
     var couleur = COULEURS[jour];
 
-    // Appliquer la couleur aux éléments dynamiquement
+    // CSS global pour remplacer le doré par la couleur du jour
+    var style = document.createElement("style");
+    style.id = "baa-couleur-style";
+    style.innerHTML = [
+      "h2[style], h3[style] { color:" + couleur.hex + " !important; }",
+      "[style*='color:#8b735d'] { color:" + couleur.hex + " !important; }",
+      "[style*='color:#c9a86a'] { color:" + couleur.hex + " !important; }",
+      "[style*='background:#c9a86a'] { background:" + couleur.hex + " !important; }",
+      "[style*='background: #c9a86a'] { background:" + couleur.hex + " !important; }",
+      "[style*='border:1px solid #c8a96b'] { border-color:" + couleur.hex + " !important; }",
+      "[style*='color:#8a6a35'] { color:" + couleur.hex + " !important; }"
+    ].join("\n");
+    document.head.appendChild(style);
+
+    // Appliquer aussi en temps réel
     function appliquerCouleur() {
-      // Boutons actifs et sauvegarder
-      document.querySelectorAll("[id^='baa-'] button, [id^='baa-'] h2, [id^='baa-'] h3").forEach(function(el) {
-        if (el.tagName === "H2" || el.tagName === "H3") {
+      document.querySelectorAll("h2, h3").forEach(function(el) {
+        if (el.style.color && (el.style.color.includes("8b735d") || el.style.color.includes("c9a86a"))) {
           el.style.color = couleur.hex;
         }
       });
-      // Mini flamme
-      var flamme = document.getElementById("baa-mini-flamme");
-      if (flamme) { var svg = flamme.querySelector("svg"); if (svg) svg.style.filter = "hue-rotate(" + (jour * 45) + "deg)"; }
     }
     appliquerCouleur();
-    var observer = new MutationObserver(appliquerCouleur);
+    var observer = new MutationObserver(function() { setTimeout(appliquerCouleur, 50); });
     observer.observe(document.body, { childList: true, subtree: true });
 
     // Badge discret en haut à gauche
