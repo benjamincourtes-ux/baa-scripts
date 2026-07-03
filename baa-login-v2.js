@@ -146,7 +146,7 @@ function initBeautyAddictLogin() {
           e.stopPropagation();
           const existing = document.getElementById("baa-side-menu"); if (existing) { existing.remove(); return; }
           const menu = document.createElement("div"); menu.id = "baa-side-menu";
-          menu.style.cssText = "position:fixed;top:0;right:0;bottom:0;width:280px;background:#f8f3ee;z-index:999998;box-shadow:-4px 0 20px rgba(0,0,0,0.15);font-family:Arial,sans-serif;display:flex;flex-direction:column;overflow:hidden;";
+          menu.style.cssText = "position:fixed;top:0;right:0;bottom:0;width:284px;padding-right:4px;background:#f8f3ee;z-index:999998;box-shadow:-4px 0 20px rgba(0,0,0,0.15);font-family:Arial,sans-serif;display:flex;flex-direction:column;overflow:hidden;";
           db.collection("users").doc(auth.currentUser.uid).get().then(function(snap) {
             const d = snap.data();
             var avatarHTML = d.photoURL ? "<img src='" + d.photoURL + "' style='width:70px;height:70px;border-radius:50%;object-fit:cover;border:3px solid #e8d4b0;' />" : "<div style='width:70px;height:70px;border-radius:50%;background:#c9a86a;display:flex;align-items:center;justify-content:center;border:3px solid #e8d4b0;'><span style='color:white;font-size:24px;font-weight:bold;'>" + (d.prenom ? d.prenom[0].toUpperCase() : "") + (d.nom ? d.nom[0].toUpperCase() : "") + "</span></div>";
