@@ -245,10 +245,13 @@ function openStudioPanel() {
             var c2 = document.createElement("canvas"); c2.width = 200; c2.height = 200;
             c2.getContext("2d").drawImage(imgEl, 0, 0, 200, 200);
             photoURL = c2.toDataURL("image/jpeg", 0.8);
+            console.log("photoURL base64 set:", photoURL.length, "chars");
             document.getElementById("studio-photo-preview").innerHTML = "<img src='" + photoURL + "' style='width:100%;height:100%;object-fit:cover;' />";
             document.getElementById("studio-photo-msg").innerText = "Photo ajoutée !";
             setTimeout(function() { document.getElementById("studio-photo-msg").innerText = "JPG ou PNG"; }, 2000);
+            console.log("Calling renderApercu...");
             renderApercu();
+            console.log("renderApercu called, preview:", document.getElementById("studio-preview") ? "exists" : "MISSING");
           };
           imgEl.src = data.secure_url;
         } catch(e) { document.getElementById("studio-photo-msg").innerText = "Erreur upload"; }
