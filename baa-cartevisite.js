@@ -175,30 +175,21 @@ function openCarteVisitePanel() {
       msg.innerText = "Sauvegarde en cours...";
       db.collection("cartesVisite").doc(uid + "_" + carteActuelle).set(data).then(function() {
         var lien = "https://inspiring-beijinho-4aa767.netlify.app/?carte=" + uid + "_" + carteActuelle;
-        var copier = function() {
-          try {
-            if (navigator.clipboard && window.isSecureContext) {
-              navigator.clipboard.writeText(lien).then(function() {
-                msg.innerText = "🔗 Lien copié !";
-                setTimeout(function() { msg.innerText = ""; }, 4000);
-              }).catch(fallback);
-            } else { fallback(); }
-          } catch(e) { fallback(); }
-        };
-        var fallback = function() {
+        // Essayer toutes les méthodes de copie
+        var copied = false;
+        try {
           var ta = document.createElement("textarea");
-          ta.value = lien; ta.style.cssText = "position:fixed;top:0;left:0;opacity:0;font-size:16px;";
+          ta.value = lien; ta.style.cssText = "position:fixed;top:-9999px;left:-9999px;font-size:16px;";
           document.body.appendChild(ta); ta.focus(); ta.select();
-          try { 
-            document.execCommand("copy");
-            msg.innerText = "🔗 Lien copié !";
-            setTimeout(function() { msg.innerText = ""; }, 4000);
-          } catch(e) {
-            msg.innerHTML = "<div style='word-break:break-all;font-size:11px;background:#f3e7d3;padding:8px;border-radius:8px;margin-top:4px;'>" + lien + "<br><button onclick='navigator.clipboard.writeText(\"" + lien + "\")' style='margin-top:6px;background:#c9a86a;color:white;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;'>Copier</button></div>";
-          }
+          copied = document.execCommand("copy");
           document.body.removeChild(ta);
-        };
-        copier();
+        } catch(e) {}
+        if (copied) {
+          msg.innerText = "🔗 Lien copié !";
+          setTimeout(function() { msg.innerText = ""; }, 4000);
+        } else {
+          msg.innerHTML = "<div style='font-size:11px;'>Lien : <span style='word-break:break-all;color:#c9a86a;'>" + lien + "</span><br><button onclick='var i=document.createElement(\"input\");i.value=\"" + lien + "\";document.body.appendChild(i);i.select();document.execCommand(\"copy\");document.body.removeChild(i);this.innerText=\"✓ Copié!\";' style='margin-top:6px;background:#c9a86a;color:white;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px;'>📋 Copier</button></div>";
+        }
       }).catch(function(e) {
         msg.innerText = "Erreur : " + e.message;
       });
@@ -276,7 +267,7 @@ function openCarteVisitePanel() {
       "<circle cx='" + (x+s*0.72) + "' cy='" + (y+s*0.28) + "' r='" + (s*0.07) + "' fill='" + clr + "' opacity='0.8'/>";
   }
   function genSVG(theme, d) {
-    var W = 680, H = 420;
+    var W = 680, H = 460;
     var nm = (d.prenom||"Prénom") + " " + (d.nom2||"Nom");
     var soc = d.societe || "Beauty Addict";
     var em = d.email || "email@example.com";
@@ -286,7 +277,7 @@ function openCarteVisitePanel() {
     if (ig && ig[0] !== "@") ig = "@" + ig;
     var cat = d.catalogue ? (d.catalogue.replace(/https?:\/\/(www\.)?/,"").split("/")[0]) : "";
 
-    var svg = "<svg id='carte-svg' width='100%' viewBox='0 0 " + W + " " + H + "' xmlns='http://www.w3.org/2000/svg' style='border-radius:14px;max-width:540px;'>";
+    var svg = "<svg id='carte-svg' width='100%' viewBox='0 0 " + W + " " + H + "' xmlns='http://www.w3.org/2000/svg' style='border-radius:14px;max-width:540px;display:block;'>";
 
     if (theme === "dore") {
       svg += "<defs><linearGradient id='gd' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='#c9a86a'/><stop offset='50%' stop-color='#f5d48a'/><stop offset='100%' stop-color='#c9a86a'/></linearGradient></defs>";
