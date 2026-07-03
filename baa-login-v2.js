@@ -2,54 +2,7 @@ function initBeautyAddictLogin() {
   if (window.__baaLoginInitialized) return;
   window.__baaLoginInitialized = true;
 
-  // Couleur du jour
-  (function() {
-    var COULEURS = [
-      { nom: "Bleu Sérénité", hex: "#2980B9", light: "#d6eaf8", emoji: "🔵" },
-      { nom: "Rouge Passion", hex: "#C0392B", light: "#fadbd8", emoji: "🔴" },
-      { nom: "Orange Énergie", hex: "#E67E22", light: "#fdebd0", emoji: "🟠" },
-      { nom: "Jaune Soleil", hex: "#D4AC0D", light: "#fef9e7", emoji: "🟡" },
-      { nom: "Vert Nature", hex: "#27AE60", light: "#d5f5e3", emoji: "🟢" },
-      { nom: "Rose Phénix", hex: "#E91E8C", light: "#fde8f4", emoji: "🩷" },
-      { nom: "Violet Mystère", hex: "#8E44AD", light: "#e8daef", emoji: "🟣" }
-    ];
-    var jour = new Date().getDay();
-    var couleur = COULEURS[jour];
-
-    // CSS global pour remplacer le doré par la couleur du jour
-    var style = document.createElement("style");
-    style.id = "baa-couleur-style";
-    style.innerHTML = [
-      "h2[style], h3[style] { color:" + couleur.hex + " !important; }",
-      "[style*='color:#8b735d'] { color:" + couleur.hex + " !important; }",
-      "[style*='color:#c9a86a'] { color:" + couleur.hex + " !important; }",
-      "[style*='background:#c9a86a'] { background:" + couleur.hex + " !important; }",
-      "[style*='background: #c9a86a'] { background:" + couleur.hex + " !important; }",
-      "[style*='border:1px solid #c8a96b'] { border-color:" + couleur.hex + " !important; }",
-      "[style*='color:#8a6a35'] { color:" + couleur.hex + " !important; }"
-    ].join("\n");
-    document.head.appendChild(style);
-
-    // Appliquer aussi en temps réel
-    function appliquerCouleur() {
-      document.querySelectorAll("h2, h3").forEach(function(el) {
-        if (el.style.color && (el.style.color.includes("8b735d") || el.style.color.includes("c9a86a"))) {
-          el.style.color = couleur.hex;
-        }
-      });
-    }
-    appliquerCouleur();
-    var observer = new MutationObserver(function() { setTimeout(appliquerCouleur, 50); });
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    // Badge discret en haut à gauche
-    var badge = document.createElement("div");
-    badge.id = "baa-couleur-jour";
-    badge.style.cssText = "position:fixed;top:20px;left:20px;z-index:99999;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:default;";
-    badge.innerHTML = "<div style='width:50px;height:50px;border-radius:50%;background:transparent;box-shadow:0 0 0 4px " + couleur.hex + ", 0 4px 16px " + couleur.hex + "66;border:4px solid " + couleur.hex + ";'></div><div style='background:rgba(0,0,0,0.75);color:white;font-size:10px;padding:3px 9px;border-radius:10px;font-family:Arial,sans-serif;white-space:nowrap;font-weight:bold;letter-spacing:0.5px;'>" + couleur.emoji + " " + couleur.nom + "</div>";
-    badge.title = "Couleur du jour : " + couleur.nom;
-    document.body.appendChild(badge);
-  })();
+  // Couleur du jour désactivée
   console.log("BAA Login init...");
   if (!window.firebase) { console.log("Firebase absent"); window.__baaLoginInitialized = false; return; }
   if (!firebase.apps || firebase.apps.length === 0) {
