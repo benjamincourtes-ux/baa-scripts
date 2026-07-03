@@ -168,17 +168,25 @@ function openCarteVisitePanel() {
 
     // Partager
     document.getElementById("share-carte").onclick = function() {
-      var data = getFormData(); data.theme = themeActuel;
+      var data = getFormData(); 
+      data.theme = themeActuel;
+      data.nom = document.getElementById("cv-nomcarte") ? document.getElementById("cv-nomcarte").value.trim() : "Ma carte";
+      var msg = document.getElementById("carte-msg");
+      msg.innerText = "Sauvegarde en cours...";
       db.collection("cartesVisite").doc(uid + "_" + carteActuelle).set(data).then(function() {
         var lien = "https://inspiring-beijinho-4aa767.netlify.app/?carte=" + uid + "_" + carteActuelle;
         if (navigator.clipboard) {
           navigator.clipboard.writeText(lien).then(function() {
-            document.getElementById("carte-msg").innerText = "🔗 Lien copié !";
-            setTimeout(function() { document.getElementById("carte-msg").innerText = ""; }, 4000);
+            msg.innerText = "🔗 Lien copié !";
+            setTimeout(function() { msg.innerText = ""; }, 4000);
+          }).catch(function() {
+            msg.innerText = lien;
           });
         } else {
-          document.getElementById("carte-msg").innerText = lien;
+          msg.innerText = lien;
         }
+      }).catch(function(e) {
+        msg.innerText = "Erreur : " + e.message;
       });
     };
 
