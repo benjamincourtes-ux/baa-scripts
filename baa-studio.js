@@ -189,7 +189,16 @@ function openStudioPanel() {
       var canvas = document.createElement("canvas"); canvas.width = 1080; canvas.height = 1080;
       var ctx = canvas.getContext("2d");
       var img = new Image(); img.crossOrigin = "anonymous";
-      img.onload = function() { ctx.drawImage(img, 0, 0, 1080, 1080); var link = document.createElement("a"); link.download = selectedTemplate.nom.replace(/\s/g,"-") + ".png"; link.href = canvas.toDataURL("image/png"); link.click(); };
+      img.onload = function() {
+        ctx.drawImage(img, 0, 0, 1080, 1080);
+        var dataUrl = canvas.toDataURL("image/png");
+        var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+          var w = window.open(""); w.document.write("<img src='" + dataUrl + "' style='max-width:100%;' /><p style='font-family:Arial;color:#666;font-size:14px;text-align:center;'>Appuie longuement sur l image pour l enregistrer 📲</p>");
+        } else {
+          var link = document.createElement("a"); link.download = selectedTemplate.nom.replace(/\s/g,"-") + ".png"; link.href = dataUrl; link.click();
+        }
+      };
       img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
     };
   }
@@ -198,13 +207,46 @@ function openStudioPanel() {
     var form = document.getElementById("champs-form"); if (!form) return;
     var txt = selectedTemplate.defaultText || {};
     var html = "";
+
+    // Bouton upload photo si le template utilise une photo
+    var templatesAvecPhoto = ["presentation", "temoignage", "temoignage-vdi", "recru-revenus", "avant-apres", "recru-avant", "vie-phenix", "recru-reconnais"];
+    if (templatesAvecPhoto.indexOf(selectedTemplate.id) > -1) {
+      html += "<div style='margin-bottom:12px;'><label style='color:#8b735d;font-size:10px;font-weight:bold;display:block;margin-bottom:4px;'>Photo</label>" +
+        "<div style='display:flex;align-items:center;gap:8px;'>" +
+        "<div id='studio-photo-preview' style='width:44px;height:44px;border-radius:50%;background:#c9a86a;border:2px solid #e8d4b0;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;'>" +
+        (photoURL ? "<img src='" + photoURL + "' style='width:100%;height:100%;object-fit:cover;' />" : "<span style='color:white;font-size:16px;'>📷</span>") +
+        "</div>" +
+        "<label style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:bold;'>Changer<input type='file' id='studio-photo-input' accept='image/*' style='display:none;' /></label>" +
+        "<span id='studio-photo-msg' style='color:#999;font-size:10px;'>JPG ou PNG</span></div></div>";
+    }
+
     (selectedTemplate.champs || []).forEach(function(ch) {
       var label = ch.replace(/([A-Z])/g, " $1").replace(/^./, function(s) { return s.toUpperCase(); });
       html += "<div style='margin-bottom:8px;'><label style='color:#8b735d;font-size:10px;font-weight:bold;display:block;margin-bottom:3px;'>" + label + "</label>" +
         "<input id='champ-" + ch + "' value='" + (txt[ch]||"").replace(/'/g,"&#39;") + "' style='width:100%;padding:6px 8px;border:1px solid #e8d4b0;border-radius:6px;font-size:11px;box-sizing:border-box;' /></div>";
     });
-    if (html === "") html = "<p style='color:#999;font-size:12px;'>Aucun texte à personnaliser pour ce template.</p>";
+    if (!html) html = "<p style='color:#999;font-size:12px;'>Aucun texte à personnaliser pour ce template.</p>";
     form.innerHTML = html;
+
+    // Handler upload photo
+    var photoInput = document.getElementById("studio-photo-input");
+    if (photoInput) {
+      photoInput.onchange = async function() {
+        var file = this.files[0]; if (!file) return;
+        document.getElementById("studio-photo-msg").innerText = "Upload...";
+        try {
+          var fd = new FormData(); fd.append("file", file); fd.append("upload_preset", "baa_avatars"); fd.append("folder", "studio");
+          var r = await fetch("https://api.cloudinary.com/v1_1/dxcfq3nyl/image/upload", { method: "POST", body: fd });
+          var data = await r.json();
+          photoURL = data.secure_url;
+          document.getElementById("studio-photo-preview").innerHTML = "<img src='" + photoURL + "' style='width:100%;height:100%;object-fit:cover;' />";
+          document.getElementById("studio-photo-msg").innerText = "Photo ajoutée !";
+          setTimeout(function() { document.getElementById("studio-photo-msg").innerText = "JPG ou PNG"; }, 2000);
+          renderApercu();
+        } catch(e) { document.getElementById("studio-photo-msg").innerText = "Erreur upload"; }
+      };
+    }
+
     (selectedTemplate.champs || []).forEach(function(ch) {
       var el = document.getElementById("champ-" + ch);
       if (el) el.addEventListener("input", renderApercu);
@@ -243,6 +285,16 @@ function openStudioPanel() {
   function svgWrap(content, bg) {
     return "<svg width='100%' viewBox='0 0 1080 1080' xmlns='http://www.w3.org/2000/svg'>" +
       rect(0, 0, 1080, 1080, bg, 0) + content + "</svg>";
+  }
+
+  function photoCircleSVG(cx, cy, r, strokeClr) {
+    if (photoURL) {
+      return "<defs><clipPath id='pc'><circle cx='" + cx + "' cy='" + cy + "' r='" + r + "'/></clipPath></defs>" +
+        "<image href='" + photoURL + "' x='" + (cx-r) + "' y='" + (cy-r) + "' width='" + (r*2) + "' height='" + (r*2) + "' clip-path='url(#pc)'/>" +
+        "<circle cx='" + cx + "' cy='" + cy + "' r='" + r + "' fill='none' stroke='" + strokeClr + "' stroke-width='4'/>";
+    }
+    return "<circle cx='" + cx + "' cy='" + cy + "' r='" + r + "' fill='" + strokeClr + "' opacity='0.2' stroke='" + strokeClr + "' stroke-width='4'/>" +
+      "<text x='" + cx + "' y='" + (cy+20) + "' font-family='Arial' font-size='80' fill='" + strokeClr + "' text-anchor='middle'>📷</text>";
   }
 
   function genTemplateSVG(id, c, p) {
@@ -337,8 +389,7 @@ function openStudioPanel() {
       case "temoignage":
         return svgWrap(
           rect(0, 0, W, W*0.35, p.accent) +
-          "<circle cx='540' cy='" + (W*0.35) + "' r='100' fill='" + p.bg + "' stroke='" + p.accent + "' stroke-width='4'/>" +
-          txt("🐦‍🔥", 540, W*0.35+30, 80, p.accent, "middle") +
+          photoCircleSVG(540, W*0.35, 100, p.bg) +
           txt("★★★★★", W/2, W*0.35+160, 60, "#EF9F27", "middle") +
           txt(c.nom||"Sophie", W/2, W*0.35+250, 52, p.text, "middle", "bold") +
           txt(c.age||"34 ans", W/2, W*0.35+310, 34, p.text2, "middle") +
@@ -352,8 +403,7 @@ function openStudioPanel() {
         return svgWrap(
           gradBar("gpres", p.accent, p.accent2) +
           rect(0, 0, W, W, "url(#gpres)") +
-          "<circle cx='540' cy='320' r='180' fill='" + p.card + "' stroke='rgba(255,255,255,0.3)' stroke-width='3'/>" +
-          txt("🐦‍🔥", 540, 360, 120, "white", "middle") +
+          photoCircleSVG(540, 320, 180, "rgba(255,255,255,0.4)") +
           txt(c.nom||"Marie Dupont", W/2, 560, 60, "white", "middle", "bold") +
           txt(c.titre||"CONSEILLÈRE BEAUTÉ", W/2, 640, 36, "rgba(255,255,255,0.7)", "middle") +
           "<line x1='240' y1='700' x2='840' y2='700' stroke='rgba(255,255,255,0.2)' stroke-width='1'/>" +
