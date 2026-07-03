@@ -170,7 +170,7 @@ function openCarteVisitePanel() {
     document.getElementById("share-carte").onclick = function() {
       var data = getFormData(); data.theme = themeActuel;
       db.collection("cartesVisite").doc(uid + "_" + carteActuelle).set(data).then(function() {
-        var lien = window.location.origin + "?carte=" + uid + "_" + carteActuelle;
+        var lien = "https://inspiring-beijinho-4aa767.netlify.app/?carte=" + uid + "_" + carteActuelle;
         if (navigator.clipboard) {
           navigator.clipboard.writeText(lien).then(function() {
             document.getElementById("carte-msg").innerText = "🔗 Lien copié !";
