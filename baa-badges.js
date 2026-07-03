@@ -145,13 +145,15 @@ function initBadges() {
   // Mettre à jour les points automatiquement
   // Fonction globale pour ajouter des points depuis n'importe quel fichier
   window.ajouterPointsBadge = function(pts) {
-    if (!uid) return;
+    var currentUser = firebase.auth().currentUser;
+    if (!currentUser) return;
+    var currentUid = currentUser.uid;
     var moisActuel = new Date().getFullYear() + "-" + (new Date().getMonth() + 1);
-    db.collection("users").doc(uid).get().then(function(snap) {
+    db.collection("users").doc(currentUid).get().then(function(snap) {
       var d = snap.data() || {};
       if (d.badgeMois && d.badgeMois !== moisActuel) return;
       var nouveauxPts = (d.badgePoints || 0) + pts;
-      db.collection("users").doc(uid).update({
+      db.collection("users").doc(currentUid).update({
         badgePoints: nouveauxPts,
         badgeMois: moisActuel
       }).catch(function(){});
