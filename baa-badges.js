@@ -164,16 +164,11 @@ function initBadges() {
   var moisActuel = new Date().getFullYear() + "-" + (new Date().getMonth() + 1);
   db.collection("users").doc(uid).onSnapshot(function(snap) {
     var d = snap.data() || {};
-    // Remise à zéro si nouveau mois
     if (d.badgeMois && d.badgeMois !== moisActuel) {
       db.collection("users").doc(uid).update({ badgePoints: 0, badgeMois: moisActuel }).catch(function(){});
       return;
     }
-    // Recalculer les points
-    var pts = calculerPoints(d);
-    if (pts !== d.badgePoints || !d.badgeMois) {
-      db.collection("users").doc(uid).update({ badgePoints: pts, badgeMois: moisActuel }).catch(function(){});
-    }
+    var pts = d.badgePoints || 0;
     var niveau = getNiveau(pts);
     var pct = getProgression(pts);
     afficherMiniFlamme(pts, niveau, pct);
