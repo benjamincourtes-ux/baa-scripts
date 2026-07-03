@@ -16,15 +16,19 @@ function initBeautyAddictLogin() {
     var jour = new Date().getDay();
     var couleur = COULEURS[jour];
 
-    // Injecter les couleurs dans le CSS de la page
-    var style = document.createElement("style");
-    style.innerHTML =
-      ".baa-menu-item:hover { background:" + couleur.light + " !important; }" +
-      "#baa-menu-btn { background:" + couleur.hex + " !important; box-shadow: 0 4px 16px " + couleur.hex + "88 !important; }" +
-      ".baa-tab-active, [style*='background:#c9a86a'], [style*='background: #c9a86a'] { background:" + couleur.hex + " !important; }" +
-      "h2 { color:" + couleur.hex + " !important; }" +
-      ".baa-badge-flamme { border-color:" + couleur.hex + " !important; }";
-    document.head.appendChild(style);
+    // Appliquer la couleur aux éléments dynamiquement
+    function appliquerCouleur() {
+      var btnMenu = document.getElementById("baa-menu-btn");
+      if (btnMenu) btnMenu.style.background = couleur.hex;
+      var flamme = document.getElementById("baa-mini-flamme");
+      // Titres h2 dans les panneaux BAA
+      document.querySelectorAll("[id^='baa-'] h2, [id^='baa-'] h3").forEach(function(el) {
+        el.style.color = couleur.hex;
+      });
+    }
+    appliquerCouleur();
+    var observer = new MutationObserver(appliquerCouleur);
+    observer.observe(document.body, { childList: true, subtree: true });
 
     // Badge discret en haut à gauche
     var badge = document.createElement("div");
