@@ -5,13 +5,13 @@ function initBeautyAddictLogin() {
   // Couleur du jour
   (function() {
     var COULEURS = [
+      { nom: "Bleu Sérénité", hex: "#2980B9", emoji: "🔵" },
       { nom: "Rouge Passion", hex: "#C0392B", emoji: "🔴" },
       { nom: "Orange Énergie", hex: "#E67E22", emoji: "🟠" },
       { nom: "Jaune Soleil", hex: "#F1C40F", emoji: "🟡" },
       { nom: "Vert Nature", hex: "#27AE60", emoji: "🟢" },
       { nom: "Rose Phénix", hex: "#E91E8C", emoji: "🩷" },
-      { nom: "Violet Mystère", hex: "#8E44AD", emoji: "🟣" },
-      { nom: "Bleu Sérénité", hex: "#2980B9", emoji: "🔵" }
+      { nom: "Violet Mystère", hex: "#8E44AD", emoji: "🟣" }
     ];
     var jour = new Date().getDay();
     var couleur = COULEURS[jour];
