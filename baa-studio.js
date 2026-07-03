@@ -95,7 +95,8 @@ function openStudioPanel() {
 
   db.collection("users").doc(uid).get().then(function(snap) {
     userData = snap.data() || {};
-    window.__studioPhoto = userData.photoURL || "";
+    window.__studioPhoto = window.__studioPhoto || "";
+    window.__studioPhoto2 = window.__studioPhoto2 || "";
     renderStudio();
   });
 
