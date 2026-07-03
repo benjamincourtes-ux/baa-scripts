@@ -27,6 +27,8 @@ function openCarteVisitePanel() {
     renderPanel();
   });
 
+  var cartePhotoURL = "";
+
   function renderPanel() {
     var cv = userData.carteVisite || {};
     var themeActuel = cv.theme || "dore";
@@ -68,7 +70,7 @@ function openCarteVisitePanel() {
 
     document.getElementById("close-carte").onclick = function() { panel.remove(); var mb = document.getElementById("baa-menu-btn"); if (mb) mb.click(); };
 
-    var cartePhotoURL = cv.photoURL || userData.photoURL || "";
+    cartePhotoURL = cv.photoURL || userData.photoURL || "";
 
     document.getElementById("carte-photo-input").onchange = async function() {
       var file = this.files[0]; if (!file) return;
@@ -141,7 +143,7 @@ function openCarteVisitePanel() {
 
   function getFormData() {
     function v(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
-    return { prenom: v("cv-prenom"), nom: v("cv-nom"), email: v("cv-email"), tel: v("cv-tel"), societe: v("cv-societe"), catalogue: v("cv-catalogue"), fb: v("cv-fb"), insta: v("cv-insta"), photoURL: typeof cartePhotoURL !== "undefined" ? cartePhotoURL : (userData.photoURL || "") };
+    return { prenom: v("cv-prenom"), nom: v("cv-nom"), email: v("cv-email"), tel: v("cv-tel"), societe: v("cv-societe"), catalogue: v("cv-catalogue"), fb: v("cv-fb"), insta: v("cv-insta"), photoURL: cartePhotoURL };
   }
 
   function renderPreview(theme, d) {
