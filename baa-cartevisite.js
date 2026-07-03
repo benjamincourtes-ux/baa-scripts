@@ -175,22 +175,29 @@ function openCarteVisitePanel() {
       msg.innerText = "Sauvegarde en cours...";
       db.collection("cartesVisite").doc(uid + "_" + carteActuelle).set(data).then(function() {
         var lien = "https://inspiring-beijinho-4aa767.netlify.app/?carte=" + uid + "_" + carteActuelle;
-        if (navigator.clipboard) {
-          navigator.clipboard.writeText(lien).then(function() {
-            msg.innerText = "🔗 Lien copié !";
-            setTimeout(function() { msg.innerText = ""; }, 4000);
-          }).catch(function() {
-            msg.innerText = lien;
-          });
-        } else {
-          msg.innerText = lien;
-        }
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(lien).then(function() {
+              msg.innerText = "🔗 Lien copié !";
+              setTimeout(function() { msg.innerText = ""; }, 4000);
+            }).catch(function() { copierFallback(lien, msg); });
+          } else { copierFallback(lien, msg); }
+        } catch(e) { copierFallback(lien, msg); }
       }).catch(function(e) {
         msg.innerText = "Erreur : " + e.message;
       });
     };
 
     renderPreview(themeActuel, getFormData());
+  }
+
+  function copierFallback(texte, msg) {
+    var ta = document.createElement("textarea");
+    ta.value = texte; ta.style.cssText = "position:fixed;top:0;left:0;opacity:0;";
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand("copy"); msg.innerText = "🔗 Lien copié !"; setTimeout(function() { msg.innerText = ""; }, 4000); }
+    catch(e) { msg.innerText = texte; }
+    document.body.removeChild(ta);
   }
 
   function champ(id, label, val) {
