@@ -279,6 +279,7 @@ function openVictoiresPanel() {
         texte: texte, imageURL: imageURL, categorie: categorieSelectionnee,
         reactions: {}, createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
+      if (typeof window.ajouterPointsBadge === "function") window.ajouterPointsBadge(10);
       emailjs.init("D_JtKhPDgOQWi_ECO");
       tousLesMembres.forEach(function(m) {
         if (m._uid !== uid) envoyerNotif(m._uid, "victoire", (userData.prenom||"") + " a partage une nouvelle victoire !" + (categorieSelectionnee ? " (" + categorieSelectionnee + ")" : ""));
