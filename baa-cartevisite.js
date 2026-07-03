@@ -272,8 +272,8 @@ function openCarteVisitePanel() {
     var soc = d.societe || "Beauty Addict";
     var em = d.email || "email@example.com";
     var tel = d.tel || "06 XX XX XX XX";
-    var fb = d.fb ? d.fb.replace(/https?:\/\/(www\.)?facebook\.com\//,"") : "";
-    var ig = d.insta ? d.insta.replace(/https?:\/\/(www\.)?instagram\.com\//,"") : "";
+    var fb = d.fb ? d.fb.replace(/https?:\/\/(www\.)?facebook\.com\/(share\/)?/,"").split("?")[0].replace(/\/+$/,"") : "";
+    var ig = d.insta ? d.insta.replace(/https?:\/\/(www\.)?instagram\.com\//,"").split("?")[0].replace(/\/+$/,"") : "";
     if (ig && ig[0] !== "@") ig = "@" + ig;
     var cat = d.catalogue ? (d.catalogue.replace(/https?:\/\/(www\.)?/,"").split("/")[0]) : "";
 
