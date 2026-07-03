@@ -4,42 +4,6 @@ function initBeautyAddictLogin() {
 
   // Couleur du jour désactivée
 
-  // Phénix volant
-  (function() {
-    function lancerPhenix() {
-      if (document.getElementById("baa-phenix-vol")) return;
-      var phenix = document.createElement("div");
-      phenix.id = "baa-phenix-vol";
-      var fromRight = Math.random() > 0.5;
-      var top = 15 + Math.random() * 60;
-      phenix.style.cssText = "position:fixed;top:" + top + "%;z-index:999998;pointer-events:none;font-size:48px;opacity:0;transition:opacity 0.5s;" + (fromRight ? "right:-80px;" : "left:-80px;");
-      var svgPhenix = '<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" fill="none"><defs><linearGradient id="phoenixGradient" x1="0%" y1="50%" x2="100%" y2="50%"><stop offset="0%" stop-color="#FF7A00"/><stop offset="50%" stop-color="#FFD700"/><stop offset="100%" stop-color="#D72638"/></linearGradient></defs><g opacity="0.85"><path d="M20 58 C35 30, 65 20, 92 42 C74 40, 60 50, 45 68 C38 60, 30 58, 20 58Z" fill="url(#phoenixGradient)"/><path d="M25 65 C40 55, 65 58, 88 78 C65 75, 48 78, 30 88 C32 78, 30 70, 25 65Z" fill="url(#phoenixGradient)"/><path d="M48 62 C58 48, 78 48, 96 60 C86 64, 80 72, 72 78 C62 74, 54 70, 48 62Z" fill="url(#phoenixGradient)"/><path d="M96 60 C104 58, 108 62, 110 66 C106 64, 102 65, 98 68 Z" fill="url(#phoenixGradient)"/><path d="M18 60 C10 52, 5 46, 2 38 C12 45, 18 48, 28 52 Z" fill="url(#phoenixGradient)"/><path d="M22 68 C12 70, 6 76, 2 84 C12 80, 20 80, 30 76 Z" fill="url(#phoenixGradient)"/><path d="M25 63 C14 60, 8 58, 1 56 C10 60, 16 64, 26 68 Z" fill="url(#phoenixGradient)"/></g></svg>';
-      phenix.innerHTML = svgPhenix;
-      document.body.appendChild(phenix);
-
-      // Ajouter traînée de flammes
-      var style = document.createElement("style");
-      style.id = "baa-phenix-style";
-      style.innerHTML = fromRight ?
-        "@keyframes phenixVolR { 0%{right:-80px;opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{right:110%;opacity:0} }" :
-        "@keyframes phenixVolL { 0%{left:-80px;opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{left:110%;opacity:0} }";
-      document.head.appendChild(style);
-
-      phenix.style.animation = (fromRight ? "phenixVolR" : "phenixVolL") + " 4s ease-in-out forwards";
-      phenix.style.transform = fromRight ? "scaleX(-1)" : "scaleX(1)";
-      phenix.style.filter = "drop-shadow(0 0 12px #f5d48a) drop-shadow(0 0 24px #D85A30)";
-
-      setTimeout(function() {
-        phenix.remove();
-        var s = document.getElementById("baa-phenix-style"); if (s) s.remove();
-        // Prochain phénix dans 30 à 90 secondes
-        setTimeout(lancerPhenix, 30000 + Math.random() * 60000);
-      }, 4500);
-    }
-
-    // Premier phénix après 10 secondes
-    setTimeout(lancerPhenix, 10000);
-  })();
   console.log("BAA Login init...");
   if (!window.firebase) { console.log("Firebase absent"); window.__baaLoginInitialized = false; return; }
   if (!firebase.apps || firebase.apps.length === 0) {
