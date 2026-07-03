@@ -280,13 +280,18 @@ function openVictoiresPanel() {
         reactions: {}, createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
       if (typeof window.ajouterPointsBadge === "function") window.ajouterPointsBadge(10);
-      // Email via Resend
-      var destinatairesVictoire = tousLesMembres.filter(function(m) { return m._uid !== uid && m.email; });
-      if (window.baaEmail && destinatairesVictoire.length > 0) {
-        window.baaEmail.victoire(destinatairesVictoire, userData.prenom||"Une Phénix", texte.substring(0, 200));
-      }
+      emailjs.init("D_JtKhPDgOQWi_ECO");
       tousLesMembres.forEach(function(m) {
         if (m._uid !== uid) envoyerNotif(m._uid, "victoire", (userData.prenom||"") + " a partage une nouvelle victoire !" + (categorieSelectionnee ? " (" + categorieSelectionnee + ")" : ""));
+        if (m.email && m._uid !== uid) {
+          emailjs.send("service_wr9mlhk", "template_wk2j4mg", {
+            prenom: m.prenom||"", nom: m.nom||"", email: m.email,
+            titre_message: "🏆 " + (userData.prenom||"Une Phenix") + " a partage une victoire !",
+            corps_message: texte.substring(0, 300),
+            lien_action: "Connecte-toi pour voir et reagir !",
+            date: new Date().toLocaleDateString("fr-FR")
+          }).catch(function(){});
+        }
       });
       document.getElementById("vtexte").innerHTML = "";
       document.getElementById("vphoto").value = "";
