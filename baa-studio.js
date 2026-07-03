@@ -80,6 +80,19 @@ function openStudioPanel() {
   var photoURL = "";
   var photoURL2 = "";
 
+  window.__studioResetPhoto = function() {
+    photoURL = "";
+    var prev = document.getElementById("studio-photo-preview");
+    if (prev) prev.innerHTML = "<span style='color:white;font-size:16px;'>📷</span>";
+    window.__studioRenderApercu && window.__studioRenderApercu();
+  };
+  window.__studioResetPhoto2 = function() {
+    photoURL2 = "";
+    var prev2 = document.getElementById("studio-photo2-preview");
+    if (prev2) prev2.innerHTML = "<span style='font-size:14px;'>📷</span>";
+    window.__studioRenderApercu && window.__studioRenderApercu();
+  };
+
   db.collection("users").doc(uid).get().then(function(snap) {
     userData = snap.data() || {};
     photoURL = userData.photoURL || "";
@@ -221,7 +234,7 @@ function openStudioPanel() {
         (photoURL ? "<img src='" + photoURL + "' style='width:100%;height:100%;object-fit:cover;' />" : "<span style='font-size:14px;'>📷</span>") +
         "</div>" +
         "<label style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:4px 8px;border-radius:6px;cursor:pointer;font-size:10px;font-weight:bold;'>Choisir<input type='file' id='studio-photo-input' accept='image/*' style='display:none;' /></label>" +
-        "<button id='studio-photo-clear' style='background:none;border:none;cursor:pointer;color:#c0392b;font-size:16px;padding:0 4px;'>🗑️</button>" +
+        "<button onclick='window.__studioResetPhoto()' style='background:none;border:none;cursor:pointer;color:#c0392b;font-size:16px;padding:0 4px;'>🗑️</button>" +
         "</div></div>" +
         "<div style='flex:1;'><label style='color:#8b735d;font-size:9px;font-weight:bold;display:block;margin-bottom:4px;'>Photo APRÈS</label>" +
         "<div style='display:flex;align-items:center;gap:6px;'>" +
@@ -229,7 +242,7 @@ function openStudioPanel() {
         (photoURL2 ? "<img src='" + photoURL2 + "' style='width:100%;height:100%;object-fit:cover;' />" : "<span style='font-size:14px;'>📷</span>") +
         "</div>" +
         "<label style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:4px 8px;border-radius:6px;cursor:pointer;font-size:10px;font-weight:bold;'>Choisir<input type='file' id='studio-photo2-input' accept='image/*' style='display:none;' /></label>" +
-        "<button id='studio-photo2-clear' style='background:none;border:none;cursor:pointer;color:#c0392b;font-size:16px;padding:0 4px;'>🗑️</button>" +
+        "<button onclick='window.__studioResetPhoto2()' style='background:none;border:none;cursor:pointer;color:#c0392b;font-size:16px;padding:0 4px;'>🗑️</button>" +
         "</div></div>" +
         "</div></div>";
     } else if (templatesAvecPhoto.indexOf(selectedTemplate.id) > -1) {
@@ -239,7 +252,7 @@ function openStudioPanel() {
         (photoURL ? "<img src='" + photoURL + "' style='width:100%;height:100%;object-fit:cover;' />" : "<span style='color:white;font-size:16px;'>📷</span>") +
         "</div>" +
         "<label style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:bold;'>Changer<input type='file' id='studio-photo-input' accept='image/*' style='display:none;' /></label>" +
-        "<button id='studio-photo-clear' style='background:none;border:none;cursor:pointer;color:#c0392b;font-size:18px;padding:0 4px;'>🗑️</button>" +
+        "<button onclick='window.__studioResetPhoto()' style='background:none;border:none;cursor:pointer;color:#c0392b;font-size:18px;padding:0 4px;'>🗑️</button>" +
         "<span id='studio-photo-msg' style='color:#999;font-size:10px;'>JPG ou PNG</span></div></div>";
     }
 
@@ -342,6 +355,7 @@ function openStudioPanel() {
   }
 
   function renderApercu() {
+    window.__studioRenderApercu = renderApercu;
     var preview = document.getElementById("studio-preview"); if (!preview) return;
     var c = getChamps();
     var p = selectedPalette;
