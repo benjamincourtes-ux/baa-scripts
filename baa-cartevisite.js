@@ -174,7 +174,7 @@ function openCarteVisitePanel() {
       var msg = document.getElementById("carte-msg");
       msg.innerText = "Sauvegarde en cours...";
       db.collection("cartesVisite").doc(uid + "_" + carteActuelle).set(data).then(function() {
-        var lien = "https://inspiring-beijinho-4aa767.netlify.app/?carte=" + uid + "_" + carteActuelle;
+        var lien = "https://jolly-pastelito-ca9dc9.netlify.app/?carte=" + uid + "_" + carteActuelle;
         // Essayer toutes les méthodes de copie
         var copied = false;
         try {
