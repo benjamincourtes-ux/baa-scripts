@@ -78,6 +78,7 @@ function openStudioPanel() {
   var selectedPalette = PALETTES[0];
   var userData = {};
   var photoURL = "";
+  var photoURL2 = "";
 
   db.collection("users").doc(uid).get().then(function(snap) {
     userData = snap.data() || {};
@@ -209,8 +210,27 @@ function openStudioPanel() {
     var html = "";
 
     // Bouton upload photo si le template utilise une photo
-    var templatesAvecPhoto = ["presentation", "temoignage", "temoignage-vdi", "recru-revenus", "avant-apres", "recru-avant", "vie-phenix", "recru-reconnais"];
-    if (templatesAvecPhoto.indexOf(selectedTemplate.id) > -1) {
+    var templatesAvecPhoto = ["presentation", "temoignage", "temoignage-vdi", "recru-revenus", "recru-avant", "vie-phenix", "recru-reconnais"];
+    var templatesAvantApres = ["avant-apres"];
+    if (templatesAvantApres.indexOf(selectedTemplate.id) > -1) {
+      html += "<div style='margin-bottom:12px;'><label style='color:#8b735d;font-size:10px;font-weight:bold;display:block;margin-bottom:6px;'>Photos</label>" +
+        "<div style='display:flex;gap:10px;'>" +
+        "<div style='flex:1;'><label style='color:#8b735d;font-size:9px;font-weight:bold;display:block;margin-bottom:4px;'>Photo AVANT</label>" +
+        "<div style='display:flex;align-items:center;gap:6px;'>" +
+        "<div id='studio-photo-preview' style='width:38px;height:38px;border-radius:6px;background:#e0e0e0;border:2px solid #e8d4b0;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;'>" +
+        (photoURL ? "<img src='" + photoURL + "' style='width:100%;height:100%;object-fit:cover;' />" : "<span style='font-size:14px;'>📷</span>") +
+        "</div>" +
+        "<label style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:4px 8px;border-radius:6px;cursor:pointer;font-size:10px;font-weight:bold;'>Choisir<input type='file' id='studio-photo-input' accept='image/*' style='display:none;' /></label>" +
+        "</div></div>" +
+        "<div style='flex:1;'><label style='color:#8b735d;font-size:9px;font-weight:bold;display:block;margin-bottom:4px;'>Photo APRÈS</label>" +
+        "<div style='display:flex;align-items:center;gap:6px;'>" +
+        "<div id='studio-photo2-preview' style='width:38px;height:38px;border-radius:6px;background:#e8d4b0;border:2px solid #e8d4b0;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;'>" +
+        (photoURL2 ? "<img src='" + photoURL2 + "' style='width:100%;height:100%;object-fit:cover;' />" : "<span style='font-size:14px;'>📷</span>") +
+        "</div>" +
+        "<label style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:4px 8px;border-radius:6px;cursor:pointer;font-size:10px;font-weight:bold;'>Choisir<input type='file' id='studio-photo2-input' accept='image/*' style='display:none;' /></label>" +
+        "</div></div>" +
+        "</div></div>";
+    } else if (templatesAvecPhoto.indexOf(selectedTemplate.id) > -1) {
       html += "<div style='margin-bottom:12px;'><label style='color:#8b735d;font-size:10px;font-weight:bold;display:block;margin-bottom:4px;'>Photo</label>" +
         "<div style='display:flex;align-items:center;gap:8px;'>" +
         "<div id='studio-photo-preview' style='width:44px;height:44px;border-radius:50%;background:#c9a86a;border:2px solid #e8d4b0;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;'>" +
@@ -255,6 +275,29 @@ function openStudioPanel() {
           };
           imgEl.src = data.secure_url;
         } catch(e) { document.getElementById("studio-photo-msg").innerText = "Erreur upload"; }
+      };
+    }
+
+    // Handler upload photo 2 (après)
+    var photoInput2 = document.getElementById("studio-photo2-input");
+    if (photoInput2) {
+      photoInput2.onchange = async function() {
+        var file = this.files[0]; if (!file) return;
+        try {
+          var fd = new FormData(); fd.append("file", file); fd.append("upload_preset", "baa_avatars"); fd.append("folder", "studio");
+          var r = await fetch("https://api.cloudinary.com/v1_1/dxcfq3nyl/image/upload", { method: "POST", body: fd });
+          var data = await r.json();
+          var imgEl = new Image(); imgEl.crossOrigin = "anonymous";
+          imgEl.onload = function() {
+            var c2 = document.createElement("canvas"); c2.width = 400; c2.height = 500;
+            c2.getContext("2d").drawImage(imgEl, 0, 0, 400, 500);
+            photoURL2 = c2.toDataURL("image/jpeg", 0.85);
+            var prev2 = document.getElementById("studio-photo2-preview");
+            if (prev2) prev2.innerHTML = "<img src='" + photoURL2 + "' style='width:100%;height:100%;object-fit:cover;' />";
+            renderApercu();
+          };
+          imgEl.src = data.secure_url;
+        } catch(e) { console.log("Erreur upload photo2:", e); }
       };
     }
 
@@ -334,8 +377,8 @@ function openStudioPanel() {
           rect(W/2-2, 0, 4, W, p.accent) +
           "<circle cx='540' cy='540' r='50' fill='" + p.bg + "'/>" +
           txt("→", 540, 558, 48, p.accent, "middle", "bold") +
-          txt("😕", W*0.25, 420, 180, p.text, "middle") +
-          txt("✨", W*0.75, 420, 180, p.accent, "middle") +
+          (photoURL ? "<defs><clipPath id='pc-av'><rect x='60' y='150' width='460' height='560' rx='12'/></clipPath></defs><image href='" + photoURL + "' x='60' y='150' width='460' height='560' clip-path='url(#pc-av)' preserveAspectRatio='xMidYMid slice'/>" : txt("📷 Avant", W*0.25, 520, 60, "#ccc", "middle")) +
+          (photoURL2 ? "<defs><clipPath id='pc-ap'><rect x='560' y='150' width='460' height='560' rx='12'/></clipPath></defs><image href='" + photoURL2 + "' x='560' y='150' width='460' height='560' clip-path='url(#pc-ap)' preserveAspectRatio='xMidYMid slice'/>" : txt("📷 Après", W*0.75, 520, 60, "#ccc", "middle")) +
           txt(c.avantLabel||"AVANT", W*0.25, 820, 36, "#999999", "middle", "bold") +
           txt(c.apresLabel||"APRÈS", W*0.75, 820, 36, p.accent, "middle", "bold") +
           rect(0, W-6, W, 6, p.accent) +
