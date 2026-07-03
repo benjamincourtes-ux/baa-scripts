@@ -105,6 +105,7 @@ function initDefiEclair() {
         texte: texte, imageURL: imageURL, preuve: true,
         preuveAt: firebase.firestore.FieldValue.serverTimestamp()
       }).then(function() {
+        if (typeof window.ajouterPointsBadge === "function") window.ajouterPointsBadge(30);
         msg.innerText = ""; 
         contenu.innerHTML = "<div style='background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:16px;text-align:center;'><div style='font-size:32px;'>&#127881;</div><p style='color:#16a34a;font-weight:bold;margin:8px 0;'>Bravo ! Preuve deposee !</p></div><button onclick='document.getElementById(\"baa-defi-panel\").remove()' style='width:100%;margin-top:12px;background:#f8f3ee;color:#8b735d;border:1px solid #e8d4b0;padding:12px;border-radius:10px;cursor:pointer;font-size:14px;'>Fermer</button>";
       }).catch(function(e) { msg.innerText = "Erreur. Reessaie."; document.getElementById("defi-soumettre").disabled = false; });
