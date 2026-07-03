@@ -18,13 +18,15 @@ function initBeautyAddictLogin() {
 
     // Appliquer la couleur aux éléments dynamiquement
     function appliquerCouleur() {
-      var btnMenu = document.getElementById("baa-menu-btn");
-      if (btnMenu) btnMenu.style.background = couleur.hex;
-      var flamme = document.getElementById("baa-mini-flamme");
-      // Titres h2 dans les panneaux BAA
-      document.querySelectorAll("[id^='baa-'] h2, [id^='baa-'] h3").forEach(function(el) {
-        el.style.color = couleur.hex;
+      // Boutons actifs et sauvegarder
+      document.querySelectorAll("[id^='baa-'] button, [id^='baa-'] h2, [id^='baa-'] h3").forEach(function(el) {
+        if (el.tagName === "H2" || el.tagName === "H3") {
+          el.style.color = couleur.hex;
+        }
       });
+      // Mini flamme
+      var flamme = document.getElementById("baa-mini-flamme");
+      if (flamme) { var svg = flamme.querySelector("svg"); if (svg) svg.style.filter = "hue-rotate(" + (jour * 45) + "deg)"; }
     }
     appliquerCouleur();
     var observer = new MutationObserver(appliquerCouleur);
@@ -34,7 +36,7 @@ function initBeautyAddictLogin() {
     var badge = document.createElement("div");
     badge.id = "baa-couleur-jour";
     badge.style.cssText = "position:fixed;top:20px;left:20px;z-index:99999;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:default;";
-    badge.innerHTML = "<div style='width:50px;height:50px;border-radius:50%;background:" + couleur.hex + ";box-shadow:0 4px 16px " + couleur.hex + "99;border:4px solid white;'></div><div style='background:rgba(0,0,0,0.75);color:white;font-size:10px;padding:3px 9px;border-radius:10px;font-family:Arial,sans-serif;white-space:nowrap;font-weight:bold;letter-spacing:0.5px;'>" + couleur.emoji + " " + couleur.nom + "</div>";
+    badge.innerHTML = "<div style='width:50px;height:50px;border-radius:50%;background:transparent;box-shadow:0 0 0 4px " + couleur.hex + ", 0 4px 16px " + couleur.hex + "66;border:4px solid " + couleur.hex + ";'></div><div style='background:rgba(0,0,0,0.75);color:white;font-size:10px;padding:3px 9px;border-radius:10px;font-family:Arial,sans-serif;white-space:nowrap;font-weight:bold;letter-spacing:0.5px;'>" + couleur.emoji + " " + couleur.nom + "</div>";
     badge.title = "Couleur du jour : " + couleur.nom;
     document.body.appendChild(badge);
   })();
