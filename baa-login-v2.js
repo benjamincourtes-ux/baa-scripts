@@ -5,20 +5,32 @@ function initBeautyAddictLogin() {
   // Couleur du jour
   (function() {
     var COULEURS = [
-      { nom: "Bleu Sérénité", hex: "#2980B9", emoji: "🔵" },
-      { nom: "Rouge Passion", hex: "#C0392B", emoji: "🔴" },
-      { nom: "Orange Énergie", hex: "#E67E22", emoji: "🟠" },
-      { nom: "Jaune Soleil", hex: "#F1C40F", emoji: "🟡" },
-      { nom: "Vert Nature", hex: "#27AE60", emoji: "🟢" },
-      { nom: "Rose Phénix", hex: "#E91E8C", emoji: "🩷" },
-      { nom: "Violet Mystère", hex: "#8E44AD", emoji: "🟣" }
+      { nom: "Bleu Sérénité", hex: "#2980B9", light: "#d6eaf8", emoji: "🔵" },
+      { nom: "Rouge Passion", hex: "#C0392B", light: "#fadbd8", emoji: "🔴" },
+      { nom: "Orange Énergie", hex: "#E67E22", light: "#fdebd0", emoji: "🟠" },
+      { nom: "Jaune Soleil", hex: "#D4AC0D", light: "#fef9e7", emoji: "🟡" },
+      { nom: "Vert Nature", hex: "#27AE60", light: "#d5f5e3", emoji: "🟢" },
+      { nom: "Rose Phénix", hex: "#E91E8C", light: "#fde8f4", emoji: "🩷" },
+      { nom: "Violet Mystère", hex: "#8E44AD", light: "#e8daef", emoji: "🟣" }
     ];
     var jour = new Date().getDay();
     var couleur = COULEURS[jour];
+
+    // Injecter les couleurs dans le CSS de la page
+    var style = document.createElement("style");
+    style.innerHTML =
+      ".baa-menu-item:hover { background:" + couleur.light + " !important; }" +
+      "#baa-menu-btn { background:" + couleur.hex + " !important; box-shadow: 0 4px 16px " + couleur.hex + "88 !important; }" +
+      ".baa-tab-active, [style*='background:#c9a86a'], [style*='background: #c9a86a'] { background:" + couleur.hex + " !important; }" +
+      "h2 { color:" + couleur.hex + " !important; }" +
+      ".baa-badge-flamme { border-color:" + couleur.hex + " !important; }";
+    document.head.appendChild(style);
+
+    // Badge discret en haut à gauche
     var badge = document.createElement("div");
     badge.id = "baa-couleur-jour";
-    badge.style.cssText = "position:fixed;top:16px;left:16px;z-index:9999;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:default;";
-    badge.innerHTML = "<div style='width:36px;height:36px;border-radius:50%;background:" + couleur.hex + ";box-shadow:0 2px 12px " + couleur.hex + "88;border:3px solid white;'></div><div style='background:rgba(0,0,0,0.6);color:white;font-size:9px;padding:2px 7px;border-radius:10px;font-family:Arial,sans-serif;white-space:nowrap;font-weight:bold;'>" + couleur.emoji + " " + couleur.nom + "</div>";
+    badge.style.cssText = "position:fixed;top:20px;left:20px;z-index:99999;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:default;";
+    badge.innerHTML = "<div style='width:50px;height:50px;border-radius:50%;background:" + couleur.hex + ";box-shadow:0 4px 16px " + couleur.hex + "99;border:4px solid white;'></div><div style='background:rgba(0,0,0,0.75);color:white;font-size:10px;padding:3px 9px;border-radius:10px;font-family:Arial,sans-serif;white-space:nowrap;font-weight:bold;letter-spacing:0.5px;'>" + couleur.emoji + " " + couleur.nom + "</div>";
     badge.title = "Couleur du jour : " + couleur.nom;
     document.body.appendChild(badge);
   })();
