@@ -819,9 +819,16 @@ function initBeautyAddictLogin() {
         }
         db.collection("users").doc(uid).get().then(function(snap) {
           const d = snap.data(); var taches = tachesBase.slice(); var cochees = [];
-          if (d.checklistDate === today) { cochees = d.checklistCochees || []; var tachesPerso = (d.checklistTaches || []).filter(function(t) { return tachesBase.indexOf(t) === -1; }); taches = tachesBase.concat(tachesPerso); }
-          else { db.collection("users").doc(uid).update({ checklistDate: today, checklistCochees: [], checklistTaches: tachesBase }); }
-          afficherTaches(taches, cochees); mettreAJourProgression(taches, cochees);
+          if (d.checklistDate === today) {
+            cochees = d.checklistCochees || [];
+            var tachesPerso = (d.checklistTaches || []).filter(function(t) { return tachesBase.indexOf(t) === -1; });
+            taches = tachesBase.concat(tachesPerso);
+            afficherTaches(taches, cochees); mettreAJourProgression(taches, cochees);
+          } else {
+            db.collection("users").doc(uid).update({ checklistDate: today, checklistCochees: [], checklistTaches: tachesBase }).then(function() {
+              afficherTaches(tachesBase, []); mettreAJourProgression(tachesBase, []);
+            });
+          }
         });
         document.getElementById("add-task-btn").onclick = function() {
           const input = document.getElementById("new-task-input"); const newTask = input.value.trim(); if (!newTask) return;
