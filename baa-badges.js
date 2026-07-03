@@ -149,10 +149,10 @@ function initBadges() {
     var moisActuel = new Date().getFullYear() + "-" + (new Date().getMonth() + 1);
     db.collection("users").doc(uid).get().then(function(snap) {
       var d = snap.data() || {};
-      // Ne pas ajouter si nouveau mois (sera remis à zéro)
       if (d.badgeMois && d.badgeMois !== moisActuel) return;
+      var nouveauxPts = (d.badgePoints || 0) + pts;
       db.collection("users").doc(uid).update({
-        badgePoints: firebase.firestore.FieldValue.increment(pts),
+        badgePoints: nouveauxPts,
         badgeMois: moisActuel
       }).catch(function(){});
     });
