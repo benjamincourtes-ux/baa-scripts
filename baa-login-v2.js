@@ -609,7 +609,7 @@ function initBeautyAddictLogin() {
           if (!cliente || !produit) { alert("Nom cliente et produit obligatoires."); return; }
           const cmdData = { cliente: cliente, produit: produit, date: date, montant: montant };
           if (editId) { db.collection("users").doc(uid).collection("commandes").doc(editId).update(cmdData).then(function() { document.getElementById("commande-form").style.display = "none"; loadCommandes(); }); }
-          else { db.collection("users").doc(uid).collection("commandes").add(cmdData).then(function() { document.getElementById("commande-form").style.display = "none"; loadCommandes(); }); }
+          else { db.collection("users").doc(uid).collection("commandes").add(cmdData).then(function() { document.getElementById("commande-form").style.display = "none"; loadCommandes(); if (typeof window.ajouterPointsBadge === "function") window.ajouterPointsBadge(5); }); }
         };
         loadCommandes();
       }
@@ -765,6 +765,13 @@ function initBeautyAddictLogin() {
           document.getElementById("checklist-pct").innerText = pct + "%";
           document.getElementById("checklist-barre").style.width = pct + "%";
           document.getElementById("checklist-barre").style.background = pct === 100 ? "#2ecc71" : "#c9a86a";
+          if (pct === 100 && typeof window.ajouterPointsBadge === "function") {
+            var today = new Date().toDateString();
+            if (localStorage.getItem("baa-checklist-pts-" + today) !== "1") {
+              localStorage.setItem("baa-checklist-pts-" + today, "1");
+              window.ajouterPointsBadge(5);
+            }
+          }
         }
         function afficherTaches(taches, cochees) {
           const container = document.getElementById("checklist-items"); container.innerHTML = "";
@@ -818,6 +825,13 @@ function initBeautyAddictLogin() {
           const taux = realise >= 100 ? 30 : 20; const commission = realise * taux / 100;
           var message = pct >= 100 ? "Objectif atteint ! Bravo !" : pct >= 75 ? "Tu y es presque, continue !" : pct >= 50 ? "Bonne progression, ne lache rien !" : pct >= 25 ? "Tu es sur la bonne voie !" : "C est parti, chaque vente compte !";
           var couleurBarre = pct >= 100 ? "#2ecc71" : pct >= 50 ? "#c9a86a" : "#f39c12";
+          if (pct >= 100 && typeof window.ajouterPointsBadge === "function") {
+            var moisObj = new Date().getFullYear() + "-" + (new Date().getMonth() + 1);
+            if (localStorage.getItem("baa-objectif-pts-" + moisObj) !== "1") {
+              localStorage.setItem("baa-objectif-pts-" + moisObj, "1");
+              window.ajouterPointsBadge(50);
+            }
+          }
           var html = "<div style='background:white;border-radius:12px;padding:20px;border:1px solid #e8d4b0;margin-bottom:12px;'><div style='display:flex;justify-content:space-between;margin-bottom:8px;'><span style='color:#8b735d;font-size:13px;font-weight:bold;'>Progression</span><span style='color:#8b735d;font-size:13px;font-weight:bold;'>" + pct + "%</span></div><div style='background:#f0e6d3;border-radius:20px;height:20px;margin-bottom:16px;overflow:hidden;'><div style='background:" + couleurBarre + ";height:100%;border-radius:20px;width:" + pct + "%;'></div></div><div style='display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;'><div style='text-align:center;padding:12px;background:#f8f3ee;border-radius:10px;'><div style='color:#888;font-size:12px;'>CA realise</div><div style='color:#3a3a3a;font-size:18px;font-weight:bold;'>" + realise + " euros</div></div><div style='text-align:center;padding:12px;background:#f8f3ee;border-radius:10px;'><div style='color:#888;font-size:12px;'>Reste a faire</div><div style='color:#3a3a3a;font-size:18px;font-weight:bold;'>" + reste + " euros</div></div><div style='text-align:center;padding:12px;background:#f8f3ee;border-radius:10px;'><div style='color:#888;font-size:12px;'>Commission</div><div style='color:#c9a86a;font-size:18px;font-weight:bold;'>" + commission.toFixed(2) + " euros</div></div><div style='text-align:center;padding:12px;background:#f8f3ee;border-radius:10px;'><div style='color:#888;font-size:12px;'>Taux</div><div style='color:#c9a86a;font-size:18px;font-weight:bold;'>" + taux + "%</div></div></div><div style='text-align:center;color:#8b735d;font-size:14px;font-weight:bold;'>" + message + "</div></div>";
           document.getElementById("suivi-result").innerHTML = html; document.getElementById("suivi-result").style.display = "block";
         }
