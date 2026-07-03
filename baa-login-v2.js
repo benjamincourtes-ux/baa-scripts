@@ -90,8 +90,7 @@ function initBeautyAddictLogin() {
           const userCred = await auth.createUserWithEmailAndPassword(email, password);
           await db.collection("users").doc(userCred.user.uid).set({ prenom: firstname, nom: lastname, email: email, accountStatus: "pending", role: "member", moduleActuel: 1, progression: 0, createdAt: new Date() });
           msg.innerHTML = "Compte cree ! En attente de validation.";
-          emailjs.init("D_JtKhPDgOQWi_ECO");
-          emailjs.send("service_wr9mlhk", "template_qffpmql", { prenom: firstname, nom: lastname, email: email, date: new Date().toLocaleDateString("fr-FR") }).catch(function(err) { console.log("EmailJS erreur:", err); });
+          if (window.baaEmail) window.baaEmail.bienvenue(firstname, lastname, email);
         } catch (e) { document.getElementById("baa-message").innerHTML = e.message; }
       };
       document.getElementById("forgot-password-link").onclick = function() {
@@ -195,7 +194,7 @@ function initBeautyAddictLogin() {
               list.appendChild(row);
               document.getElementById("accept-" + uid).onclick = function() {
                 db.collection("users").doc(uid).update({ accountStatus: "active" }).then(function() {
-                  emailjs.send("service_wr9mlhk", "template_wk2j4mg", { prenom: d.prenom, nom: d.nom, email: d.email, date: new Date().toLocaleDateString("fr-FR"), titre_message: "Bienvenue", corps_message: "Ton compte sur l Academie Beauty Addict vient d etre active. Tu peux maintenant te connecter et acceder a tout le contenu de l academie.", lien_action: "Ton envol vers la liberte commence maintenant." }).then(function() { console.log("Email bienvenue envoye"); }).catch(function(err) { console.log(err); });
+                  if (window.baaEmail) window.baaEmail.bienvenue(d.prenom, d.nom, d.email);
                   document.getElementById("row-" + uid).remove();
                   if (document.getElementById("admin-members-list").children.length === 0) { document.getElementById("admin-members-list").innerHTML = "<p style='color:#999;'>Aucun membre en attente.</p>"; }
                 });
@@ -307,11 +306,11 @@ function initBeautyAddictLogin() {
             db.collection("users").where("accountStatus", "==", "active").get().then(function(snapshot) {
               if (snapshot.empty) { msgEl.innerText = "Aucune membre active."; btnEl.disabled = false; btnEl.innerText = "Envoyer a toutes les membres"; return; }
               var promises = [];
-              emailjs.init("D_JtKhPDgOQWi_ECO");
+              // Resend via baaEmail
               snapshot.forEach(function(docSnap) {
                 var d = docSnap.data();
                 var payload = Object.assign({ prenom: d.prenom, nom: d.nom, email: d.email, date: new Date().toLocaleDateString("fr-FR") }, dataExtra);
-                promises.push(emailjs.send("service_wr9mlhk", "template_wk2j4mg", payload).catch(function(err) { console.log("Erreur envoi a " + d.email, err); }));
+                if (window.baaEmail && d.email) promises.push(window.baaEmail.annonce([{prenom: d.prenom, email: d.email}], payload.titre_message || "Message de l'Académie", payload.corps_message || "").catch(function(err) { console.log("Erreur envoi a " + d.email, err); }));
               });
               Promise.all(promises).then(function() {
                 msgEl.innerText = "Email envoye a " + snapshot.size + " membre" + (snapshot.size > 1 ? "s" : "") + " !";
@@ -419,20 +418,10 @@ function initBeautyAddictLogin() {
                   window.__baaDefiInitialized = false;
                   if (typeof initDefiEclair === "function") initDefiEclair();
                   // Email à toutes les membres actives
-                  emailjs.init("D_JtKhPDgOQWi_ECO");
                   db.collection("users").where("accountStatus", "==", "active").get().then(function(members) {
-                    members.forEach(function(mDoc) {
-                      var m = mDoc.data();
-                      if (m.email) {
-                        emailjs.send("service_wr9mlhk", "template_wk2j4mg", {
-                          prenom: m.prenom || "", nom: m.nom || "", email: m.email,
-                          titre_message: "&#9889; Defi Eclair en cours !",
-                          corps_message: titre + (desc ? " - " + desc : ""),
-                          lien_action: "Tu as " + duree + "h pour relever le defi ! Connecte-toi sur l Academie pour participer.",
-                          date: new Date().toLocaleDateString("fr-FR")
-                        }).catch(function(){});
-                      }
-                    });
+                    var destinataires = [];
+                    members.forEach(function(mDoc) { var m = mDoc.data(); if (m.email) destinataires.push({prenom: m.prenom||"", email: m.email}); });
+                    if (window.baaEmail) window.baaEmail.defi(destinataires, titre, desc || "");
                   });
                   chargerPreuves();
                 });
