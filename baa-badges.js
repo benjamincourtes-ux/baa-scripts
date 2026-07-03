@@ -145,19 +145,21 @@ function initBadges() {
   // Mettre à jour les points automatiquement
   // Fonction globale pour ajouter des points depuis n'importe quel fichier
   window.ajouterPointsBadge = function(pts) {
-    var currentUser = firebase.auth().currentUser;
-    if (!currentUser) return;
-    var currentUid = currentUser.uid;
-    var moisActuel = new Date().getFullYear() + "-" + (new Date().getMonth() + 1);
-    db.collection("users").doc(currentUid).get().then(function(snap) {
-      var d = snap.data() || {};
-      if (d.badgeMois && d.badgeMois !== moisActuel) return;
-      var nouveauxPts = (d.badgePoints || 0) + pts;
-      db.collection("users").doc(currentUid).update({
-        badgePoints: nouveauxPts,
-        badgeMois: moisActuel
-      }).catch(function(){});
-    });
+    try {
+      var u = firebase.auth().currentUser;
+      if (!u) return;
+      var mois = new Date().getFullYear() + "-" + (new Date().getMonth() + 1);
+      firebase.firestore().collection("users").doc(u.uid).get().then(function(s) {
+        var data = s.data() || {};
+        var total = (data.badgePoints || 0) + pts;
+        firebase.firestore().collection("users").doc(u.uid).set(
+          { badgePoints: total, badgeMois: mois },
+          { merge: true }
+        ).then(function() {
+          console.log("Points sauvegardes:", total);
+        }).catch(function(e) { console.log("Erreur set:", e); });
+      }).catch(function(e) { console.log("Erreur get:", e); });
+    } catch(e) { console.log("Erreur ajouterPoints:", e); }
   };
   var moisActuel = new Date().getFullYear() + "-" + (new Date().getMonth() + 1);
   db.collection("users").doc(uid).onSnapshot(function(snap) {
