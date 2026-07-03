@@ -7,17 +7,15 @@ window.baaEmail = {
     return new Promise(function(resolve) {
       var html = "<!DOCTYPE html><html><head><meta charset='UTF-8'></head><body style='font-family:Arial,sans-serif;background:#f8f3ee;margin:0;padding:20px;'><div style='max-width:600px;margin:0 auto;background:white;border-radius:16px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);'><div style='background:linear-gradient(135deg,#1a0a00,#3d1f05);padding:32px;text-align:center;'><div style='font-size:40px;margin-bottom:8px;'>🐦‍🔥</div><h1 style='color:#f5d48a;margin:0;font-size:22px;letter-spacing:1px;'>Académie Beauty Addict</h1></div><div style='padding:32px;'>" + corps + "</div><div style='background:#f8f3ee;padding:20px;text-align:center;border-top:1px solid #e8d4b0;'><p style='color:#c9a86a;font-size:12px;margin:0;'>Beauty Addict Academy • Tous droits réservés</p></div></div></body></html>";
 
-      Email.send({
-        Host: "smtp.gmail.com",
-        Username: window.baaEmail.gmailUser,
-        Password: window.baaEmail.gmailPass,
-        To: to,
-        From: window.baaEmail.gmailUser,
-        Subject: sujet,
-        Body: html
-      }).then(function(msg) {
+      Email.send(
+        window.baaEmail.gmailUser,
+        to,
+        sujet,
+        html,
+        { host: "smtp.gmail.com", username: window.baaEmail.gmailUser, password: window.baaEmail.gmailPass, ssl: true }
+      ).then(function(msg) {
         console.log("Email envoyé à " + to + ":", msg);
-        resolve(true);
+        resolve(msg === "OK");
       }).catch(function(e) {
         console.log("Erreur email:", e);
         resolve(false);
