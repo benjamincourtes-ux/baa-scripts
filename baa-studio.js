@@ -239,10 +239,18 @@ function openStudioPanel() {
           var r = await fetch("https://api.cloudinary.com/v1_1/dxcfq3nyl/image/upload", { method: "POST", body: fd });
           var data = await r.json();
           photoURL = data.secure_url;
-          document.getElementById("studio-photo-preview").innerHTML = "<img src='" + photoURL + "' style='width:100%;height:100%;object-fit:cover;' />";
-          document.getElementById("studio-photo-msg").innerText = "Photo ajoutée !";
-          setTimeout(function() { document.getElementById("studio-photo-msg").innerText = "JPG ou PNG"; }, 2000);
-          renderApercu();
+          // Convertir en base64 pour l'afficher dans le SVG
+          var imgEl = new Image(); imgEl.crossOrigin = "anonymous";
+          imgEl.onload = function() {
+            var c2 = document.createElement("canvas"); c2.width = 200; c2.height = 200;
+            c2.getContext("2d").drawImage(imgEl, 0, 0, 200, 200);
+            photoURL = c2.toDataURL("image/jpeg", 0.8);
+            document.getElementById("studio-photo-preview").innerHTML = "<img src='" + photoURL + "' style='width:100%;height:100%;object-fit:cover;' />";
+            document.getElementById("studio-photo-msg").innerText = "Photo ajoutée !";
+            setTimeout(function() { document.getElementById("studio-photo-msg").innerText = "JPG ou PNG"; }, 2000);
+            renderApercu();
+          };
+          imgEl.src = data.secure_url;
         } catch(e) { document.getElementById("studio-photo-msg").innerText = "Erreur upload"; }
       };
     }
