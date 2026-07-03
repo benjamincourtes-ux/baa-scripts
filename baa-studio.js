@@ -77,17 +77,17 @@ function openStudioPanel() {
   var selectedTemplate = TEMPLATES[0];
   var selectedPalette = PALETTES[0];
   var userData = {};
-  var photoURL = "";
-  var photoURL2 = "";
+  window.__studioPhoto = ""; window.__studioPhoto2 = "";
+  
 
   window.__studioResetPhoto = function() {
-    photoURL = "";
+    window.__studioPhoto = "";
     var prev = document.getElementById("studio-photo-preview");
     if (prev) prev.innerHTML = "<span style='color:white;font-size:16px;'>📷</span>";
     window.__studioRenderApercu && window.__studioRenderApercu();
   };
   window.__studioResetPhoto2 = function() {
-    photoURL2 = "";
+    window.__studioPhoto2 = "";
     var prev2 = document.getElementById("studio-photo2-preview");
     if (prev2) prev2.innerHTML = "<span style='font-size:14px;'>📷</span>";
     window.__studioRenderApercu && window.__studioRenderApercu();
@@ -95,7 +95,7 @@ function openStudioPanel() {
 
   db.collection("users").doc(uid).get().then(function(snap) {
     userData = snap.data() || {};
-    photoURL = userData.photoURL || "";
+    window.__studioPhoto = userData.window.__studioPhoto || "";
     renderStudio();
   });
 
@@ -231,7 +231,7 @@ function openStudioPanel() {
         "<div style='flex:1;'><label style='color:#8b735d;font-size:9px;font-weight:bold;display:block;margin-bottom:4px;'>Photo AVANT</label>" +
         "<div style='display:flex;align-items:center;gap:6px;'>" +
         "<div id='studio-photo-preview' style='width:38px;height:38px;border-radius:6px;background:#e0e0e0;border:2px solid #e8d4b0;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;'>" +
-        (photoURL ? "<img src='" + photoURL + "' style='width:100%;height:100%;object-fit:cover;' />" : "<span style='font-size:14px;'>📷</span>") +
+        (window.__studioPhoto ? "<img src='" + window.__studioPhoto + "' style='width:100%;height:100%;object-fit:cover;' />" : "<span style='font-size:14px;'>📷</span>") +
         "</div>" +
         "<label style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:4px 8px;border-radius:6px;cursor:pointer;font-size:10px;font-weight:bold;'>Choisir<input type='file' id='studio-photo-input' accept='image/*' style='display:none;' /></label>" +
         "<button onclick='window.__studioResetPhoto()' style='background:none;border:none;cursor:pointer;color:#c0392b;font-size:16px;padding:0 4px;'>🗑️</button>" +
@@ -239,7 +239,7 @@ function openStudioPanel() {
         "<div style='flex:1;'><label style='color:#8b735d;font-size:9px;font-weight:bold;display:block;margin-bottom:4px;'>Photo APRÈS</label>" +
         "<div style='display:flex;align-items:center;gap:6px;'>" +
         "<div id='studio-photo2-preview' style='width:38px;height:38px;border-radius:6px;background:#e8d4b0;border:2px solid #e8d4b0;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;'>" +
-        (photoURL2 ? "<img src='" + photoURL2 + "' style='width:100%;height:100%;object-fit:cover;' />" : "<span style='font-size:14px;'>📷</span>") +
+        (window.__studioPhoto2 ? "<img src='" + window.__studioPhoto2 + "' style='width:100%;height:100%;object-fit:cover;' />" : "<span style='font-size:14px;'>📷</span>") +
         "</div>" +
         "<label style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:4px 8px;border-radius:6px;cursor:pointer;font-size:10px;font-weight:bold;'>Choisir<input type='file' id='studio-photo2-input' accept='image/*' style='display:none;' /></label>" +
         "<button onclick='window.__studioResetPhoto2()' style='background:none;border:none;cursor:pointer;color:#c0392b;font-size:16px;padding:0 4px;'>🗑️</button>" +
@@ -249,7 +249,7 @@ function openStudioPanel() {
       html += "<div style='margin-bottom:12px;'><label style='color:#8b735d;font-size:10px;font-weight:bold;display:block;margin-bottom:4px;'>Photo</label>" +
         "<div style='display:flex;align-items:center;gap:8px;'>" +
         "<div id='studio-photo-preview' style='width:44px;height:44px;border-radius:50%;background:#c9a86a;border:2px solid #e8d4b0;overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;'>" +
-        (photoURL ? "<img src='" + photoURL + "' style='width:100%;height:100%;object-fit:cover;' />" : "<span style='color:white;font-size:16px;'>📷</span>") +
+        (window.__studioPhoto ? "<img src='" + window.__studioPhoto + "' style='width:100%;height:100%;object-fit:cover;' />" : "<span style='color:white;font-size:16px;'>📷</span>") +
         "</div>" +
         "<label style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:bold;'>Changer<input type='file' id='studio-photo-input' accept='image/*' style='display:none;' /></label>" +
         "<button onclick='window.__studioResetPhoto()' style='background:none;border:none;cursor:pointer;color:#c0392b;font-size:18px;padding:0 4px;'>🗑️</button>" +
@@ -274,15 +274,15 @@ function openStudioPanel() {
           var fd = new FormData(); fd.append("file", file); fd.append("upload_preset", "baa_avatars"); fd.append("folder", "studio");
           var r = await fetch("https://api.cloudinary.com/v1_1/dxcfq3nyl/image/upload", { method: "POST", body: fd });
           var data = await r.json();
-          photoURL = data.secure_url;
+          window.__studioPhoto = data.secure_url;
           // Convertir en base64 pour l'afficher dans le SVG
           var imgEl = new Image(); imgEl.crossOrigin = "anonymous";
           imgEl.onload = function() {
             var c2 = document.createElement("canvas"); c2.width = 200; c2.height = 200;
             c2.getContext("2d").drawImage(imgEl, 0, 0, 200, 200);
-            photoURL = c2.toDataURL("image/jpeg", 0.8);
-            console.log("photoURL base64 set:", photoURL.length, "chars");
-            document.getElementById("studio-photo-preview").innerHTML = "<img src='" + photoURL + "' style='width:100%;height:100%;object-fit:cover;' />";
+            window.__studioPhoto = c2.toDataURL("image/jpeg", 0.8);
+            console.log("window.__studioPhoto base64 set:", window.__studioPhoto.length, "chars");
+            document.getElementById("studio-photo-preview").innerHTML = "<img src='" + window.__studioPhoto + "' style='width:100%;height:100%;object-fit:cover;' />";
             document.getElementById("studio-photo-msg").innerText = "Photo ajoutée !";
             setTimeout(function() { document.getElementById("studio-photo-msg").innerText = "JPG ou PNG"; }, 2000);
             console.log("Calling renderApercu...");
@@ -298,7 +298,7 @@ function openStudioPanel() {
     var clearBtn = document.getElementById("studio-photo-clear");
     if (clearBtn) {
       clearBtn.onclick = function() {
-        photoURL = "";
+        window.__studioPhoto = "";
         var prev = document.getElementById("studio-photo-preview");
         if (prev) prev.innerHTML = "<span style='color:white;font-size:16px;'>📷</span>";
         renderApercu();
@@ -309,7 +309,7 @@ function openStudioPanel() {
     var clearBtn2 = document.getElementById("studio-photo2-clear");
     if (clearBtn2) {
       clearBtn2.onclick = function() {
-        photoURL2 = "";
+        window.__studioPhoto2 = "";
         var prev2 = document.getElementById("studio-photo2-preview");
         if (prev2) prev2.innerHTML = "<span style='font-size:14px;'>📷</span>";
         renderApercu();
@@ -329,9 +329,9 @@ function openStudioPanel() {
           imgEl.onload = function() {
             var c2 = document.createElement("canvas"); c2.width = 400; c2.height = 500;
             c2.getContext("2d").drawImage(imgEl, 0, 0, 400, 500);
-            photoURL2 = c2.toDataURL("image/jpeg", 0.85);
+            window.__studioPhoto2 = c2.toDataURL("image/jpeg", 0.85);
             var prev2 = document.getElementById("studio-photo2-preview");
-            if (prev2) prev2.innerHTML = "<img src='" + photoURL2 + "' style='width:100%;height:100%;object-fit:cover;' />";
+            if (prev2) prev2.innerHTML = "<img src='" + window.__studioPhoto2 + "' style='width:100%;height:100%;object-fit:cover;' />";
             renderApercu();
           };
           imgEl.src = data.secure_url;
@@ -381,9 +381,9 @@ function openStudioPanel() {
   }
 
   function photoCircleSVG(cx, cy, r, strokeClr) {
-    if (photoURL) {
+    if (window.__studioPhoto) {
       return "<defs><clipPath id='pc'><circle cx='" + cx + "' cy='" + cy + "' r='" + r + "'/></clipPath></defs>" +
-        "<image href='" + photoURL + "' x='" + (cx-r) + "' y='" + (cy-r) + "' width='" + (r*2) + "' height='" + (r*2) + "' clip-path='url(#pc)'/>" +
+        "<image href='" + window.__studioPhoto + "' x='" + (cx-r) + "' y='" + (cy-r) + "' width='" + (r*2) + "' height='" + (r*2) + "' clip-path='url(#pc)'/>" +
         "<circle cx='" + cx + "' cy='" + cy + "' r='" + r + "' fill='none' stroke='" + strokeClr + "' stroke-width='4'/>";
     }
     return "<circle cx='" + cx + "' cy='" + cy + "' r='" + r + "' fill='" + strokeClr + "' opacity='0.2' stroke='" + strokeClr + "' stroke-width='4'/>" +
@@ -416,8 +416,8 @@ function openStudioPanel() {
           rect(W/2-2, 0, 4, W, p.accent) +
           "<circle cx='540' cy='540' r='50' fill='" + p.bg + "'/>" +
           txt("→", 540, 558, 48, p.accent, "middle", "bold") +
-          (photoURL ? "<defs><clipPath id='pc-av'><rect x='60' y='150' width='460' height='560' rx='12'/></clipPath></defs><image href='" + photoURL + "' x='60' y='150' width='460' height='560' clip-path='url(#pc-av)' preserveAspectRatio='xMidYMid slice'/>" : txt("📷 Avant", W*0.25, 520, 60, "#ccc", "middle")) +
-          (photoURL2 ? "<defs><clipPath id='pc-ap'><rect x='560' y='150' width='460' height='560' rx='12'/></clipPath></defs><image href='" + photoURL2 + "' x='560' y='150' width='460' height='560' clip-path='url(#pc-ap)' preserveAspectRatio='xMidYMid slice'/>" : txt("📷 Après", W*0.75, 520, 60, "#ccc", "middle")) +
+          (window.__studioPhoto ? "<defs><clipPath id='pc-av'><rect x='60' y='150' width='460' height='560' rx='12'/></clipPath></defs><image href='" + window.__studioPhoto + "' x='60' y='150' width='460' height='560' clip-path='url(#pc-av)' preserveAspectRatio='xMidYMid slice'/>" : txt("📷 Avant", W*0.25, 520, 60, "#ccc", "middle")) +
+          (window.__studioPhoto2 ? "<defs><clipPath id='pc-ap'><rect x='560' y='150' width='460' height='560' rx='12'/></clipPath></defs><image href='" + window.__studioPhoto2 + "' x='560' y='150' width='460' height='560' clip-path='url(#pc-ap)' preserveAspectRatio='xMidYMid slice'/>" : txt("📷 Après", W*0.75, 520, 60, "#ccc", "middle")) +
           txt(c.avantLabel||"AVANT", W*0.25, 820, 36, "#999999", "middle", "bold") +
           txt(c.apresLabel||"APRÈS", W*0.75, 820, 36, p.accent, "middle", "bold") +
           rect(0, W-6, W, 6, p.accent) +
