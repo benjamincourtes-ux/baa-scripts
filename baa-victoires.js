@@ -280,18 +280,13 @@ function openVictoiresPanel() {
         reactions: {}, createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
       if (typeof window.ajouterPointsBadge === "function") window.ajouterPointsBadge(10);
-      emailjs.init("D_JtKhPDgOQWi_ECO");
+      // Email via Resend
+      var destinatairesVictoire = tousLesMembres.filter(function(m) { return m._uid !== uid && m.email; });
+      if (window.baaEmail && destinatairesVictoire.length > 0) {
+        window.baaEmail.victoire(destinatairesVictoire, userData.prenom||"Une Phénix", texte.substring(0, 200));
+      }
       tousLesMembres.forEach(function(m) {
         if (m._uid !== uid) envoyerNotif(m._uid, "victoire", (userData.prenom||"") + " a partage une nouvelle victoire !" + (categorieSelectionnee ? " (" + categorieSelectionnee + ")" : ""));
-        if (m.email && m._uid !== uid) {
-          emailjs.send("service_wr9mlhk", "template_wk2j4mg", {
-            prenom: m.prenom || "", nom: m.nom || "", email: m.email,
-            titre_message: "Nouvelle victoire sur le Mur !",
-            corps_message: (userData.prenom || "") + " vient de partager une victoire" + (categorieSelectionnee ? " (" + categorieSelectionnee + ")" : "") + " : " + texte,
-            lien_action: "Connecte-toi sur l Academie pour reagir !",
-            date: new Date().toLocaleDateString("fr-FR")
-          }).catch(function(){});
-        }
       });
       document.getElementById("vtexte").innerHTML = "";
       document.getElementById("vphoto").value = "";
@@ -619,14 +614,8 @@ function openVictoiresPanel() {
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
         if (membre.email && (t || imageURL)) {
-          emailjs.init("D_JtKhPDgOQWi_ECO");
-          emailjs.send("service_wr9mlhk", "template_wk2j4mg", {
-            prenom: membre.prenom||"", nom: membre.nom||"", email: membre.email,
-            titre_message: "Nouveau message de " + (userData.prenom||"") + " !",
-            corps_message: (userData.prenom||"") + " t a envoye un message" + (t ? " : " + t : " avec une photo") + ".",
-            lien_action: "Connecte-toi sur l Academie pour repondre.",
-            date: new Date().toLocaleDateString("fr-FR")
-          }).catch(function(){});
+          // Email via Resend
+          // Email envoyé via baaEmail
         }
       });
     };
