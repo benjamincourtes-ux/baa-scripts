@@ -3,6 +3,42 @@ function initBeautyAddictLogin() {
   window.__baaLoginInitialized = true;
 
   // Couleur du jour désactivée
+
+  // Phénix volant
+  (function() {
+    function lancerPhenix() {
+      if (document.getElementById("baa-phenix-vol")) return;
+      var phenix = document.createElement("div");
+      phenix.id = "baa-phenix-vol";
+      var fromRight = Math.random() > 0.5;
+      var top = 15 + Math.random() * 60;
+      phenix.style.cssText = "position:fixed;top:" + top + "%;z-index:999998;pointer-events:none;font-size:48px;opacity:0;transition:opacity 0.5s;" + (fromRight ? "right:-80px;" : "left:-80px;");
+      phenix.innerHTML = "🐦‍🔥";
+      document.body.appendChild(phenix);
+
+      // Ajouter traînée de flammes
+      var style = document.createElement("style");
+      style.id = "baa-phenix-style";
+      style.innerHTML = fromRight ?
+        "@keyframes phenixVolR { 0%{right:-80px;opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{right:110%;opacity:0} }" :
+        "@keyframes phenixVolL { 0%{left:-80px;opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{left:110%;opacity:0} }";
+      document.head.appendChild(style);
+
+      phenix.style.animation = (fromRight ? "phenixVolR" : "phenixVolL") + " 4s ease-in-out forwards";
+      phenix.style.transform = fromRight ? "scaleX(-1)" : "scaleX(1)";
+      phenix.style.filter = "drop-shadow(0 0 12px #f5d48a) drop-shadow(0 0 24px #D85A30)";
+
+      setTimeout(function() {
+        phenix.remove();
+        var s = document.getElementById("baa-phenix-style"); if (s) s.remove();
+        // Prochain phénix dans 30 à 90 secondes
+        setTimeout(lancerPhenix, 30000 + Math.random() * 60000);
+      }, 4500);
+    }
+
+    // Premier phénix après 10 secondes
+    setTimeout(lancerPhenix, 10000);
+  })();
   console.log("BAA Login init...");
   if (!window.firebase) { console.log("Firebase absent"); window.__baaLoginInitialized = false; return; }
   if (!firebase.apps || firebase.apps.length === 0) {
