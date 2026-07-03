@@ -71,7 +71,7 @@ function initBadges() {
     if (!menuBtn) return;
     var mini = document.createElement("div");
     mini.id = "baa-mini-flamme";
-    mini.style.cssText = "position:fixed;bottom:72px;right:12px;z-index:99998;display:flex;flex-direction:column;align-items:center;cursor:pointer;";
+    mini.style.cssText = "position:fixed;bottom:72px;right:70px;z-index:99998;display:flex;flex-direction:column;align-items:center;cursor:pointer;";
     mini.innerHTML = flameSVG(pct, niveau.couleur, 36) +
       "<div style='background:rgba(26,12,2,0.85);border-radius:6px;padding:2px 7px;margin-top:2px;text-align:center;'>" +
       "<div style='color:" + niveau.couleur + ";font-size:9px;font-weight:bold;font-family:Arial;'>" + pts + " pts</div>" +
@@ -143,7 +143,20 @@ function initBadges() {
   window.openBadgesPanel = ouvrirBadgesPanel;
 
   // Mettre à jour les points automatiquement
-  // Écoute temps réel des changements Firebase
+  // Fonction globale pour ajouter des points depuis n'importe quel fichier
+  window.ajouterPointsBadge = function(pts) {
+    if (!uid) return;
+    var moisActuel = new Date().getFullYear() + "-" + (new Date().getMonth() + 1);
+    db.collection("users").doc(uid).get().then(function(snap) {
+      var d = snap.data() || {};
+      // Ne pas ajouter si nouveau mois (sera remis à zéro)
+      if (d.badgeMois && d.badgeMois !== moisActuel) return;
+      db.collection("users").doc(uid).update({
+        badgePoints: firebase.firestore.FieldValue.increment(pts),
+        badgeMois: moisActuel
+      }).catch(function(){});
+    });
+  };
   var moisActuel = new Date().getFullYear() + "-" + (new Date().getMonth() + 1);
   db.collection("users").doc(uid).onSnapshot(function(snap) {
     var d = snap.data() || {};
