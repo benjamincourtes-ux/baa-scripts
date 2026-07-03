@@ -234,6 +234,16 @@ function openCarteVisitePanel() {
       "<text x='" + (x+w/2) + "' y='" + (y+h/2+10) + "' text-anchor='middle' font-family='Georgia,serif' font-size='32' font-weight='bold' fill='" + strokeClr + "'>" + ini(d) + "</text>";
   }
 
+
+  function fbIcon(x, y, s, clr) {
+    return "<rect x='" + x + "' y='" + y + "' width='" + s + "' height='" + s + "' rx='" + (s*0.2) + "' fill='" + clr + "' opacity='0.3'/>" +
+      "<text x='" + (x+s/2) + "' y='" + (y+s*0.72) + "' text-anchor='middle' font-family='Arial' font-size='" + (s*0.65) + "' font-weight='bold' fill='" + clr + "'>f</text>";
+  }
+  function igIcon(x, y, s, clr) {
+    return "<rect x='" + x + "' y='" + y + "' width='" + s + "' height='" + s + "' rx='" + (s*0.25) + "' fill='none' stroke='" + clr + "' stroke-width='1.5' opacity='0.8'/>" +
+      "<circle cx='" + (x+s/2) + "' cy='" + (y+s/2) + "' r='" + (s*0.22) + "' fill='none' stroke='" + clr + "' stroke-width='1.2' opacity='0.8'/>" +
+      "<circle cx='" + (x+s*0.72) + "' cy='" + (y+s*0.28) + "' r='" + (s*0.07) + "' fill='" + clr + "' opacity='0.8'/>";
+  }
   function genSVG(theme, d) {
     var W = 680, H = 390;
     var nm = (d.prenom||"Prénom") + " " + (d.nom2||"Nom");
@@ -243,6 +253,7 @@ function openCarteVisitePanel() {
     var fb = d.fb ? d.fb.replace(/https?:\/\/(www\.)?facebook\.com\//,"") : "";
     var ig = d.insta ? d.insta.replace(/https?:\/\/(www\.)?instagram\.com\//,"") : "";
     if (ig && ig[0] !== "@") ig = "@" + ig;
+    var cat = d.catalogue ? (d.catalogue.replace(/https?:\/\/(www\.)?/,"").split("/")[0]) : "";
 
     var svg = "<svg id='carte-svg' width='100%' viewBox='0 0 " + W + " " + H + "' xmlns='http://www.w3.org/2000/svg' style='border-radius:14px;max-width:540px;'>";
 
@@ -256,8 +267,10 @@ function openCarteVisitePanel() {
       svg += "<line x1='180' y1='" + (H*0.51) + "' x2='430' y2='" + (H*0.51) + "' stroke='#c9a86a' stroke-width='0.5' opacity='0.5'/>";
       svg += "<text x='180' y='" + (H*0.61) + "' font-family='Arial' font-size='12' fill='rgba(255,255,255,0.65)'>✉ " + em + "</text>";
       svg += "<text x='180' y='" + (H*0.72) + "' font-family='Arial' font-size='12' fill='rgba(255,255,255,0.65)'>📱 " + tel + "</text>";
-      if (fb) svg += "<text x='180' y='" + (H*0.83) + "' font-family='Arial' font-size='11' fill='rgba(255,255,255,0.5)'>fb/ " + fb + "</text>";
-      if (ig) svg += "<text x='" + (fb ? 360 : 180) + "' y='" + (H*0.83) + "' font-family='Arial' font-size='11' fill='rgba(255,255,255,0.5)'>" + ig + "</text>";
+      var y83 = H*0.83; var xCur = 180;
+      if (fb) { svg += fbIcon(xCur, y83-11, 13, "#c9a86a"); svg += "<text x='" + (xCur+16) + "' y='" + y83 + "' font-family='Arial' font-size='11' fill='rgba(255,255,255,0.5)'>" + fb + "</text>"; xCur += 160; }
+      if (ig) { svg += igIcon(xCur, y83-11, 13, "#c9a86a"); svg += "<text x='" + (xCur+16) + "' y='" + y83 + "' font-family='Arial' font-size='11' fill='rgba(255,255,255,0.5)'>" + ig + "</text>"; }
+      if (cat) svg += "<text x='180' y='" + (H*0.93) + "' font-family='Arial' font-size='11' fill='rgba(255,255,255,0.4)'>🛍 " + cat + "</text>";
       svg += qrSVG(W*0.83, H*0.53, 68, "#c9a86a");
 
     } else if (theme === "noir") {
@@ -270,8 +283,10 @@ function openCarteVisitePanel() {
       svg += "<line x1='190' y1='118' x2='" + (W-40) + "' y2='118' stroke='#333' stroke-width='0.5'/>";
       svg += "<text x='190' y='148' font-family='Arial' font-size='13' fill='#888'>✉ " + em + "</text>";
       svg += "<text x='190' y='173' font-family='Arial' font-size='13' fill='#888'>📱 " + tel + "</text>";
-      if (fb) svg += "<text x='190' y='198' font-family='Arial' font-size='12' fill='#555'>fb/ " + fb + "</text>";
-      if (ig) svg += "<text x='" + (fb ? 370 : 190) + "' y='198' font-family='Arial' font-size='12' fill='#555'>" + ig + "</text>";
+      var xCur2 = 190;
+      if (fb) { svg += fbIcon(xCur2, 187, 13, "#c9a86a"); svg += "<text x='" + (xCur2+16) + "' y='198' font-family='Arial' font-size='11' fill='#555'>" + fb + "</text>"; xCur2 += 160; }
+      if (ig) { svg += igIcon(xCur2, 187, 13, "#c9a86a"); svg += "<text x='" + (xCur2+16) + "' y='198' font-family='Arial' font-size='11' fill='#555'>" + ig + "</text>"; }
+      if (cat) svg += "<text x='190' y='225' font-family='Arial' font-size='11' fill='#444'>🛍 " + cat + "</text>";
       svg += qrSVG(W*0.83, H*0.5, 68, "#c9a86a");
 
     } else if (theme === "violet") {
@@ -283,8 +298,10 @@ function openCarteVisitePanel() {
       svg += "<line x1='175' y1='" + (H*0.49) + "' x2='" + (W-50) + "' y2='" + (H*0.49) + "' stroke='rgba(255,255,255,0.2)' stroke-width='0.5'/>";
       svg += "<text x='175' y='" + (H*0.59) + "' font-family='Arial' font-size='12' fill='rgba(255,255,255,0.6)'>✉ " + em + "</text>";
       svg += "<text x='175' y='" + (H*0.71) + "' font-family='Arial' font-size='12' fill='rgba(255,255,255,0.6)'>📱 " + tel + "</text>";
-      if (fb) svg += "<text x='175' y='" + (H*0.83) + "' font-family='Arial' font-size='11' fill='rgba(255,255,255,0.45)'>fb/ " + fb + "</text>";
-      if (ig) svg += "<text x='" + (fb ? 360 : 175) + "' y='" + (H*0.83) + "' font-family='Arial' font-size='11' fill='rgba(255,255,255,0.45)'>" + ig + "</text>";
+      var xCur3 = 175;
+      if (fb) { svg += fbIcon(xCur3, H*0.83-11, 13, "rgba(255,255,255,0.7)"); svg += "<text x='" + (xCur3+16) + "' y='" + (H*0.83) + "' font-family='Arial' font-size='11' fill='rgba(255,255,255,0.45)'>" + fb + "</text>"; xCur3 += 160; }
+      if (ig) { svg += igIcon(xCur3, H*0.83-11, 13, "rgba(255,255,255,0.7)"); svg += "<text x='" + (xCur3+16) + "' y='" + (H*0.83) + "' font-family='Arial' font-size='11' fill='rgba(255,255,255,0.45)'>" + ig + "</text>"; }
+      if (cat) svg += "<text x='175' y='" + (H*0.93) + "' font-family='Arial' font-size='11' fill='rgba(255,255,255,0.35)'>🛍 " + cat + "</text>";
       svg += qrSVG(W*0.83, H*0.54, 65, "rgba(255,255,255,0.7)");
 
     } else if (theme === "nature") {
@@ -299,8 +316,10 @@ function openCarteVisitePanel() {
       svg += "<line x1='30' y1='" + (H*0.49) + "' x2='" + (W*0.55) + "' y2='" + (H*0.49) + "' stroke='#c9a86a' stroke-width='0.5'/>";
       svg += "<text x='30' y='" + (H*0.59) + "' font-family='Arial' font-size='12' fill='#666'>✉ " + em + "</text>";
       svg += "<text x='30' y='" + (H*0.71) + "' font-family='Arial' font-size='12' fill='#666'>📱 " + tel + "</text>";
-      if (fb) svg += "<text x='30' y='" + (H*0.83) + "' font-family='Arial' font-size='11' fill='#888'>fb/ " + fb + "</text>";
-      if (ig) svg += "<text x='" + (fb ? 230 : 30) + "' y='" + (H*0.83) + "' font-family='Arial' font-size='11' fill='#888'>" + ig + "</text>";
+      var xCur4 = 30;
+      if (fb) { svg += fbIcon(xCur4, H*0.83-11, 13, "#8a6a35"); svg += "<text x='" + (xCur4+16) + "' y='" + (H*0.83) + "' font-family='Arial' font-size='11' fill='#888'>" + fb + "</text>"; xCur4 += 160; }
+      if (ig) { svg += igIcon(xCur4, H*0.83-11, 13, "#8a6a35"); svg += "<text x='" + (xCur4+16) + "' y='" + (H*0.83) + "' font-family='Arial' font-size='11' fill='#888'>" + ig + "</text>"; }
+      if (cat) svg += "<text x='30' y='" + (H*0.93) + "' font-family='Arial' font-size='11' fill='#aaa'>🛍 " + cat + "</text>";
 
     } else if (theme === "soleil") {
       svg += "<defs><radialGradient id='gsol'><stop offset='0%' stop-color='#f5d48a'/><stop offset='40%' stop-color='#D85A30'/><stop offset='100%' stop-color='transparent'/></radialGradient></defs>";
@@ -313,8 +332,10 @@ function openCarteVisitePanel() {
       svg += "<line x1='30' y1='" + (H*0.47) + "' x2='" + (W*0.5) + "' y2='" + (H*0.47) + "' stroke='#D85A30' stroke-width='1'/>";
       svg += "<text x='30' y='" + (H*0.59) + "' font-family='Arial' font-size='12' fill='rgba(255,255,255,0.6)'>✉ " + em + "</text>";
       svg += "<text x='30' y='" + (H*0.71) + "' font-family='Arial' font-size='12' fill='rgba(255,255,255,0.6)'>📱 " + tel + "</text>";
-      if (fb) svg += "<text x='30' y='" + (H*0.83) + "' font-family='Arial' font-size='11' fill='rgba(255,255,255,0.45)'>fb/ " + fb + "</text>";
-      if (ig) svg += "<text x='" + (fb ? 240 : 30) + "' y='" + (H*0.83) + "' font-family='Arial' font-size='11' fill='rgba(255,255,255,0.45)'>" + ig + "</text>";
+      var xCur5 = 30;
+      if (fb) { svg += fbIcon(xCur5, H*0.83-11, 13, "#D85A30"); svg += "<text x='" + (xCur5+16) + "' y='" + (H*0.83) + "' font-family='Arial' font-size='11' fill='rgba(255,255,255,0.45)'>" + fb + "</text>"; xCur5 += 160; }
+      if (ig) { svg += igIcon(xCur5, H*0.83-11, 13, "#D85A30"); svg += "<text x='" + (xCur5+16) + "' y='" + (H*0.83) + "' font-family='Arial' font-size='11' fill='rgba(255,255,255,0.45)'>" + ig + "</text>"; }
+      if (cat) svg += "<text x='30' y='" + (H*0.93) + "' font-family='Arial' font-size='11' fill='rgba(255,255,255,0.3)'>🛍 " + cat + "</text>";
 
     } else if (theme === "corail") {
       svg += "<defs><linearGradient id='gcor' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='#FAECE7'/><stop offset='100%' stop-color='white'/></linearGradient></defs>";
@@ -325,8 +346,10 @@ function openCarteVisitePanel() {
       svg += "<line x1='180' y1='" + (H*0.47) + "' x2='" + (W-40) + "' y2='" + (H*0.47) + "' stroke='#F5C4B3' stroke-width='1'/>";
       svg += "<text x='180' y='" + (H*0.59) + "' font-family='Arial' font-size='12' fill='#666'>✉ " + em + "</text>";
       svg += "<text x='180' y='" + (H*0.71) + "' font-family='Arial' font-size='12' fill='#666'>📱 " + tel + "</text>";
-      if (fb) svg += "<text x='180' y='" + (H*0.83) + "' font-family='Arial' font-size='11' fill='#999'>fb/ " + fb + "</text>";
-      if (ig) svg += "<text x='" + (fb ? 360 : 180) + "' y='" + (H*0.83) + "' font-family='Arial' font-size='11' fill='#999'>" + ig + "</text>";
+      var xCur6 = 180;
+      if (fb) { svg += fbIcon(xCur6, H*0.83-11, 13, "#D85A30"); svg += "<text x='" + (xCur6+16) + "' y='" + (H*0.83) + "' font-family='Arial' font-size='11' fill='#999'>" + fb + "</text>"; xCur6 += 160; }
+      if (ig) { svg += igIcon(xCur6, H*0.83-11, 13, "#D85A30"); svg += "<text x='" + (xCur6+16) + "' y='" + (H*0.83) + "' font-family='Arial' font-size='11' fill='#999'>" + ig + "</text>"; }
+      if (cat) svg += "<text x='180' y='" + (H*0.93) + "' font-family='Arial' font-size='11' fill='#bbb'>🛍 " + cat + "</text>";
       svg += qrSVG(W*0.84, H*0.6, 65, "#D85A30");
 
     } else if (theme === "marbre") {
@@ -339,8 +362,10 @@ function openCarteVisitePanel() {
       svg += "<line x1='30' y1='" + (H*0.53) + "' x2='" + (W-170) + "' y2='" + (H*0.53) + "' stroke='#1a1a1a' stroke-width='0.5' opacity='0.2'/>";
       svg += "<text x='30' y='" + (H*0.63) + "' font-family='Arial' font-size='12' fill='#555'>✉ " + em + "</text>";
       svg += "<text x='30' y='" + (H*0.74) + "' font-family='Arial' font-size='12' fill='#555'>📱 " + tel + "</text>";
-      if (fb) svg += "<text x='30' y='" + (H*0.85) + "' font-family='Arial' font-size='11' fill='#888'>fb/ " + fb + "</text>";
-      if (ig) svg += "<text x='" + (fb ? 230 : 30) + "' y='" + (H*0.85) + "' font-family='Arial' font-size='11' fill='#888'>" + ig + "</text>";
+      var xCur7 = 30;
+      if (fb) { svg += fbIcon(xCur7, H*0.85-11, 13, "#555"); svg += "<text x='" + (xCur7+16) + "' y='" + (H*0.85) + "' font-family='Arial' font-size='11' fill='#888'>" + fb + "</text>"; xCur7 += 160; }
+      if (ig) { svg += igIcon(xCur7, H*0.85-11, 13, "#555"); svg += "<text x='" + (xCur7+16) + "' y='" + (H*0.85) + "' font-family='Arial' font-size='11' fill='#888'>" + ig + "</text>"; }
+      if (cat) svg += "<text x='30' y='" + (H*0.95) + "' font-family='Arial' font-size='11' fill='#aaa'>🛍 " + cat + "</text>";
       svg += qrSVG(W*0.84, H*0.62, 60, "#1a1a1a");
     }
 
