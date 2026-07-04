@@ -28,11 +28,11 @@
 
     var wrap = document.createElement("div");
     wrap.id = "baa-formation-btn-wrap";
-    wrap.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:99998;text-align:center;padding:10px 20px;background:linear-gradient(135deg,#1a0a00,#3d1f05);box-shadow:0 4px 20px rgba(0,0,0,0.2);display:none;";
+    wrap.style.cssText = "position:fixed;top:12px;right:12px;z-index:99998;display:none;";
 
     var btn = document.createElement("button");
     btn.id = "baa-formation-btn";
-    btn.style.cssText = "background:linear-gradient(135deg,#c9a86a,#f5d48a);color:#1a0a00;border:none;padding:14px 28px;border-radius:25px;cursor:pointer;font-family:Arial,sans-serif;font-size:14px;font-weight:bold;box-shadow:0 4px 16px rgba(201,168,106,0.4);";
+    btn.style.cssText = "background:#c9a86a;color:white;border:none;padding:8px 16px;border-radius:20px;cursor:pointer;font-family:Arial,sans-serif;font-size:12px;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.2);";
     btn.innerText = "✅ J'ai lu cette formation";
     wrap.appendChild(btn);
     document.body.appendChild(wrap);
