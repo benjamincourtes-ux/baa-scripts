@@ -373,20 +373,13 @@ function openCreateurVisuels() {
         div.appendChild(delBtn);
 
         var resizeDiv = document.createElement("div");
-        resizeDiv.style.cssText = "position:absolute;right:-40px;bottom:-10px;display:flex;flex-direction:column;gap:3px;z-index:10;";
-        
-        var btnPlus = document.createElement("button");
-        btnPlus.textContent = "+";
-        btnPlus.style.cssText = "width:24px;height:24px;background:#c9a86a;color:#1a1208;border:none;border-radius:50%;cursor:pointer;font-size:16px;font-weight:bold;line-height:1;touch-action:manipulation;-webkit-tap-highlight-color:transparent;";
-        btnPlus.onclick = function(e) { e.stopPropagation(); el.w=Math.min(100,el.w+5); el.h=Math.min(100,el.h+5); renderCanvasOnly(); };
-
-        var btnMinus = document.createElement("button");
-        btnMinus.textContent = "−";
-        btnMinus.style.cssText = "width:24px;height:24px;background:#c9a86a;color:#1a1208;border:none;border-radius:50%;cursor:pointer;font-size:16px;font-weight:bold;line-height:1;touch-action:manipulation;-webkit-tap-highlight-color:transparent;";
-        btnMinus.onclick = function(e) { e.stopPropagation(); el.w=Math.max(5,el.w-5); el.h=Math.max(5,el.h-5); renderCanvasOnly(); };
-
-        resizeDiv.appendChild(btnPlus);
-        resizeDiv.appendChild(btnMinus);
+        resizeDiv.style.cssText = "position:absolute;right:-52px;top:0;display:flex;flex-direction:column;gap:2px;z-index:10;";
+        var btnS = "width:22px;height:22px;background:#c9a86a;color:#1a1208;border:none;border-radius:4px;cursor:pointer;font-size:13px;font-weight:bold;line-height:1;touch-action:manipulation;-webkit-tap-highlight-color:transparent;";
+        var btnW1=document.createElement("button");btnW1.textContent="W+";btnW1.style.cssText=btnS;btnW1.onclick=function(e){e.stopPropagation();el.w=Math.min(100,el.w+5);renderCanvasOnly();};
+        var btnW2=document.createElement("button");btnW2.textContent="W-";btnW2.style.cssText=btnS;btnW2.onclick=function(e){e.stopPropagation();el.w=Math.max(5,el.w-5);renderCanvasOnly();};
+        var btnH1=document.createElement("button");btnH1.textContent="H+";btnH1.style.cssText=btnS;btnH1.onclick=function(e){e.stopPropagation();el.h=Math.min(100,el.h+5);renderCanvasOnly();};
+        var btnH2=document.createElement("button");btnH2.textContent="H-";btnH2.style.cssText=btnS;btnH2.onclick=function(e){e.stopPropagation();el.h=Math.max(5,el.h-5);renderCanvasOnly();};
+        resizeDiv.appendChild(btnW1);resizeDiv.appendChild(btnW2);resizeDiv.appendChild(btnH1);resizeDiv.appendChild(btnH2);
         div.appendChild(resizeDiv);
       }
 
