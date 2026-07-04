@@ -237,7 +237,7 @@ function openCreateurVisuels() {
       }
       if (sel) {
         html += "<div onclick='event.stopPropagation();window.__cvDelEl("+el.id+")' ontouchstart='event.preventDefault();event.stopPropagation();window.__cvDelEl("+el.id+")' style='position:absolute;top:-10px;right:-10px;width:20px;height:20px;background:#e74c3c;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white;font-size:14px;font-weight:bold;z-index:10;line-height:1;'>×</div>";
-        html += "<div data-resize-id='"+el.id+"' style='position:absolute;right:-6px;bottom:-6px;width:14px;height:14px;background:#c9a86a;border-radius:50%;cursor:se-resize;z-index:10;'></div>";
+        html += "<div data-resize-id='"+el.id+"' style='position:absolute;right:-6px;bottom:-6px;width:20px;height:20px;background:#c9a86a;border-radius:50%;cursor:se-resize;z-index:10;touch-action:none;'></div>";
       }
       html += "</div>";
     });
@@ -249,7 +249,7 @@ function openCreateurVisuels() {
       var elId = parseInt(div.getAttribute("data-id"));
       function startDrag(e) {
         var tgt = e.target;
-        if (tgt.getAttribute("data-resize-id") || tgt.style.background==="#e74c3c" || tgt.getAttribute("ontouchend")) return;
+        if (tgt.getAttribute("data-resize-id") || tgt.style.background==="#e74c3c" || tgt.getAttribute("ontouchend") || tgt.getAttribute("ontouchstart")) return;
         if (state.selected !== elId) return;
         e.stopPropagation(); e.preventDefault();
         var el = state.elements.find(function(x){return x.id===elId;});
@@ -276,6 +276,7 @@ function openCreateurVisuels() {
       function startResize(e) {
         e.stopPropagation(); e.preventDefault();
         var el=state.elements.find(function(x){return x.id===elId;});
+        if (!el) return;
         if (!el) return;
         var startX=e.clientX||e.touches[0].clientX,startY=e.clientY||e.touches[0].clientY,startW=el.w,startH=el.h;
         function getXY2(ev){return ev.touches?{x:ev.touches[0].clientX,y:ev.touches[0].clientY}:{x:ev.clientX,y:ev.clientY};}
