@@ -208,8 +208,8 @@ function openCreateurVisuels() {
     if (el.type === "text") {
       html += "<textarea id='el-text' style='width:100%;background:rgba(255,255,255,0.08);color:white;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:6px;font-size:12px;resize:vertical;box-sizing:border-box;margin-bottom:8px;'>" + el.text + "</textarea>";
       html += "<p style='color:rgba(255,255,255,0.4);font-size:10px;margin:0 0 4px;'>Taille</p><input id='el-size' type='range' min='10' max='120' value='" + el.fontSize + "' style='width:100%;margin-bottom:8px;' />";
-      html += "<p style='color:rgba(255,255,255,0.4);font-size:10px;margin:0 0 4px;'>Police</p><select id='el-font' style='width:100%;background:rgba(255,255,255,0.08);color:white;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:5px;font-size:11px;margin-bottom:8px;'>" +
-        FONTS.map(function(f) { return "<option value='" + f + "'" + (el.fontFamily===f?" selected":"") + ">" + f + "</option>"; }).join("") + "</select>";
+      html += "<p style='color:rgba(255,255,255,0.4);font-size:10px;margin:0 0 4px;'>Police</p><div style='display:flex;flex-direction:column;gap:3px;margin-bottom:8px;max-height:100px;overflow-y:auto;'>" +
+        FONTS.map(function(f) { return "<div class='font-btn' data-font='" + f + "' style='padding:4px 8px;border-radius:4px;cursor:pointer;font-size:11px;background:" + (el.fontFamily===f?"#c9a86a":"rgba(255,255,255,0.06)") + ";color:" + (el.fontFamily===f?"#1a1208":"rgba(255,255,255,0.7)") + ";font-family:" + f + ";'>" + f + "</div>"; }).join("") + "</div>";
       html += "<div style='display:flex;gap:6px;margin-bottom:8px;'>" +
         "<button id='el-bold' style='flex:1;background:" + (el.bold?"#c9a86a":"rgba(255,255,255,0.08)") + ";color:" + (el.bold?"#1a1208":"rgba(255,255,255,0.6)") + ";border:none;padding:5px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:12px;'>B</button>" +
         "<button id='el-italic' style='flex:1;background:" + (el.italic?"#c9a86a":"rgba(255,255,255,0.08)") + ";color:" + (el.italic?"#1a1208":"rgba(255,255,255,0.6)") + ";border:none;padding:5px;border-radius:6px;cursor:pointer;font-style:italic;font-size:12px;'>I</button>" +
@@ -444,6 +444,11 @@ function openCreateurVisuels() {
         elFont.onmousedown = function(e) { e.stopPropagation(); };
         elFont.onchange = function(e) { e.stopPropagation(); var selId = state.selected; var selEl = state.elements.find(function(x){return x.id===selId;}); if(selEl){selEl.fontFamily=elFont.value;} renderCanvasOnly(cW,cH); };
       }
+
+      panel.querySelectorAll(".font-btn").forEach(function(btn) {
+        btn.onmousedown = function(e) { e.preventDefault(); e.stopPropagation(); };
+        btn.onclick = function(e) { e.preventDefault(); e.stopPropagation(); var selId=state.selected; var selEl=state.elements.find(function(x){return x.id===selId;}); if(selEl){selEl.fontFamily=btn.getAttribute("data-font");} renderCanvasOnly(cW,cH); };
+      });
 
       var elBold = document.getElementById("el-bold");
       if (elBold) { elBold.onmousedown = function(e){e.preventDefault();e.stopPropagation();}; elBold.onclick = function(e) { e.preventDefault(); e.stopPropagation(); var selId=state.selected; var selEl=state.elements.find(function(x){return x.id===selId;}); if(selEl){selEl.bold=!selEl.bold;} renderCanvasOnly(cW,cH); }; }
