@@ -405,8 +405,29 @@ function openCreateurVisuels() {
           document.addEventListener("mouseup", onUp);
         };
 
-        // Supprimer
-        var delBtn = elDiv.querySelector("[data-delete]");
+        // Resize handle
+        var resizeHandle = elDiv.querySelector("[data-resize]");
+        if (resizeHandle) resizeHandle.onmousedown = function(e) {
+          e.stopPropagation(); e.preventDefault();
+          var elObj = state.elements.find(function(el) { return el.id === elId; });
+          var startX = e.clientX; var startY = e.clientY;
+          var startW = elObj.w; var startH = elObj.h;
+          function onMove(ev) {
+            var dx = ev.clientX - startX; var dy = ev.clientY - startY;
+            elObj.w = Math.max(5, startW + dx/cW*100);
+            elObj.h = Math.max(5, startH + dy/cH*100);
+            var elDom = panel.querySelector("[data-id='" + elId + "']");
+            if (elDom) {
+              var img = elDom.querySelector("img");
+              if (img) { img.style.width = (elObj.w*cW/100) + "px"; img.style.height = (elObj.h*cH/100) + "px"; }
+              var div = elDom.querySelector("div");
+              if (div && (elObj.type === "line" || elObj.type === "rect")) { div.style.width = (elObj.w*cW/100) + "px"; if (elObj.type === "rect") div.style.height = (elObj.h*cH/100) + "px"; }
+            }
+          }
+          function onUp() { document.removeEventListener("mousemove", onMove); document.removeEventListener("mouseup", onUp); render(); }
+          document.addEventListener("mousemove", onMove);
+          document.addEventListener("mouseup", onUp);
+        };
         if (delBtn) delBtn.onclick = function(e) {
           e.stopPropagation();
           state.elements = state.elements.filter(function(el) { return el.id !== elId; });
