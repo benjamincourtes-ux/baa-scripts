@@ -377,7 +377,7 @@ function initBeautyAddictLogin() {
           function calcPts(d) {
             var pts = d.badgePoints || 0;
             if (!d.badgePoints) {
-            var quizFields = ["quizBonDemarrageComplete","quizModule2Complete","quizModule3Complete","quizModule4Complete","quizModule5Complete","quizModule6Complete","quizModule7Complete","quizModule8Complete","quizModule9Complete"];
+            var quizFields = ["quizBonDemarrageComplete","quizModule2Complete","quizModule3Complete","quizModule4Complete","quizModule5Complete","quizModule6Complete","quizModule7Complete","quizModule8Complete","quizModule9Complete","quizModule10Complete"];
               quizFields.forEach(function(f) { if (d[f] === true) pts += 20; });
             }
             return pts;
@@ -711,9 +711,10 @@ function initBeautyAddictLogin() {
           { key: "quizModule6", label: "Module 6", fn: "openQuizModule6" },
           { key: "quizModule7", label: "Module 7", fn: "openQuizModule7" },
           { key: "quizModule8", label: "La Vente", fn: "openQuizModule8" },
-          { key: "quizModule9", label: "Les Réseaux Sociaux", fn: "openQuizModule9" }
+          { key: "quizModule9", label: "Les Réseaux Sociaux", fn: "openQuizModule9" },
+          { key: "quizModule10", label: "Organisation & Temps", fn: "openQuizModule10" }
         ];
-        var fns = { openQuizBonDemarrage: openQuizBonDemarrage, openQuizModule2: openQuizModule2, openQuizModule3: openQuizModule3, openQuizModule4: openQuizModule4, openQuizModule5: openQuizModule5, openQuizModule6: openQuizModule6, openQuizModule7: openQuizModule7, openQuizModule8: openQuizModule8, openQuizModule9: openQuizModule9 };
+        var fns = { openQuizBonDemarrage: openQuizBonDemarrage, openQuizModule2: openQuizModule2, openQuizModule3: openQuizModule3, openQuizModule4: openQuizModule4, openQuizModule5: openQuizModule5, openQuizModule6: openQuizModule6, openQuizModule7: openQuizModule7, openQuizModule8: openQuizModule8, openQuizModule9: openQuizModule9, openQuizModule10: openQuizModule10 };
         if (uid2) {
           db2.collection("users").doc(uid2).get().then(function(snap) {
             var d = snap.data() || {};
