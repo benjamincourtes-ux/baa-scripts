@@ -1,21 +1,21 @@
 (function() {
   var FORMATIONS = [
-    { id: "bonDemarrage", nom: "Bon démarrage", url: "/bon-dmarrage" },
-    { id: "fondations", nom: "Les fondations de mon activité", url: "/les-fondations-de-mon-activit" },
-    { id: "reseauxAttraction", nom: "Réseaux sociaux & attraction", url: "/rseaux-sociaux-et-attraction" },
-    { id: "guideMessages", nom: "Guide des messages & communication", url: "/guide-des-messages-communication-dattraction" },
-    { id: "developpementPersonnel", nom: "Développement personnel & mental", url: "/dveloppement-personnel-mental-de-russite" },
-    { id: "alchimieBesoins", nom: "Alchimie des besoins", url: "/alchimie-des-besoins-comprendre-pour-rvler" },
-    { id: "parrainage", nom: "Parrainage", url: "/parrainage" },
-    { id: "laVente", nom: "La vente", url: "/formations/la-vente" },
-    { id: "reseauxSociaux", nom: "Les Réseaux Sociaux pour la VDI", url: "/formations/formation-les-rseaux-sociaux-pour-la-vdi" },
-    { id: "organisation", nom: "Organisation & Gestion du Temps", url: "/formations/formation-organisation-gestion-du-temps" }
+    { id: "bonDemarrage", nom: "Bon démarrage", titre: "Bon démarrage" },
+    { id: "fondations", nom: "Les fondations de mon activité", titre: "Les fondations de mon activité" },
+    { id: "reseauxAttraction", nom: "Réseaux sociaux & attraction", titre: "Réseaux sociaux & attraction" },
+    { id: "guideMessages", nom: "Guide des messages & communication", titre: "Guide des messages" },
+    { id: "developpementPersonnel", nom: "Développement personnel & mental", titre: "Développement personnel" },
+    { id: "alchimieBesoins", nom: "Alchimie des besoins", titre: "Alchimie des besoins" },
+    { id: "parrainage", nom: "Parrainage", titre: "Parrainage" },
+    { id: "laVente", nom: "La vente", titre: "La vente" },
+    { id: "reseauxSociaux", nom: "Les Réseaux Sociaux pour la VDI", titre: "Les Réseaux Sociaux" },
+    { id: "organisation", nom: "Organisation & Gestion du Temps", titre: "Organisation" }
   ];
 
   function getFormationCourante() {
-    var path = window.location.pathname;
+    var titre = document.title;
     for (var i = 0; i < FORMATIONS.length; i++) {
-      if (path.indexOf(FORMATIONS[i].url) !== -1) return FORMATIONS[i];
+      if (titre.indexOf(FORMATIONS[i].titre) !== -1) return FORMATIONS[i];
     }
     return null;
   }
@@ -52,12 +52,13 @@
       }).catch(function(e) { console.log("Erreur tracking formation:", e); });
     };
 
+    wrap.appendChild(btn);
+    document.body.appendChild(wrap);
+
     // Vérifier si déjà lu
-    var auth = firebase.auth();
-    var db = firebase.firestore();
     firebase.auth().onAuthStateChanged(function(user) {
       if (!user) return;
-      db.collection("users").doc(user.uid).get().then(function(snap) {
+      firebase.firestore().collection("users").doc(user.uid).get().then(function(snap) {
         var d = snap.data() || {};
         if (d["formation_" + formation.id + "_lu"]) {
           btn.innerText = "✅ Déjà lue";
@@ -65,23 +66,40 @@
           btn.style.color = "#8a6a35";
           btn.disabled = true;
         }
-        wrap.appendChild(btn);
-        document.body.appendChild(wrap);
       });
     });
   }
 
   // Attendre que la page soit chargée
   function init() {
+    // Vérifier le titre courant
     var formation = getFormationCourante();
     if (formation) {
-      // Attendre que Firebase soit disponible
       var check = setInterval(function() {
         if (typeof firebase !== "undefined" && firebase.auth) {
           clearInterval(check);
           ajouterBouton(formation);
         }
       }, 500);
+    }
+
+    // Observer les changements de titre (SPA)
+    var titleEl = document.querySelector("title");
+    if (titleEl) {
+      var observer = new MutationObserver(function() {
+        var btn = document.getElementById("baa-formation-btn-wrap");
+        if (btn) btn.remove();
+        var f = getFormationCourante();
+        if (f) {
+          var check2 = setInterval(function() {
+            if (typeof firebase !== "undefined" && firebase.auth) {
+              clearInterval(check2);
+              ajouterBouton(f);
+            }
+          }, 500);
+        }
+      });
+      observer.observe(titleEl, { childList: true });
     }
   }
 
