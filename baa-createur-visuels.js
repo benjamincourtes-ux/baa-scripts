@@ -215,6 +215,16 @@ function openCreateurVisuels() {
         slider.onclick=function(e){e.stopPropagation();};
         propDiv.appendChild(slider);
 
+        var alignLabel = document.createElement("p"); alignLabel.style.cssText="color:rgba(255,255,255,0.4);font-size:10px;margin:0 0 4px;"; alignLabel.textContent="Position"; propDiv.appendChild(alignLabel);
+        var alignDiv = document.createElement("div"); alignDiv.style.cssText="display:flex;gap:6px;margin-bottom:8px;";
+        [["←","left"],["↔","center"],["→","right"]].forEach(function(a) {
+          var ab = document.createElement("button");
+          ab.textContent=a[0]; ab.style.cssText="flex:1;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:6px;border-radius:6px;cursor:pointer;font-size:14px;touch-action:manipulation;";
+          ab.onclick=function(e){e.stopPropagation();if(a[1]==="center")el.x=50;else if(a[1]==="left")el.x=5;else el.x=95;renderCanvasOnly();};
+          alignDiv.appendChild(ab);
+        });
+        propDiv.appendChild(alignDiv);
+
         var fLabel = document.createElement("p"); fLabel.style.cssText="color:rgba(255,255,255,0.4);font-size:10px;margin:0 0 4px;"; fLabel.textContent="Police"; propDiv.appendChild(fLabel);
         var fontDiv = document.createElement("div"); fontDiv.style.cssText="display:flex;flex-direction:column;gap:3px;margin-bottom:8px;max-height:100px;overflow-y:auto;";
         FONTS.forEach(function(f) {
@@ -245,7 +255,10 @@ function openCreateurVisuels() {
         shapeDiv.appendChild(btn("Carré",function(){selEl.rounded=false;fullRender();},"background:"+(!selEl.rounded?"#c9a86a":"rgba(255,255,255,0.08)")+";color:"+(!selEl.rounded?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:5px;border-radius:6px;cursor:pointer;font-size:11px;flex:1;"));
         shapeDiv.appendChild(btn("Rond",function(){selEl.rounded=true;fullRender();},"background:"+(selEl.rounded?"#c9a86a":"rgba(255,255,255,0.08)")+";color:"+(selEl.rounded?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:5px;border-radius:6px;cursor:pointer;font-size:11px;flex:1;"));
         propDiv.appendChild(shapeDiv);
-        propDiv.appendChild(btn("⬜ Plein écran",function(){selEl.x=0;selEl.y=0;selEl.w=100;selEl.h=100;selEl.rounded=false;fullRender();},"background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:7px;border-radius:6px;cursor:pointer;font-size:11px;width:100%;margin-bottom:6px;display:block;"));
+        var photoActionsDiv = document.createElement("div"); photoActionsDiv.style.cssText="display:flex;gap:6px;margin-bottom:6px;";
+        photoActionsDiv.appendChild(btn("⊕ Centrer",function(){selEl.x=50;selEl.y=50;renderCanvasOnly();},"background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:6px;border-radius:6px;cursor:pointer;font-size:11px;flex:1;"));
+        photoActionsDiv.appendChild(btn("⬜ Plein",function(){selEl.x=0;selEl.y=0;selEl.w=100;selEl.h=100;selEl.rounded=false;fullRender();},"background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:6px;border-radius:6px;cursor:pointer;font-size:11px;flex:1;"));
+        propDiv.appendChild(photoActionsDiv);
         var chLabel = document.createElement("label"); chLabel.htmlFor="cv-file-input";
         chLabel.style.cssText="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);padding:7px;border-radius:6px;cursor:pointer;font-size:11px;display:block;text-align:center;margin-bottom:6px;touch-action:manipulation;";
         chLabel.textContent="Changer la photo"; propDiv.appendChild(chLabel);
@@ -373,6 +386,21 @@ function openCreateurVisuels() {
 
       cvEl.appendChild(div);
     });
+
+    // Lignes de guidage si élément proche du centre
+    if (state.selected !== null) {
+      var selEl2 = state.elements.find(function(e){return e.id===state.selected;});
+      if (selEl2 && Math.abs(selEl2.x - 50) < 3) {
+        var vLine = document.createElement("div");
+        vLine.style.cssText = "position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(201,168,106,0.6);pointer-events:none;transform:translateX(-50%);z-index:5;";
+        cvEl.appendChild(vLine);
+      }
+      if (selEl2 && Math.abs(selEl2.y - 50) < 3) {
+        var hLine = document.createElement("div");
+        hLine.style.cssText = "position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(201,168,106,0.6);pointer-events:none;transform:translateY(-50%);z-index:5;";
+        cvEl.appendChild(hLine);
+      }
+    }
 
     cvEl.onclick=function(e){if(e.target===cvEl){state.selected=null;fullRender();}};
 
