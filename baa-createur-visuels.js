@@ -256,7 +256,7 @@ function openCreateurVisuels() {
         shapeDiv.appendChild(btn("Rond",function(){selEl.rounded=true;fullRender();},"background:"+(selEl.rounded?"#c9a86a":"rgba(255,255,255,0.08)")+";color:"+(selEl.rounded?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:5px;border-radius:6px;cursor:pointer;font-size:11px;flex:1;"));
         propDiv.appendChild(shapeDiv);
         var photoActionsDiv = document.createElement("div"); photoActionsDiv.style.cssText="display:flex;gap:6px;margin-bottom:6px;";
-        photoActionsDiv.appendChild(btn("⊕ Centrer",function(){selEl.x=50-(selEl.w/2);selEl.y=50-(selEl.h/2);renderCanvasOnly();},"background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:6px;border-radius:6px;cursor:pointer;font-size:11px;flex:1;"));
+        photoActionsDiv.appendChild(btn("⊕ Centrer",function(){var s=state.elements.find(function(x){return x.id===state.selected;});if(s){s.x=50-(s.w/2);s.y=50-(s.h/2);renderCanvasOnly();}},"background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:6px;border-radius:6px;cursor:pointer;font-size:11px;flex:1;"));
         photoActionsDiv.appendChild(btn("⬜ Plein",function(){selEl.x=0;selEl.y=0;selEl.w=100;selEl.h=100;selEl.rounded=false;fullRender();},"background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:6px;border-radius:6px;cursor:pointer;font-size:11px;flex:1;"));
         propDiv.appendChild(photoActionsDiv);
         var chLabel = document.createElement("label"); chLabel.htmlFor="cv-file-input";
@@ -380,8 +380,8 @@ function openCreateurVisuels() {
           // Lignes de guidage
           var cvElG=document.getElementById("cv-canvas-inner");
           ["cv-vguide","cv-hguide"].forEach(function(id){var g=document.getElementById(id);if(g)g.remove();});
-          var elCenterX = el.x + (el.w||0)/2;
-          var elCenterY = el.y + (el.h||0)/2;
+          var elCenterX = el.type==="text" ? el.x : el.x + (el.w||0)/2;
+          var elCenterY = el.type==="text" ? el.y : el.y + (el.h||0)/2;
           if(Math.abs(elCenterX-50)<5){var vg=document.createElement("div");vg.id="cv-vguide";vg.style.cssText="position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(201,168,106,0.8);pointer-events:none;transform:translateX(-50%);z-index:99;";if(cvElG)cvElG.appendChild(vg);}
           if(Math.abs(elCenterY-50)<5){var hg=document.createElement("div");hg.id="cv-hguide";hg.style.cssText="position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(201,168,106,0.8);pointer-events:none;transform:translateY(-50%);z-index:99;";if(cvElG)cvElG.appendChild(hg);}
         }
