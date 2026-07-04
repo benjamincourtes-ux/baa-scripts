@@ -145,6 +145,7 @@ function openCreateurVisuels() {
     var el = state.elements.find(function(e) { return e.id === id; });
     if (el) el[prop] = val;
     renderCanvas();
+    if (prop === 'fontFamily' || prop === 'bold' || prop === 'italic' || prop === 'color' || prop === 'rounded') renderSidebar();
   };
 
   window.__cvUpdateText = function(id, val) {
@@ -155,22 +156,29 @@ function openCreateurVisuels() {
   window.__cvDownload = function() {
     var cvMain = document.getElementById("cv-main-canvas");
     if (!cvMain) return;
-    var s = document.createElement("script");
-    s.src = "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js";
-    s.onload = function() {
-      var size = state.format==="square"?1080:state.format==="story"?[1080,1920][1]:628;
-      var cvEl = cvMain.querySelector("[data-canvas]");
-      if (!cvEl) return;
-      html2canvas(cvEl, { scale: 1080/cvEl.offsetWidth, useCORS:true, allowTaint:true }).then(function(c) {
-        var link = document.createElement("a"); link.download="visuel-beauty-addict.png"; link.href=c.toDataURL("image/png");
-        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-          var dataUrl = c.toDataURL("image/png");
-          var w=window.open("");
-          if(w){ w.document.write("<html><body style='margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;'><img src='"+dataUrl+"' style='max-width:100%;max-height:80vh;' /><p style='font-family:Arial;text-align:center;color:#fff;padding:16px;font-size:14px;'>Appuie longuement sur l image pour enregistrer 📲</p></body></html>"); w.document.close(); }
-        } else link.click();
-      });
+    var cvEl = cvMain.querySelector("[data-canvas]");
+    if (!cvEl) return;
+    var loadScript = function(cb) {
+      if (window.html2canvas) { cb(); return; }
+      var s = document.createElement("script");
+      s.src = "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js";
+      s.onload = cb; document.head.appendChild(s);
     };
-    document.head.appendChild(s);
+    loadScript(function() {
+      html2canvas(cvEl, { scale: 1080/cvEl.offsetWidth, useCORS:true, allowTaint:true, logging:false }).then(function(c) {
+        var dataUrl = c.toDataURL("image/png");
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+          var img = new Image(); img.src = dataUrl;
+          var newTab = window.open("about:blank","_blank");
+          if (newTab) {
+            newTab.document.write("<html><head><title>Visuel</title></head><body style='margin:0;background:#111;text-align:center;padding:20px;'><img src='"+dataUrl+"' style='max-width:100%;border-radius:8px;' /><br><p style='color:white;font-family:Arial;font-size:16px;margin-top:16px;'>Appuie longuement sur l image puis Enregistrer</p></body></html>");
+            newTab.document.close();
+          }
+        } else {
+          var link = document.createElement("a"); link.download="visuel-beauty-addict.png"; link.href=dataUrl; link.click();
+        }
+      });
+    });
   };
 
   // File input
@@ -228,8 +236,8 @@ function openCreateurVisuels() {
         html += "<div style='width:"+(el.w*cW/100)+"px;height:"+(el.h*cH/100)+"px;background:"+el.color+";border-radius:"+el.radius+"px;opacity:"+el.opacity+";pointer-events:none;'></div>";
       }
       if (sel) {
-        html += "<div onclick='event.stopPropagation();window.__cvDelEl("+el.id+")' style='position:absolute;top:-10px;right:-10px;width:20px;height:20px;background:#e74c3c;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white;font-size:14px;font-weight:bold;z-index:10;line-height:1;'>×</div>";
-        html += "<div data-resize-id='"+el.id+"' style='position:absolute;right:-6px;bottom:-6px;width:14px;height:14px;background:#c9a86a;border-radius:50%;cursor:se-resize;z-index:10;'></div>";
+        html += "<div onclick='event.stopPropagation();window.__cvDelEl("+el.id+")' ontouchstart='event.preventDefault();event.stopPropagation();window.__cvDelEl("+el.id+")' style='position:absolute;top:-16px;right:-16px;width:32px;height:32px;background:#e74c3c;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white;font-size:18px;font-weight:bold;z-index:10;line-height:1;touch-action:manipulation;'>×</div>";
+        html += "<div data-resize-id='"+el.id+"' style='position:absolute;right:-12px;bottom:-12px;width:28px;height:28px;background:#c9a86a;border-radius:50%;cursor:se-resize;z-index:10;touch-action:none;'></div>";
       }
       html += "</div>";
     });
