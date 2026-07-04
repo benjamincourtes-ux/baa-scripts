@@ -25,12 +25,17 @@ function openCreateurVisuels() {
       var data = await r.json();
       var imgEl = new Image(); imgEl.crossOrigin="anonymous";
       imgEl.onload = function() {
-        var c2=document.createElement("canvas"); c2.width=1080; c2.height=1080;
-        c2.getContext("2d").drawImage(imgEl,0,0,1080,1080);
+        var ratio = imgEl.naturalWidth / imgEl.naturalHeight;
+        var c2=document.createElement("canvas");
+        c2.width=1080; c2.height=Math.round(1080/ratio);
+        c2.getContext("2d").drawImage(imgEl,0,0,c2.width,c2.height);
         var b64=c2.toDataURL("image/jpeg",0.95);
         var selEl = state.selected ? state.elements.find(function(e){return e.id===state.selected&&e.type==="photo";}) : null;
-        if (selEl) { selEl.photoUrl=b64; fullRender(); return; }
-        state.elements.push({id:state.nextId++,type:"photo",x:20,y:20,w:40,h:40,photoUrl:b64,rounded:false});
+        if (selEl) { selEl.photoUrl=b64; renderCanvasOnly(); return; }
+        // Taille initiale proportionnelle
+        var initW = 40;
+        var initH = Math.round(40/ratio);
+        state.elements.push({id:state.nextId++,type:"photo",x:20,y:20,w:initW,h:initH,photoUrl:b64,rounded:false});
         state.selected=state.nextId-1; fullRender();
       };
       imgEl.src=data.secure_url;
