@@ -375,6 +375,20 @@ function openCreateurVisuels() {
     });
 
     cvEl.onclick=function(e){if(e.target===cvEl){state.selected=null;fullRender();}};
+
+    // Bouton désélectionner hors canvas (utile quand image plein écran)
+    var deselBtn = document.getElementById("cv-desel-btn");
+    if (!deselBtn && state.selected !== null) {
+      deselBtn = document.createElement("button");
+      deselBtn.id = "cv-desel-btn";
+      deselBtn.textContent = "✓ Désélectionner";
+      deselBtn.style.cssText = "position:absolute;top:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);color:white;border:none;padding:6px 14px;border-radius:20px;cursor:pointer;font-size:12px;z-index:100;touch-action:manipulation;";
+      deselBtn.onclick = function(e) { e.stopPropagation(); state.selected=null; fullRender(); };
+      var canvasContainer = cvEl.parentNode;
+      if (canvasContainer) { canvasContainer.style.position="relative"; canvasContainer.appendChild(deselBtn); }
+    } else if (deselBtn && state.selected === null) {
+      deselBtn.remove();
+    }
   }
 
   function doDownload() {
