@@ -182,7 +182,7 @@ function initBeautyAddictLogin() {
         panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;justify-content:center;align-items:flex-start;padding-top:60px;";
         const box = document.createElement("div");
         box.style.cssText = "background:#f8f3ee;width:90%;max-width:700px;border-radius:20px;padding:30px;max-height:80vh;overflow-y:auto;font-family:Arial,sans-serif;";
-        box.innerHTML = "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;'><h2 style='color:#8b735d;margin:0;'>Panneau Admin</h2><span id='close-admin' style='cursor:pointer;font-size:28px;color:#8b735d;'>X</span></div><div style='display:flex;gap:10px;margin-bottom:20px;border-bottom:1px solid #e8d4b0;padding-bottom:12px;flex-wrap:wrap;'><button id='tab-pending' style='background:#c9a86a;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>En attente</button><button id='tab-all' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>Tous les membres</button><button id='tab-dashboard' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>Tableau de bord</button><button id='tab-quiz' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>Quiz</button><button id='tab-annonces' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>Annonces</button><button id='tab-defi' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>&#9889; Defi Eclair</button><button id='tab-badges-admin' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>&#127885; Badges</button><button id='tab-assistant-admin' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>&#128037; Assistant IA</button></div><div id='admin-members-list'><p style='color:#999;'>Chargement...</p></div>";
+        box.innerHTML = "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;'><h2 style='color:#8b735d;margin:0;'>Panneau Admin</h2><span id='close-admin' style='cursor:pointer;font-size:28px;color:#8b735d;'>X</span></div><div style='display:flex;gap:10px;margin-bottom:20px;border-bottom:1px solid #e8d4b0;padding-bottom:12px;flex-wrap:wrap;'><button id='tab-pending' style='background:#c9a86a;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>En attente</button><button id='tab-all' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>Tous les membres</button><button id='tab-dashboard' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>Tableau de bord</button><button id='tab-quiz' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>Quiz</button><button id='tab-annonces' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>Annonces</button><button id='tab-defi' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>&#9889; Defi Eclair</button><button id='tab-badges-admin' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>&#127885; Badges</button><button id='tab-assistant-admin' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>&#128037; Assistant IA</button><button id='tab-formations-admin' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>📚 Formations</button></div><div id='admin-members-list'><p style='color:#999;'>Chargement...</p></div>";
         panel.appendChild(box); document.body.appendChild(panel);
         document.getElementById("close-admin").onclick = function() { panel.remove(); var mb = document.getElementById("baa-menu-btn"); if (mb) mb.click(); };
         function loadPending() {
@@ -361,6 +361,50 @@ function initBeautyAddictLogin() {
             });
           };
         };
+        document.getElementById("tab-formations-admin").onclick = function() {
+          document.getElementById("tab-formations-admin").style.cssText += "background:#c9a86a;color:white;border:none;";
+          ["tab-pending","tab-all","tab-dashboard","tab-quiz","tab-annonces","tab-defi","tab-badges-admin","tab-assistant-admin"].forEach(function(t) { var el = document.getElementById(t); if(el) el.style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; });
+          loadFormationsAdmin();
+        };
+
+        function loadFormationsAdmin() {
+          var FORMATIONS = [
+            { id: "bonDemarrage", nom: "👑 Bon démarrage" },
+            { id: "fondations", nom: "🏦 Les fondations de mon activité" },
+            { id: "reseauxAttraction", nom: "✨ Réseaux sociaux & attraction" },
+            { id: "guideMessages", nom: "🔷 Guide des messages & communication" },
+            { id: "developpementPersonnel", nom: "🧠 Développement personnel & mental" },
+            { id: "alchimieBesoins", nom: "🔮 Alchimie des besoins" },
+            { id: "parrainage", nom: "🤍 Parrainage" },
+            { id: "laVente", nom: "📈 La vente" },
+            { id: "reseauxSociaux", nom: "📱 Les Réseaux Sociaux pour la VDI" },
+            { id: "organisation", nom: "💻 Organisation & Gestion du Temps" }
+          ];
+          var list = document.getElementById("admin-members-list");
+          list.innerHTML = "<p style='color:#999;'>Chargement...</p>";
+          db.collection("users").where("accountStatus","==","active").get().then(function(snap) {
+            var membres = [];
+            snap.forEach(function(d) { membres.push(d.data()); });
+            var html = "<h3 style='color:#8b735d;margin-bottom:16px;'>📚 Suivi des formations</h3>";
+            html += "<div style='overflow-x:auto;'><table style='width:100%;border-collapse:collapse;font-size:12px;'>";
+            html += "<thead><tr style='background:#f3e7d3;'><th style='padding:8px;text-align:left;border:1px solid #e8d4b0;color:#8b735d;'>Membre</th>";
+            FORMATIONS.forEach(function(f) { html += "<th style='padding:8px;text-align:center;border:1px solid #e8d4b0;color:#8b735d;min-width:60px;'>" + f.nom.split(" ").slice(0,2).join(" ") + "</th>"; });
+            html += "</tr></thead><tbody>";
+            membres.forEach(function(m) {
+              html += "<tr><td style='padding:8px;border:1px solid #e8d4b0;font-weight:bold;color:#3a3a3a;white-space:nowrap;'>" + (m.prenom||"") + " " + (m.nom||"") + "</td>";
+              FORMATIONS.forEach(function(f) {
+                var lu = m["formation_" + f.id + "_lu"];
+                var date = m["formation_" + f.id + "_date"];
+                var dateStr = date ? new Date(date).toLocaleDateString("fr-FR") : "";
+                html += "<td style='padding:8px;border:1px solid #e8d4b0;text-align:center;background:" + (lu ? "#e6f7ec" : "#fff5f5") + ";' title='" + (lu ? "Lu le " + dateStr : "Non lu") + "'>" + (lu ? "✅" : "❌") + "</td>";
+              });
+              html += "</tr>";
+            });
+            html += "</tbody></table></div>";
+            list.innerHTML = html;
+          });
+        }
+
         document.getElementById("tab-badges-admin").onclick = function() { document.getElementById("tab-badges-admin").style.cssText += "background:#c9a86a;color:white;border:none;"; document.getElementById("tab-pending").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-all").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-dashboard").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-quiz").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-annonces").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-defi").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; loadBadgesAdmin(); };
         function loadBadgesAdmin() {
           var list = document.getElementById("admin-members-list");
