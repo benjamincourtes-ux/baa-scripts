@@ -220,7 +220,7 @@ function openCreateurVisuels() {
         [["←","left"],["↔","center"],["→","right"]].forEach(function(a) {
           var ab = document.createElement("button");
           ab.textContent=a[0]; ab.style.cssText="flex:1;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:6px;border-radius:6px;cursor:pointer;font-size:14px;touch-action:manipulation;";
-          ab.onclick=function(e){e.stopPropagation();if(a[1]==="center")el.x=50;else if(a[1]==="left")el.x=5;else el.x=95;renderCanvasOnly();};
+          ab.onclick=function(e){e.stopPropagation();if(a[1]==="center")el.x=50;else if(a[1]==="left")el.x=2;else el.x=98;renderCanvasOnly();};
           alignDiv.appendChild(ab);
         });
         propDiv.appendChild(alignDiv);
@@ -256,7 +256,7 @@ function openCreateurVisuels() {
         shapeDiv.appendChild(btn("Rond",function(){selEl.rounded=true;fullRender();},"background:"+(selEl.rounded?"#c9a86a":"rgba(255,255,255,0.08)")+";color:"+(selEl.rounded?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:5px;border-radius:6px;cursor:pointer;font-size:11px;flex:1;"));
         propDiv.appendChild(shapeDiv);
         var photoActionsDiv = document.createElement("div"); photoActionsDiv.style.cssText="display:flex;gap:6px;margin-bottom:6px;";
-        photoActionsDiv.appendChild(btn("⊕ Centrer",function(){selEl.x=50;selEl.y=50;renderCanvasOnly();},"background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:6px;border-radius:6px;cursor:pointer;font-size:11px;flex:1;"));
+        photoActionsDiv.appendChild(btn("⊕ Centrer",function(){selEl.x=50-(selEl.w/2);selEl.y=50-(selEl.h/2);renderCanvasOnly();},"background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:6px;border-radius:6px;cursor:pointer;font-size:11px;flex:1;"));
         photoActionsDiv.appendChild(btn("⬜ Plein",function(){selEl.x=0;selEl.y=0;selEl.w=100;selEl.h=100;selEl.rounded=false;fullRender();},"background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:6px;border-radius:6px;cursor:pointer;font-size:11px;flex:1;"));
         propDiv.appendChild(photoActionsDiv);
         var chLabel = document.createElement("label"); chLabel.htmlFor="cv-file-input";
@@ -386,21 +386,6 @@ function openCreateurVisuels() {
 
       cvEl.appendChild(div);
     });
-
-    // Lignes de guidage si élément proche du centre
-    if (state.selected !== null) {
-      var selEl2 = state.elements.find(function(e){return e.id===state.selected;});
-      if (selEl2 && Math.abs(selEl2.x - 50) < 3) {
-        var vLine = document.createElement("div");
-        vLine.style.cssText = "position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(201,168,106,0.6);pointer-events:none;transform:translateX(-50%);z-index:5;";
-        cvEl.appendChild(vLine);
-      }
-      if (selEl2 && Math.abs(selEl2.y - 50) < 3) {
-        var hLine = document.createElement("div");
-        hLine.style.cssText = "position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(201,168,106,0.6);pointer-events:none;transform:translateY(-50%);z-index:5;";
-        cvEl.appendChild(hLine);
-      }
-    }
 
     cvEl.onclick=function(e){if(e.target===cvEl){state.selected=null;fullRender();}};
 
