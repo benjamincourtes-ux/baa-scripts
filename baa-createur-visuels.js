@@ -95,6 +95,7 @@ function openCreateurVisuels() {
 
   function buildSidebarContent(container) {
     container.onclick = function(e) { e.stopPropagation(); };
+    var savedScroll = container.scrollTop || 0;
 
     function section(title) {
       var p = document.createElement("p");
@@ -258,6 +259,16 @@ function openCreateurVisuels() {
     }
   }
 
+  function fullRenderKeepScroll(container) {
+    var scroll = container ? container.scrollTop : 0;
+    fullRender();
+    // Restaurer scroll après render
+    setTimeout(function() {
+      var newContainer = document.querySelector("#baa-createur-panel > div:last-child");
+      if (newContainer) newContainer.scrollTop = scroll;
+    }, 0);
+  }
+
   function renderCanvasOnly() {
     var isMobile = window.innerWidth < 768;
     var cW, cH;
@@ -363,7 +374,12 @@ function openCreateurVisuels() {
     });
   }
 
+  var lastScrollTop = 0;
+
   function fullRender() {
+    // Sauvegarder scroll avant de recréer
+    var bottomBarOld = panel.querySelector("div:last-child");
+    if (bottomBarOld) lastScrollTop = bottomBarOld.scrollTop;
     panel.innerHTML="";
     panel.appendChild(fileInput);
     var isMobile = window.innerWidth < 768;
@@ -393,6 +409,8 @@ function openCreateurVisuels() {
       bottomBar.style.cssText = "flex:1;background:#140e04;overflow-y:auto;padding:12px;border-top:1px solid rgba(201,168,106,0.2);";
       buildSidebarContent(bottomBar);
       panel.appendChild(bottomBar);
+      // Restaurer scroll
+      if (lastScrollTop > 0) setTimeout(function() { bottomBar.scrollTop = lastScrollTop; }, 0);
 
     } else {
       // LAYOUT DESKTOP
