@@ -2,20 +2,20 @@
   var FORMATIONS = [
     { id: "bonDemarrage", nom: "Bon démarrage", titre: "Bon démarrage" },
     { id: "fondations", nom: "Les fondations de mon activité", titre: "Les fondations de mon activité" },
-    { id: "reseauxAttraction", nom: "Réseaux sociaux & attraction", titre: "Réseaux sociaux & attraction" },
-    { id: "guideMessages", nom: "Guide des messages & communication", titre: "Guide des messages" },
-    { id: "developpementPersonnel", nom: "Développement personnel & mental", titre: "Développement personnel" },
-    { id: "alchimieBesoins", nom: "Alchimie des besoins", titre: "Alchimie des besoins" },
+    { id: "reseauxAttraction", nom: "Réseaux sociaux & attraction", titre: "Réseaux sociaux et attraction" },
+    { id: "guideMessages", nom: "Guide des messages & communication", titre: "Guide des messages & communication d'attraction" },
+    { id: "developpementPersonnel", nom: "Développement personnel & mental", titre: "Développement personnel & mental de réussit" },
+    { id: "alchimieBesoins", nom: "Alchimie des besoins", titre: "Alchimie des besoins : comprendre pour révéler" },
     { id: "parrainage", nom: "Parrainage", titre: "Parrainage" },
     { id: "laVente", nom: "La vente", titre: "La vente" },
-    { id: "reseauxSociaux", nom: "Les Réseaux Sociaux pour la VDI", titre: "Les Réseaux Sociaux" },
-    { id: "organisation", nom: "Organisation & Gestion du Temps", titre: "Organisation" }
+    { id: "reseauxSociaux", nom: "Les Réseaux Sociaux pour la VDI", titre: "Formation — Les Réseaux Sociaux pour la VDI" },
+    { id: "organisation", nom: "Organisation & Gestion du Temps", titre: "Formation — Organisation & Gestion du Temps" }
   ];
 
   function getFormationCourante() {
-    var titre = document.title;
+    var titre = document.title.trim().toLowerCase();
     for (var i = 0; i < FORMATIONS.length; i++) {
-      if (titre.indexOf(FORMATIONS[i].titre) !== -1) return FORMATIONS[i];
+      if (titre === FORMATIONS[i].titre.toLowerCase()) return FORMATIONS[i];
     }
     return null;
   }
