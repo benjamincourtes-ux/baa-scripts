@@ -1,4 +1,7 @@
 function openCreateurVisuels() {
+  var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  var EVT = isMobile ? "ontouchstart" : "onclick";
+  function cv_onclick(fn) { return isMobile ? 'ontouchstart="event.preventDefault();event.stopPropagation();('+fn+')" ' : 'onclick="'+fn+'" '; }
   if (document.getElementById("baa-createur-panel")) return;
 
   var panel = document.createElement("div");
@@ -27,12 +30,12 @@ function openCreateurVisuels() {
       "<span style='color:#f5d48a;font-size:15px;font-weight:bold;'>🎨 Créez vos visuels</span>" +
       "<div style='display:flex;gap:4px;'>" +
       [["square","Carré"],["story","Story"],["landscape","Large"]].map(function(f) {
-        return "<button onclick='window.__cvSetFormat(\""+f[0]+"\")' style='background:"+(state.format===f[0]?"#c9a86a":"rgba(255,255,255,0.1)")+";color:"+(state.format===f[0]?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:bold;'>"+f[1]+"</button>";
+        return "<button ontouchstart='event.preventDefault();window.__cvSetFormat(\""+f[0]+"\")' style='background:"+(state.format===f[0]?"#c9a86a":"rgba(255,255,255,0.1)")+";color:"+(state.format===f[0]?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:bold;'>"+f[1]+"</button>";
       }).join("") +
       "</div></div>" +
       "<div style='display:flex;gap:8px;align-items:center;'>" +
-      "<button onclick='window.__cvDownload()' style='background:#c9a86a;color:#1a1208;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>⬇️ Télécharger PNG</button>" +
-      "<button onclick='window.__cvClose()' style='background:none;border:none;color:rgba(255,255,255,0.6);font-size:24px;cursor:pointer;padding:0 4px;line-height:1;'>✕</button>" +
+      "<button ontouchstart='event.preventDefault();window.__cvDownload()' style='background:#c9a86a;color:#1a1208;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>⬇️ Télécharger PNG</button>" +
+      "<button ontouchstart='event.preventDefault();window.__cvClose()' style='background:none;border:none;color:rgba(255,255,255,0.6);font-size:24px;cursor:pointer;padding:0 4px;line-height:1;'>✕</button>" +
       "</div>";
   }
 
@@ -302,25 +305,25 @@ function openCreateurVisuels() {
 
     // Ajouter
     html += "<div style='margin-bottom:14px;'><p style='color:#c9a86a;font-size:10px;font-weight:bold;margin:0 0 8px;letter-spacing:1px;'>AJOUTER</p><div style='display:grid;grid-template-columns:1fr 1fr;gap:6px;'>";
-    html += "<button onclick='window.__cvAddText()' style='background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:8px;border-radius:6px;cursor:pointer;font-size:11px;'>T Texte</button>";
-    html += "<button onclick='window.__cvAddPhoto()' style='background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:8px;border-radius:6px;cursor:pointer;font-size:11px;'>📷 Photo</button>";
-    html += "<button onclick='window.__cvAddLine()' style='background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:8px;border-radius:6px;cursor:pointer;font-size:11px;'>— Ligne</button>";
-    html += "<button onclick='window.__cvAddRect()' style='background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:8px;border-radius:6px;cursor:pointer;font-size:11px;'>⬜ Forme</button>";
+    html += "<button onclick='window.__cvAddText()' ontouchstart='event.preventDefault();window.__cvAddText()' ontouchstart='event.preventDefault();window.__cvAddText()' style='background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:8px;border-radius:6px;cursor:pointer;font-size:11px;'>T Texte</button>";
+    html += "<button ontouchstart='event.preventDefault();window.__cvAddPhoto()' style='background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:8px;border-radius:6px;cursor:pointer;font-size:11px;'>📷 Photo</button>";
+    html += "<button ontouchstart='event.preventDefault();window.__cvAddLine()' style='background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:8px;border-radius:6px;cursor:pointer;font-size:11px;'>— Ligne</button>";
+    html += "<button ontouchstart='event.preventDefault();window.__cvAddRect()' style='background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:8px;border-radius:6px;cursor:pointer;font-size:11px;'>⬜ Forme</button>";
     html += "</div></div>";
 
     // Fond
     html += "<div style='margin-bottom:14px;'><p style='color:#c9a86a;font-size:10px;font-weight:bold;margin:0 0 8px;letter-spacing:1px;'>FOND</p>";
     html += "<div style='display:flex;gap:6px;margin-bottom:8px;'>";
-    html += "<button onclick='window.__cvSetBgType(\"solid\")' style='flex:1;background:"+(state.bgType==="solid"?"#c9a86a":"rgba(255,255,255,0.08)")+";color:"+(state.bgType==="solid"?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:5px;border-radius:6px;cursor:pointer;font-size:10px;'>Uni</button>";
-    html += "<button onclick='window.__cvSetBgType(\"gradient\")' style='flex:1;background:"+(state.bgType==="gradient"?"#c9a86a":"rgba(255,255,255,0.08)")+";color:"+(state.bgType==="gradient"?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:5px;border-radius:6px;cursor:pointer;font-size:10px;'>Dégradé</button>";
+    html += "<button ontouchstart='event.preventDefault();window.__cvSetBgType(\"solid\")' style='flex:1;background:"+(state.bgType==="solid"?"#c9a86a":"rgba(255,255,255,0.08)")+";color:"+(state.bgType==="solid"?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:5px;border-radius:6px;cursor:pointer;font-size:10px;'>Uni</button>";
+    html += "<button ontouchstart='event.preventDefault();window.__cvSetBgType(\"gradient\")' style='flex:1;background:"+(state.bgType==="gradient"?"#c9a86a":"rgba(255,255,255,0.08)")+";color:"+(state.bgType==="gradient"?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:5px;border-radius:6px;cursor:pointer;font-size:10px;'>Dégradé</button>";
     html += "</div>";
     if (state.bgType==="solid") {
       html += "<div style='display:flex;flex-wrap:wrap;gap:5px;'>";
-      COLORS_BG.forEach(function(c) { html += "<div onclick='window.__cvSetBg(\""+c+"\")' style='width:22px;height:22px;border-radius:4px;background:"+c+";cursor:pointer;border:"+(state.bg===c?"2px solid #f5d48a":"1px solid rgba(255,255,255,0.2)")+";'></div>"; });
+      COLORS_BG.forEach(function(c) { html += "<div ontouchstart='event.preventDefault();window.__cvSetBg(\""+c+"\")' style='width:22px;height:22px;border-radius:4px;background:"+c+";cursor:pointer;border:"+(state.bg===c?"2px solid #f5d48a":"1px solid rgba(255,255,255,0.2)")+";'></div>"; });
       html += "</div>";
     } else {
       html += "<div style='display:flex;flex-direction:column;gap:4px;'>";
-      GRADIENTS.forEach(function(g,i) { html += "<div onclick='window.__cvSetGrad("+i+")' style='height:18px;border-radius:4px;background:linear-gradient(135deg,"+g[0]+","+g[1]+");cursor:pointer;border:"+(JSON.stringify(state.bgGradient)===JSON.stringify(g)?"2px solid #f5d48a":"1px solid transparent")+";'></div>"; });
+      GRADIENTS.forEach(function(g,i) { html += "<div ontouchstart='event.preventDefault();window.__cvSetGrad("+i+")' style='height:18px;border-radius:4px;background:linear-gradient(135deg,"+g[0]+","+g[1]+");cursor:pointer;border:"+(JSON.stringify(state.bgGradient)===JSON.stringify(g)?"2px solid #f5d48a":"1px solid transparent")+";'></div>"; });
       html += "</div>";
     }
     html += "</div>";
@@ -328,7 +331,7 @@ function openCreateurVisuels() {
     // Modèles
     html += "<div style='margin-bottom:14px;'><p style='color:#c9a86a;font-size:10px;font-weight:bold;margin:0 0 8px;letter-spacing:1px;'>MODÈLES</p>";
     ["Page vierge","Noir & Or","Rose élégant","Violet Phénix","Nature Luxe"].forEach(function(n,i) {
-      html += "<button onclick='window.__cvLoadModel("+i+")' style='width:100%;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7);border:none;padding:7px;border-radius:6px;cursor:pointer;font-size:11px;text-align:left;margin-bottom:4px;'>"+n+"</button>";
+      html += "<button ontouchstart='event.preventDefault();window.__cvLoadModel("+i+")' style='width:100%;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7);border:none;padding:7px;border-radius:6px;cursor:pointer;font-size:11px;text-align:left;margin-bottom:4px;'>"+n+"</button>";
     });
     html += "</div>";
 
@@ -339,30 +342,30 @@ function openCreateurVisuels() {
         html += "<textarea id='cv-el-text' oninput='window.__cvUpdateText("+selEl.id+",this.value)' onmousedown='event.stopPropagation()' style='width:100%;background:rgba(255,255,255,0.08);color:white;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:6px;font-size:12px;resize:vertical;box-sizing:border-box;margin-bottom:8px;height:60px;'>"+selEl.text+"</textarea>";
         html += "<p style='color:rgba(255,255,255,0.4);font-size:10px;margin:0 0 4px;'>Taille</p><input type='range' min='10' max='120' value='"+selEl.fontSize+"' oninput='window.__cvSetProp("+selEl.id+",\"fontSize\",parseInt(this.value))' onmousedown='event.stopPropagation()' style='width:100%;margin-bottom:8px;' />";
         html += "<p style='color:rgba(255,255,255,0.4);font-size:10px;margin:0 0 4px;'>Police</p><div style='display:flex;flex-direction:column;gap:3px;margin-bottom:8px;max-height:100px;overflow-y:auto;'>";
-        FONTS.forEach(function(f) { html += "<div onclick='window.__cvSetProp("+selEl.id+",\"fontFamily\",\""+f+"\")' style='padding:4px 8px;border-radius:4px;cursor:pointer;font-size:11px;background:"+(selEl.fontFamily===f?"#c9a86a":"rgba(255,255,255,0.06)")+";color:"+(selEl.fontFamily===f?"#1a1208":"rgba(255,255,255,0.7)")+";font-family:"+f+";'>"+f+"</div>"; });
+        FONTS.forEach(function(f) { html += "<div ontouchstart='event.preventDefault();window.__cvSetProp("+selEl.id+",\"fontFamily\",\""+f+"\")' style='padding:4px 8px;border-radius:4px;cursor:pointer;font-size:11px;background:"+(selEl.fontFamily===f?"#c9a86a":"rgba(255,255,255,0.06)")+";color:"+(selEl.fontFamily===f?"#1a1208":"rgba(255,255,255,0.7)")+";font-family:"+f+";'>"+f+"</div>"; });
         html += "</div>";
         html += "<div style='display:flex;gap:6px;margin-bottom:8px;'>";
-        html += "<button onclick='window.__cvSetProp("+selEl.id+",\"bold\","+(!selEl.bold)+")' style='flex:1;background:"+(selEl.bold?"#c9a86a":"rgba(255,255,255,0.08)")+";color:"+(selEl.bold?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:5px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:12px;'>B</button>";
-        html += "<button onclick='window.__cvSetProp("+selEl.id+",\"italic\","+(!selEl.italic)+")' style='flex:1;background:"+(selEl.italic?"#c9a86a":"rgba(255,255,255,0.08)")+";color:"+(selEl.italic?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:5px;border-radius:6px;cursor:pointer;font-style:italic;font-size:12px;'>I</button>";
+        html += "<button ontouchstart='event.preventDefault();window.__cvSetProp("+selEl.id+",\"bold\","+(!selEl.bold)+")' style='flex:1;background:"+(selEl.bold?"#c9a86a":"rgba(255,255,255,0.08)")+";color:"+(selEl.bold?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:5px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:12px;'>B</button>";
+        html += "<button ontouchstart='event.preventDefault();window.__cvSetProp("+selEl.id+",\"italic\","+(!selEl.italic)+")' style='flex:1;background:"+(selEl.italic?"#c9a86a":"rgba(255,255,255,0.08)")+";color:"+(selEl.italic?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:5px;border-radius:6px;cursor:pointer;font-style:italic;font-size:12px;'>I</button>";
         html += "</div>";
         html += "<p style='color:rgba(255,255,255,0.4);font-size:10px;margin:0 0 4px;'>Couleur</p><div style='display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;'>";
-        COLORS_TEXT.forEach(function(c) { html += "<div onclick='window.__cvSetProp("+selEl.id+",\"color\",\""+c+"\")' style='width:22px;height:22px;border-radius:4px;background:"+c+";cursor:pointer;border:"+(selEl.color===c?"2px solid #f5d48a":"1px solid rgba(255,255,255,0.2)")+";'></div>"; });
+        COLORS_TEXT.forEach(function(c) { html += "<div ontouchstart='event.preventDefault();window.__cvSetProp("+selEl.id+",\"color\",\""+c+"\")' style='width:22px;height:22px;border-radius:4px;background:"+c+";cursor:pointer;border:"+(selEl.color===c?"2px solid #f5d48a":"1px solid rgba(255,255,255,0.2)")+";'></div>"; });
         html += "</div>";
       } else if (selEl.type==="photo") {
         html += "<div style='display:flex;gap:6px;margin-bottom:8px;'>";
-        html += "<button onclick='window.__cvRound("+selEl.id+",false)' style='flex:1;background:"+(!selEl.rounded?"#c9a86a":"rgba(255,255,255,0.08)")+";color:"+(!selEl.rounded?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:5px;border-radius:6px;cursor:pointer;font-size:11px;'>Carré</button>";
-        html += "<button onclick='window.__cvRound("+selEl.id+",true)' style='flex:1;background:"+(selEl.rounded?"#c9a86a":"rgba(255,255,255,0.08)")+";color:"+(selEl.rounded?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:5px;border-radius:6px;cursor:pointer;font-size:11px;'>Rond</button>";
+        html += "<button ontouchstart='event.preventDefault();window.__cvRound("+selEl.id+",false)' style='flex:1;background:"+(!selEl.rounded?"#c9a86a":"rgba(255,255,255,0.08)")+";color:"+(!selEl.rounded?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:5px;border-radius:6px;cursor:pointer;font-size:11px;'>Carré</button>";
+        html += "<button ontouchstart='event.preventDefault();window.__cvRound("+selEl.id+",true)' style='flex:1;background:"+(selEl.rounded?"#c9a86a":"rgba(255,255,255,0.08)")+";color:"+(selEl.rounded?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:5px;border-radius:6px;cursor:pointer;font-size:11px;'>Rond</button>";
         html += "</div>";
-        html += "<button onclick='window.__cvFull("+selEl.id+")' style='width:100%;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:7px;border-radius:6px;cursor:pointer;font-size:11px;margin-bottom:6px;'>⬜ Plein écran</button>";
+        html += "<button ontouchstart='event.preventDefault();window.__cvFull("+selEl.id+")' style='width:100%;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:7px;border-radius:6px;cursor:pointer;font-size:11px;margin-bottom:6px;'>⬜ Plein écran</button>";
         html += "<button onclick='document.getElementById(\"cv-file-input\").click()' style='width:100%;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:7px;border-radius:6px;cursor:pointer;font-size:11px;'>Changer la photo</button>";
       } else if (selEl.type==="line"||selEl.type==="rect") {
         html += "<p style='color:rgba(255,255,255,0.4);font-size:10px;margin:0 0 4px;'>Couleur</p><div style='display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;'>";
-        COLORS_TEXT.forEach(function(c) { html += "<div onclick='window.__cvSetProp("+selEl.id+",\"color\",\""+c+"\")' style='width:22px;height:22px;border-radius:4px;background:"+c+";cursor:pointer;border:"+(selEl.color===c?"2px solid #f5d48a":"1px solid rgba(255,255,255,0.2)")+";'></div>"; });
+        COLORS_TEXT.forEach(function(c) { html += "<div ontouchstart='event.preventDefault();window.__cvSetProp("+selEl.id+",\"color\",\""+c+"\")' style='width:22px;height:22px;border-radius:4px;background:"+c+";cursor:pointer;border:"+(selEl.color===c?"2px solid #f5d48a":"1px solid rgba(255,255,255,0.2)")+";'></div>"; });
         html += "</div>";
       }
       html += "<div style='display:flex;gap:6px;margin-top:8px;'>";
-      html += "<button onclick='window.__cvFront("+selEl.id+")' style='flex:1;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);border:none;padding:5px;border-radius:6px;cursor:pointer;font-size:10px;'>↑ Devant</button>";
-      html += "<button onclick='window.__cvBack("+selEl.id+")' style='flex:1;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);border:none;padding:5px;border-radius:6px;cursor:pointer;font-size:10px;'>↓ Derrière</button>";
+      html += "<button ontouchstart='event.preventDefault();window.__cvFront("+selEl.id+")' style='flex:1;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);border:none;padding:5px;border-radius:6px;cursor:pointer;font-size:10px;'>↑ Devant</button>";
+      html += "<button ontouchstart='event.preventDefault();window.__cvBack("+selEl.id+")' style='flex:1;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);border:none;padding:5px;border-radius:6px;cursor:pointer;font-size:10px;'>↓ Derrière</button>";
       html += "</div></div>";
     } else {
       html += "<p style='color:rgba(255,255,255,0.3);font-size:11px;margin-top:12px;'>Clique sur un élément pour le modifier</p>";
