@@ -356,7 +356,8 @@ function openCreateurVisuels() {
       }
 
       function startDrag(e) {
-        if (e.target===e.currentTarget.querySelector("button")||e.target.style.cursor==="se-resize") return;
+        if (e.target.style.cursor==="se-resize" || e.target===resizeHandle) return;
+        if (e.target===delBtn) return;
         if (state.selected!==el.id){state.selected=el.id;fullRender();return;}
         e.stopPropagation(); e.preventDefault();
         var startX=e.clientX||(e.touches&&e.touches[0].clientX)||0;
