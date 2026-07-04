@@ -1,110 +1,140 @@
-var quizModule8Questions = [
-  { question: "Selon la formation, quel est le vrai problème lié à la vente ?", options: ["La perception de la vente", "Le prix trop élevé", "Le manque de clientes", "La qualité du produit"], correct: 0 },
-  { question: "Beaucoup de personnes associent la vente à quels comportements négatifs ?", options: ["Écouter, conseiller, guider, aider", "Insister, déranger, forcer, manipuler", "Analyser, comprendre, proposer, suivre", "Sourire, remercier, féliciter, encourager"], correct: 1 },
-  { question: "Que signifie réellement \"vendre\" selon le module 1 ?", options: ["Convaincre à tout prix", "Insister jusqu'à l'achat", "Aider, conseiller, résoudre un besoin", "Manipuler subtilement le client"], correct: 2 },
-  { question: "Qu'achète réellement une cliente qui achète une crème ?", options: ["Un produit chimique", "Un cadeau", "Un accessoire", "Une peau plus saine"], correct: 3 },
-  { question: "Comment un \"non\" doit-il être perçu selon la formation ?", options: ["Il ne remet pas en cause la valeur de la conseillère", "Comme un échec personnel", "Comme une remise en question totale", "Comme un rejet définitif à vie"], correct: 0 },
-  { question: "Quelle posture doit-on adopter au lieu de \"comment vendre ?\"", options: ["Comment convaincre ?", "Comment aider ?", "Comment insister ?", "Comment forcer la décision ?"], correct: 1 },
-  { question: "Que ressent le client selon la formation, au-delà du produit lui-même ?", options: ["Uniquement le prix", "Uniquement les avis extérieurs", "L'énergie de la conseillère", "Rien du tout"], correct: 2 },
-  { question: "Combien de types de \"température\" de vente sont présentés dans le module 2 ?", options: ["2", "4", "5", "3"], correct: 3 },
-  { question: "Un prospect qui ne connaît pas du tout la conseillère est un client...", options: ["Froid", "Tiède", "Chaud", "Fidèle"], correct: 0 },
-  { question: "Quelle est la priorité avec un client froid ?", options: ["Conclure rapidement la vente", "La connexion", "Le closing immédiat", "Envoyer le catalogue complet"], correct: 1 },
-  { question: "Un client qui suit déjà la conseillère, regarde ses stories et interagit parfois est un client...", options: ["Froid", "Chaud", "Tiède", "Inactif"], correct: 2 },
-  { question: "Quelle approche est recommandée avec un client chaud ?", options: ["Créer la connexion", "Rassurer uniquement", "Ignorer ses questions", "Guider vers la décision"], correct: 3 },
-  { question: "Quelle erreur fréquente est décrite dans le module 2 ?", options: ["Traiter tout le monde de la même manière", "Trop parler technique", "Envoyer un catalogue direct", "Manquer d'énergie"], correct: 0 },
-  { question: "Selon le module 3, pourquoi certaines personnes vendent-elles plus facilement ?", options: ["Parce qu'elles forcent plus", "Parce qu'elles attirent mieux", "Parce qu'elles baissent leurs prix", "Parce qu'elles ont plus de followers"], correct: 1 },
-  { question: "Qu'observe une cliente avant d'acheter, selon le module 3 ?", options: ["Uniquement le prix du produit", "Le nombre d'abonnés uniquement", "Le profil, l'énergie, le contenu et l'expertise", "La localisation de la conseillère"], correct: 2 },
-  { question: "Quels sont les 4 éléments qui attirent naturellement une cliente ?", options: ["Prix, promo, offre, réduction", "Followers, likes, commentaires, partages", "Vitesse, rapidité, disponibilité, flexibilité", "Image, expertise, confiance, connexion émotionnelle"], correct: 3 },
-  { question: "Que doit éviter le contenu publié pour ne pas lasser l'audience ?", options: ["Ne parler que de promos, prix et offres", "Ne parler que de témoignages", "Ne parler que d'astuces beauté", "Ne parler que de routines"], correct: 0 },
-  { question: "Quel changement de posture est proposé dans le module 3 ?", options: ["Passer de conseillère à vendeuse", "Passer de chasse à attraction", "Passer d'experte à débutante", "Passer de discrète à envahissante"], correct: 1 },
-  { question: "Quand commencent réellement les meilleures ventes, selon le module 3 ?", options: ["Après le premier message", "Après la première commande", "Avant même le premier message", "Après plusieurs relances"], correct: 2 },
-  { question: "Pourquoi beaucoup de ventes échouent-elles selon le module 4 ?", options: ["Les prix sont trop élevés", "Les clientes n'ont pas confiance dans la marque", "Les produits sont indisponibles", "Le produit est proposé trop vite, sans analyse"], correct: 3 },
-  { question: "Quelle phrase résume la vraie mission avant de proposer un produit ?", options: ["Comprendre précède conseiller", "Vendre précède comprendre", "Conseiller précède écouter", "Écouter précède vendre à tout prix"], correct: 0 },
-  { question: "Combien de grands diagnostics sont proposés dans l'application de l'équipe ?", options: ["2", "4", "3", "5"], correct: 1 },
-  { question: "Que permet le diagnostic, selon le module 4 ?", options: ["Vendre plus cher", "Réduire le temps de discussion", "Comprendre le besoin réel et personnaliser les conseils", "Éviter de parler au client"], correct: 2 },
-  { question: "Selon le module 4, il faut chercher...", options: ["Uniquement le symptôme visible", "Le prix le plus bas", "Le produit le plus vendu", "La cause, pas seulement le symptôme"], correct: 3 },
-  { question: "Quel changement de posture est mis en avant dans le module 4 ?", options: ["Passer de vendeuse à consultante", "Passer de consultante à vendeuse", "Passer de cliente à conseillère", "Passer d'inconnue à cliente fidèle"], correct: 0 },
-  { question: "Quelle est l'erreur classique décrite dans le module 5 ?", options: ["Poser trop de questions", "Réciter une fiche produit", "Répondre trop vite", "Proposer trop d'options"], correct: 1 },
-  { question: "Que veut vraiment savoir la cliente, selon le module 5 ?", options: ["La composition exacte du produit", "Le lieu de fabrication", "Si le produit va l'aider et est adapté à elle", "La date de sortie du produit"], correct: 2 },
-  { question: "Quelle est la bonne structure en 4 étapes pour conseiller un produit ?", options: ["Parler du prix, donner une promo, insister, conclure", "Envoyer le catalogue, attendre, relancer, conclure", "Écouter, ignorer, proposer, forcer", "Rappeler le besoin, proposer la solution, expliquer les bénéfices, donner une projection résultat"], correct: 3 },
-  { question: "Au lieu de dire \"contient de l'acide hyaluronique\", que faut-il dire selon le module 5 ?", options: ["Va aider ta peau à retrouver confort et rebond", "C'est un ingrédient chimique", "C'est très cher mais efficace", "C'est une formule secrète"], correct: 0 },
-  { question: "Qu'est-ce qui augmente la valeur perçue, selon le module 5 ?", options: ["Le conseil générique", "Le conseil personnalisé", "La rapidité de la réponse", "Le nombre de produits proposés"], correct: 1 },
-  { question: "Que signifie l'idée que \"l'émotion vend plus que l'information\" ?", options: ["Il faut cacher les informations techniques", "Le prix est plus important que l'histoire", "Raconter une histoire capte mieux qu'un argument", "Il faut vendre sans jamais parler du produit"], correct: 2 },
-  { question: "Que permettent les histoires, selon la neuroscience présentée dans le module 6 ?", options: ["Oublier rapidement le message", "Se méfier du produit", "Comparer les prix", "Rester attentif, se reconnaître, se projeter, ressentir"], correct: 3 },
-  { question: "Quelle est la définition du storyselling ?", options: ["Vendre à travers une histoire réelle", "Vendre directement un produit sans contexte", "Envoyer une story tous les jours", "Créer une story sponsorisée"], correct: 0 },
-  { question: "Quelle est la méthode en 4 étapes du storyselling ?", options: ["Prix, Promo, Livraison, Merci", "Hook, Problème, Solution, Résultat + CTA", "Bonjour, Produit, Prix, Commande", "Introduction, Ingrédients, Actifs, Prix"], correct: 1 },
-  { question: "Qu'est-ce qui casse l'impact d'une histoire, selon le module 6 ?", options: ["Prendre trop de temps pour raconter", "Utiliser trop d'émojis", "Aller trop vite au produit et manquer d'émotion", "Parler de sa propre expérience"], correct: 2 },
-  { question: "Que faut-il retenir à la fin du module 6 sur les gens et leurs achats ?", options: ["Ils achètent seulement un produit", "Ils achètent uniquement le prix le plus bas", "Ils achètent sans réfléchir", "Ils achètent une histoire, une émotion et une projection"], correct: 3 },
-  { question: "Quelle est l'erreur n°1 décrite dans le module 7 ?", options: ["Parler trop vite du produit sans écouter", "Trop parler technique", "Manquer de conviction", "Mettre de la pression"], correct: 0 },
-  { question: "Que provoque l'envoi direct d'un catalogue complet à une cliente ?", options: ["Elle se sent rassurée", "Elle se sent perdue", "Elle achète immédiatement", "Elle partage le catalogue"], correct: 1 },
-  { question: "Que faut-il privilégier au lieu de parler d'ingrédients et de termes complexes ?", options: ["Les prix, pas les bénéfices", "Les avis clients, pas les bénéfices", "Les bénéfices, pas le jargon", "Les promotions, pas le jargon"], correct: 2 },
-  { question: "Quel est l'effet de la pression sur une cliente, selon le module 7 ?", options: ["Elle achète plus vite", "Elle recommande la marque", "Elle demande plus de détails", "Elle se ferme"], correct: 3 },
-  { question: "Que peut provoquer une réponse trop tardive à une cliente ?", options: ["Casser l'élan et refroidir l'intérêt", "Renforcer la confiance", "Créer plus de désir", "Accélérer la vente"], correct: 0 },
-  { question: "Quelle erreur concerne le manque d'énergie et de conviction ?", options: ["La cliente ne le remarque jamais", "La cliente ressent l'hésitation et le manque d'assurance", "Cela n'a aucun impact sur la vente", "Cela rassure toujours la cliente"], correct: 1 },
-  { question: "Que faut-il éviter, selon l'erreur n°7 du module 7 ?", options: ["Personnaliser les messages", "Poser des questions", "Vouloir vendre à tout monde", "Utiliser le storytelling"], correct: 2 },
-  { question: "Quelle posture est recommandée pour éviter les erreurs et fidéliser ?", options: ["Rester vendeuse stricte", "Ignorer les besoins réels", "Se concentrer uniquement sur le closing", "Passer de vendeuse à accompagnante"], correct: 3 },
-  { question: "Que signifie réellement \"closer\", selon le module 8 ?", options: ["Guider, clarifier, faciliter la décision", "Pousser, manipuler, insister", "Forcer la décision rapidement", "Répéter la même question plusieurs fois"], correct: 0 },
-  { question: "Que ressent une cliente si on lui demande brutalement \"Alors, tu prends ?\"", options: ["De la confiance", "De la pression", "De l'enthousiasme", "De la gratitude"], correct: 1 },
-  { question: "Une hésitation de la cliente signifie-t-elle automatiquement un refus ?", options: ["Oui, toujours", "Oui, il faut abandonner immédiatement", "Non, elle peut avoir besoin de temps, réflexion ou réassurance", "Non, il faut insister davantage"], correct: 2 },
-  { question: "Sur quoi repose un bon closing, selon le module 8 ?", options: ["La rapidité, la pression, l'insistance", "Le prix bas et les promotions", "Le nombre de relances envoyées", "Le timing, l'écoute, la confiance, la fluidité"], correct: 3 },
-  { question: "Quelles questions révèlent l'intention d'achat d'une cliente ?", options: ["\"Comment je commande ?\" / \"En combien de temps voit-on les résultats ?\"", "\"Quel temps fait-il ?\"", "\"Comment vas-tu ?\"", "\"Que penses-tu de mon profil ?\""], correct: 0 },
-  { question: "Quelle est la méthode en 4 étapes pour une story efficace, selon le module 9 ?", options: ["Bonjour, Produit, Prix, Merci", "Hook, Problème, Solution, CTA", "Photo, Texte, Musique, Publication", "Intro, Ingrédients, Actifs, Prix"], correct: 1 }
-];
-
 function openQuizModule8() {
-  if (!window.quizModule8Questions) window.quizModule8Questions = quizModule8Questions;
   if (document.getElementById("baa-quiz-panel")) return;
-  var auth = firebase.auth(); var db = firebase.firestore();
+  var auth = firebase.auth();
+  var db = firebase.firestore();
   var uid = auth.currentUser ? auth.currentUser.uid : null;
-  var questions = quizModule8Questions;
-  var currentQ = 0; var score = 0; var answered = false;
-  var panel = document.createElement("div"); panel.id = "baa-quiz-panel";
-  panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;justify-content:center;align-items:flex-start;padding-top:30px;overflow-y:auto;";
-  var box = document.createElement("div");
-  box.style.cssText = "background:#f8f3ee;width:92%;max-width:680px;border-radius:20px;padding:28px;font-family:Arial,sans-serif;max-height:92vh;overflow-y:auto;margin-bottom:30px;";
-  panel.appendChild(box); document.body.appendChild(panel);
-  panel.onclick = function(e) { if (e.target === panel) panel.remove(); };
-  function afficherQuestion() {
-    answered = false; var q = questions[currentQ];
-    var pct = Math.round((currentQ / questions.length) * 100);
-    box.innerHTML = "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;'><h2 style='color:#8b735d;margin:0;font-size:18px;'>📚 La Vente</h2><span id='close-quiz' style='cursor:pointer;font-size:28px;color:#8b735d;'>✕</span></div><div style='background:#e8d4b0;border-radius:10px;height:8px;margin-bottom:8px;'><div style='background:#c9a86a;height:8px;border-radius:10px;width:" + pct + "%;'></div></div><p style='color:#999;font-size:12px;margin-bottom:20px;'>Question " + (currentQ+1) + " / " + questions.length + "</p><div style='background:white;border-radius:14px;padding:20px;border:1px solid #e8d4b0;margin-bottom:16px;'><p style='color:#3a3a3a;font-size:15px;font-weight:bold;margin:0;line-height:1.5;'>" + q.question + "</p></div><div id='opts'></div>";
-    document.getElementById("close-quiz").onclick = function() { panel.remove(); };
-    var opts = document.getElementById("opts");
-    q.options.forEach(function(opt, i) {
-      var btn = document.createElement("button");
-      btn.style.cssText = "width:100%;text-align:left;padding:14px 18px;border-radius:10px;border:1px solid #e8d4b0;background:white;cursor:pointer;font-size:14px;color:#3a3a3a;margin-bottom:8px;display:block;";
-      btn.innerText = ["A","B","C","D"][i] + ". " + opt;
-      btn.onclick = function() {
-        if (answered) return; answered = true;
-        var allBtns = opts.querySelectorAll("button");
-        allBtns.forEach(function(b) { b.style.pointerEvents = "none"; });
-        if (i === q.correct) {
-          score++;
-          btn.style.background="#d5f5e3"; btn.style.borderColor="#2ecc71"; btn.style.color="#1a8a4a";
-          btn.innerHTML = ["A","B","C","D"][i] + ". " + opt + " <span style='float:right;'>✅</span>";
-        } else {
-          btn.style.background="#fadbd8"; btn.style.borderColor="#e74c3c"; btn.style.color="#c0392b";
-          btn.innerHTML = ["A","B","C","D"][i] + ". " + opt + " <span style='float:right;'>❌</span>";
-          allBtns[q.correct].style.background="#d5f5e3"; allBtns[q.correct].style.borderColor="#2ecc71"; allBtns[q.correct].style.color="#1a8a4a";
-          allBtns[q.correct].innerHTML = ["A","B","C","D"][q.correct] + ". " + q.options[q.correct] + " <span style='float:right;'>✅</span>";
-        }
-        setTimeout(function() { currentQ++; if (currentQ < questions.length) afficherQuestion(); else afficherResultat(); }, 1500);
-      };
-      opts.appendChild(btn);
+  if (uid) {
+    db.collection("users").doc(uid).get().then(function(snapCheck) {
+      var dCheck = snapCheck.data();
+      if (dCheck && dCheck.quizModule8Complete === true) {
+        alert("Tu as deja valide ce quiz avec un score superieur ou egal a 80 pourcent. Il n est plus necessaire de le refaire.");
+        return;
+      }
+      __launchQuiz();
     });
-  }
-  function afficherResultat() {
-    var pct = Math.round((score / questions.length) * 100); var reussi = pct >= 80;
-    box.innerHTML = "<div style='text-align:center;padding:20px;'><div style='font-size:60px;margin-bottom:16px;'>" + (reussi?"🏆":"💪") + "</div><h2 style='color:#3a3a3a;margin-bottom:8px;'>" + (reussi?"Félicitations !":"Continue tes efforts !") + "</h2><p style='color:#888;margin-bottom:20px;'>Tu as obtenu <strong>" + score + "/" + questions.length + "</strong> (" + pct + "%)</p><div style='background:#f3e7d3;border-radius:12px;padding:16px;margin-bottom:20px;'><p style='color:#8b735d;font-size:14px;margin:0;'>" + (reussi?"Module validé ! Tu maîtrises les bases de la vente. 🌟":"Il te faut 80% pour valider ce module. Réessaie !") + "</p></div>" + (reussi?"<button id='valider-quiz' style='background:#c9a86a;color:white;border:none;padding:14px 28px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:15px;margin-bottom:10px;width:100%;'>Valider le module ✓</button>":"") + "<button id='recommencer-quiz' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:14px 28px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:15px;width:100%;'>Recommencer</button></div>";
-    if (reussi && document.getElementById("valider-quiz")) {
-      document.getElementById("valider-quiz").onclick = function() {
-        db.collection("users").doc(uid).update({ quizModule8Complete: true }).then(function() {
-          if (typeof window.ajouterPointsBadge === "function") window.ajouterPointsBadge(20);
-          panel.remove();
-        });
-      };
+  } else { __launchQuiz(); }
+
+  function __launchQuiz() {
+    var questions = [
+      { q: "Selon la formation, quel est le vrai problème lié à la vente ?", options: ["La perception de la vente", "Le prix trop élevé", "Le manque de clientes", "La qualité du produit"], correct: 0, explain: "Le vrai problème n'est pas le produit, le prix ou le marché. C'est la perception que l'on a de la vente. Beaucoup la voient comme quelque chose de négatif alors qu'elle est un acte de service." },
+      { q: "Beaucoup de personnes associent la vente à quels comportements négatifs ?", options: ["Écouter, conseiller, guider, aider", "Insister, déranger, forcer, manipuler", "Analyser, comprendre, proposer, suivre", "Sourire, remercier, féliciter, encourager"], correct: 1, explain: "La vente est souvent associée à : insister, déranger, forcer, manipuler. Ce sont ces croyances limitantes qui bloquent. Changer cette perception est la première étape." },
+      { q: "Que signifie réellement \"vendre\" selon le module 1 ?", options: ["Convaincre à tout prix", "Insister jusqu'à l'achat", "Aider, conseiller, résoudre un besoin", "Manipuler subtilement le client"], correct: 2, explain: "Vendre c'est aider, conseiller et résoudre un besoin. Dès qu'on adopte cette posture de service, tout change : la relation, l'énergie et les résultats." },
+      { q: "Qu'achète réellement une cliente qui achète une crème ?", options: ["Un produit chimique", "Un cadeau", "Un accessoire", "Une peau plus saine"], correct: 3, explain: "Une cliente n'achète jamais juste un produit. Elle achète une transformation, un résultat, une émotion. Ici : une peau plus saine, plus belle, plus confiante." },
+      { q: "Comment un \"non\" doit-il être perçu selon la formation ?", options: ["Il ne remet pas en cause la valeur de la conseillère", "Comme un échec personnel", "Comme une remise en question totale", "Comme un rejet définitif à vie"], correct: 0, explain: "Un non ne remet jamais en cause ta valeur personnelle. C'est souvent un non pour l'instant, pas pour toujours. Le détachement face au non est une compétence clé." },
+      { q: "Quelle posture doit-on adopter au lieu de \"comment vendre ?\"", options: ["Comment convaincre ?", "Comment aider ?", "Comment insister ?", "Comment forcer la décision ?"], correct: 1, explain: "La question clé n'est pas 'comment vendre ?' mais 'comment aider ?'. Cette posture transforme totalement l'échange et le ressenti de la cliente." },
+      { q: "Que ressent le client selon la formation, au-delà du produit lui-même ?", options: ["Uniquement le prix", "Uniquement les avis extérieurs", "L'énergie de la conseillère", "Rien du tout"], correct: 2, explain: "Le client ressent l'énergie de la conseillère avant même d'acheter. Une énergie hésitante ou forcée se ressent immédiatement et freine la décision d'achat." },
+      { q: "Combien de types de \"température\" de vente sont présentés dans le module 2 ?", options: ["2", "4", "5", "3"], correct: 3, explain: "Il existe 3 températures : le client froid (ne connaît pas la conseillère), tiède (la suit et interagit parfois) et chaud (engagé, prêt à passer à l'action). Chacun nécessite une approche différente." },
+      { q: "Un prospect qui ne connaît pas du tout la conseillère est un client...", options: ["Froid", "Tiède", "Chaud", "Fidèle"], correct: 0, explain: "Un client froid n'a aucune relation avec la conseillère. Il ne la connaît pas encore. La priorité n'est pas de vendre, mais de créer une connexion et une confiance." },
+      { q: "Quelle est la priorité avec un client froid ?", options: ["Conclure rapidement la vente", "La connexion", "Le closing immédiat", "Envoyer le catalogue complet"], correct: 1, explain: "Avec un client froid, la seule priorité est la connexion humaine. Vouloir vendre trop tôt à quelqu'un qui ne vous connaît pas est l'erreur la plus fréquente." },
+      { q: "Un client qui suit déjà la conseillère, regarde ses stories et interagit parfois est un client...", options: ["Froid", "Chaud", "Tiède", "Inactif"], correct: 2, explain: "Un client tiède suit la conseillère, regarde ses contenus et interagit de temps en temps. Il a besoin d'être rassuré et guidé vers la décision, pas poussé." },
+      { q: "Quelle approche est recommandée avec un client chaud ?", options: ["Créer la connexion", "Rassurer uniquement", "Ignorer ses questions", "Guider vers la décision"], correct: 3, explain: "Un client chaud est déjà engagé. Il n'a pas besoin qu'on recrée une connexion — il faut le guider vers la décision au bon moment, avec fluidité." },
+      { q: "Quelle erreur fréquente est décrite dans le module 2 ?", options: ["Traiter tout le monde de la même manière", "Trop parler technique", "Envoyer un catalogue direct", "Manquer d'énergie"], correct: 0, explain: "L'erreur classique est de traiter tout le monde de la même façon. Un message parfait pour un client chaud peut être catastrophique pour un client froid. L'adaptation est essentielle." },
+      { q: "Selon le module 3, pourquoi certaines personnes vendent-elles plus facilement ?", options: ["Parce qu'elles forcent plus", "Parce qu'elles attirent mieux", "Parce qu'elles baissent leurs prix", "Parce qu'elles ont plus de followers"], correct: 1, explain: "Les meilleures vendeuses n'insistent pas plus — elles attirent naturellement. Leur profil, leur énergie et leur contenu parlent avant elles. L'attraction remplace la prospection forcée." },
+      { q: "Qu'observe une cliente avant d'acheter, selon le module 3 ?", options: ["Uniquement le prix du produit", "Le nombre d'abonnés uniquement", "Le profil, l'énergie, le contenu et l'expertise", "La localisation de la conseillère"], correct: 2, explain: "Avant d'acheter, une cliente observe le profil de la conseillère, son énergie, son contenu et son expertise. La décision d'achat commence bien avant le premier message." },
+      { q: "Quels sont les 4 éléments qui attirent naturellement une cliente ?", options: ["Prix, promo, offre, réduction", "Followers, likes, commentaires, partages", "Vitesse, rapidité, disponibilité, flexibilité", "Image, expertise, confiance, connexion émotionnelle"], correct: 3, explain: "Les 4 éléments qui attirent sont : une belle image professionnelle, une expertise visible, la confiance qu'elle inspire et une connexion émotionnelle authentique. Pas les promotions." },
+      { q: "Que doit éviter le contenu publié pour ne pas lasser l'audience ?", options: ["Ne parler que de promos, prix et offres", "Ne parler que de témoignages", "Ne parler que d'astuces beauté", "Ne parler que de routines"], correct: 0, explain: "Publier uniquement des promos, des prix et des offres lasse l'audience et la fait décrocher. Le contenu doit alterner valeur, connexion humaine et proposition commerciale." },
+      { q: "Quel changement de posture est proposé dans le module 3 ?", options: ["Passer de conseillère à vendeuse", "Passer de chasse à attraction", "Passer d'experte à débutante", "Passer de discrète à envahissante"], correct: 1, explain: "Le module 3 propose de passer de la chasse (aller chercher les clients) à l'attraction (créer un profil et un contenu qui font venir les clients naturellement)." },
+      { q: "Quand commencent réellement les meilleures ventes, selon le module 3 ?", options: ["Après le premier message", "Après la première commande", "Avant même le premier message", "Après plusieurs relances"], correct: 2, explain: "Les meilleures ventes commencent avant même le premier message. Le profil, le contenu et l'énergie de la conseillère ont déjà convaincu la cliente avant tout échange direct." },
+      { q: "Pourquoi beaucoup de ventes échouent-elles selon le module 4 ?", options: ["Les prix sont trop élevés", "Les clientes n'ont pas confiance dans la marque", "Les produits sont indisponibles", "Le produit est proposé trop vite, sans analyse"], correct: 3, explain: "La majorité des ventes échouent parce que le produit est proposé trop vite, sans avoir analysé le besoin réel de la cliente. Comprendre avant de conseiller est fondamental." },
+      { q: "Quelle phrase résume la vraie mission avant de proposer un produit ?", options: ["Comprendre précède conseiller", "Vendre précède comprendre", "Conseiller précède écouter", "Écouter précède vendre à tout prix"], correct: 0, explain: "La vraie mission est de comprendre avant de conseiller. Cette séquence change tout : la cliente se sent écoutée, comprise et le conseil devient personnalisé et crédible." },
+      { q: "Combien de grands diagnostics sont proposés dans l'application de l'équipe ?", options: ["2", "4", "3", "5"], correct: 1, explain: "L'application propose 4 grands diagnostics beauté pour identifier précisément les besoins de chaque cliente et personnaliser les conseils produits de façon professionnelle." },
+      { q: "Que permet le diagnostic, selon le module 4 ?", options: ["Vendre plus cher", "Réduire le temps de discussion", "Comprendre le besoin réel et personnaliser les conseils", "Éviter de parler au client"], correct: 2, explain: "Le diagnostic permet de comprendre le besoin réel de la cliente et de personnaliser les conseils. Une cliente qui se sent comprise est bien plus encline à acheter et à revenir." },
+      { q: "Selon le module 4, il faut chercher...", options: ["Uniquement le symptôme visible", "Le prix le plus bas", "Le produit le plus vendu", "La cause, pas seulement le symptôme"], correct: 3, explain: "Il faut chercher la cause profonde, pas seulement le symptôme visible. Une cliente dit 'peau sèche' mais la vraie cause peut être le manque d'hydratation, le stress ou une routine inadaptée." },
+      { q: "Quel changement de posture est mis en avant dans le module 4 ?", options: ["Passer de vendeuse à consultante", "Passer de consultante à vendeuse", "Passer de cliente à conseillère", "Passer d'inconnue à cliente fidèle"], correct: 0, explain: "Le module 4 invite à passer de vendeuse à consultante beauté. Cette posture de consultante crée une relation de confiance durable et différencie de la concurrence." },
+      { q: "Quelle est l'erreur classique décrite dans le module 5 ?", options: ["Poser trop de questions", "Réciter une fiche produit", "Répondre trop vite", "Proposer trop d'options"], correct: 1, explain: "L'erreur classique est de réciter une fiche produit comme un catalogue. La cliente n'a pas besoin d'informations techniques — elle a besoin de savoir si le produit va l'aider, elle." },
+      { q: "Que veut vraiment savoir la cliente, selon le module 5 ?", options: ["La composition exacte du produit", "Le lieu de fabrication", "Si le produit va l'aider et est adapté à elle", "La date de sortie du produit"], correct: 2, explain: "La cliente veut une seule réponse : est-ce que ce produit va m'aider et est-il fait pour moi ? Tout le conseil doit répondre à cette question centrale." },
+      { q: "Quelle est la bonne structure en 4 étapes pour conseiller un produit ?", options: ["Parler du prix, donner une promo, insister, conclure", "Envoyer le catalogue, attendre, relancer, conclure", "Écouter, ignorer, proposer, forcer", "Rappeler le besoin, proposer la solution, expliquer les bénéfices, donner une projection résultat"], correct: 3, explain: "La structure en 4 étapes est : rappeler le besoin identifié, proposer la solution adaptée, expliquer les bénéfices concrets, et projeter la cliente dans le résultat attendu." },
+      { q: "Au lieu de dire \"contient de l'acide hyaluronique\", que faut-il dire selon le module 5 ?", options: ["Va aider ta peau à retrouver confort et rebond", "C'est un ingrédient chimique", "C'est très cher mais efficace", "C'est une formule secrète"], correct: 0, explain: "Au lieu d'un jargon technique, il faut parler bénéfices : 'va aider ta peau à retrouver confort et rebond'. La cliente comprend, se projette et ressent l'intérêt pour elle." },
+      { q: "Qu'est-ce qui augmente la valeur perçue, selon le module 5 ?", options: ["Le conseil générique", "Le conseil personnalisé", "La rapidité de la réponse", "Le nombre de produits proposés"], correct: 1, explain: "C'est le conseil personnalisé qui augmente la valeur perçue. Une cliente à qui on a pris le temps de comprendre ses besoins spécifiques valorise bien plus le produit recommandé." },
+      { q: "Que signifie l'idée que \"l'émotion vend plus que l'information\" ?", options: ["Il faut cacher les informations techniques", "Le prix est plus important que l'histoire", "Raconter une histoire capte mieux qu'un argument", "Il faut vendre sans jamais parler du produit"], correct: 2, explain: "L'émotion vend plus que l'information car raconter une histoire crée une projection chez la cliente. Une histoire bien racontée capte mieux qu'une liste d'arguments techniques." },
+      { q: "Que permettent les histoires, selon la neuroscience présentée dans le module 6 ?", options: ["Oublier rapidement le message", "Se méfier du produit", "Comparer les prix", "Rester attentif, se reconnaître, se projeter, ressentir"], correct: 3, explain: "La neuroscience confirme que les histoires permettent de rester attentif, de se reconnaître dans la situation, de se projeter dans le résultat et de ressentir des émotions réelles." },
+      { q: "Quelle est la définition du storyselling ?", options: ["Vendre à travers une histoire réelle", "Vendre directement un produit sans contexte", "Envoyer une story tous les jours", "Créer une story sponsorisée"], correct: 0, explain: "Le storyselling c'est l'art de vendre à travers une histoire réelle et authentique. Ce n'est pas une technique de manipulation — c'est une façon naturelle de créer de la connexion et du désir." },
+      { q: "Quelle est la méthode en 4 étapes du storyselling ?", options: ["Prix, Promo, Livraison, Merci", "Hook, Problème, Solution, Résultat + CTA", "Bonjour, Produit, Prix, Commande", "Introduction, Ingrédients, Actifs, Prix"], correct: 1, explain: "La méthode storyselling en 4 étapes : Hook (accrocher l'attention), Problème (créer l'identification), Solution (présenter le produit), Résultat + CTA (projection et invitation à agir)." },
+      { q: "Qu'est-ce qui casse l'impact d'une histoire, selon le module 6 ?", options: ["Prendre trop de temps pour raconter", "Utiliser trop d'émojis", "Aller trop vite au produit et manquer d'émotion", "Parler de sa propre expérience"], correct: 2, explain: "Ce qui casse l'impact est d'aller trop vite au produit sans laisser le temps à l'émotion de s'installer. L'histoire doit créer un lien émotionnel avant même que le produit soit mentionné." },
+      { q: "Que faut-il retenir à la fin du module 6 sur les gens et leurs achats ?", options: ["Ils achètent seulement un produit", "Ils achètent uniquement le prix le plus bas", "Ils achètent sans réfléchir", "Ils achètent une histoire, une émotion et une projection"], correct: 3, explain: "Les gens n'achètent jamais juste un produit. Ils achètent une histoire dans laquelle ils se reconnaissent, une émotion ressentie et une projection de ce qu'ils vont devenir ou ressentir." },
+      { q: "Quelle est l'erreur n°1 décrite dans le module 7 ?", options: ["Parler trop vite du produit sans écouter", "Trop parler technique", "Manquer de conviction", "Mettre de la pression"], correct: 0, explain: "L'erreur n°1 est de parler du produit sans avoir d'abord écouté la cliente. Cette erreur fait sentir à la cliente qu'on cherche à vendre, pas à l'aider." },
+      { q: "Que provoque l'envoi direct d'un catalogue complet à une cliente ?", options: ["Elle se sent rassurée", "Elle se sent perdue", "Elle achète immédiatement", "Elle partage le catalogue"], correct: 1, explain: "Envoyer un catalogue complet sans filtre laisse la cliente perdue face à trop d'informations. Elle ne sait pas quoi choisir et finit souvent par ne rien acheter du tout." },
+      { q: "Que faut-il privilégier au lieu de parler d'ingrédients et de termes complexes ?", options: ["Les prix, pas les bénéfices", "Les avis clients, pas les bénéfices", "Les bénéfices, pas le jargon", "Les promotions, pas le jargon"], correct: 2, explain: "Il faut toujours privilégier les bénéfices concrets au jargon technique. La cliente veut savoir ce que le produit va changer pour elle, pas sa composition chimique." },
+      { q: "Quel est l'effet de la pression sur une cliente, selon le module 7 ?", options: ["Elle achète plus vite", "Elle recommande la marque", "Elle demande plus de détails", "Elle se ferme"], correct: 3, explain: "La pression ferme la cliente. Quand elle se sent forcée ou bousculée, elle se ferme, perd confiance et peut même couper le contact définitivement." },
+      { q: "Que peut provoquer une réponse trop tardive à une cliente ?", options: ["Casser l'élan et refroidir l'intérêt", "Renforcer la confiance", "Créer plus de désir", "Accélérer la vente"], correct: 0, explain: "Une réponse trop tardive casse l'élan et refroidit l'intérêt. La cliente qui était enthousiaste peut avoir perdu sa motivation, trouvé une autre solution ou simplement oublié." },
+      { q: "Quelle erreur concerne le manque d'énergie et de conviction ?", options: ["La cliente ne le remarque jamais", "La cliente ressent l'hésitation et le manque d'assurance", "Cela n'a aucun impact sur la vente", "Cela rassure toujours la cliente"], correct: 1, explain: "La cliente ressent immédiatement l'hésitation et le manque d'assurance de la conseillère. Si tu ne crois pas toi-même en ton produit, personne d'autre ne le fera." },
+      { q: "Que faut-il éviter, selon l'erreur n°7 du module 7 ?", options: ["Personnaliser les messages", "Poser des questions", "Vouloir vendre à tout le monde", "Utiliser le storytelling"], correct: 2, explain: "L'erreur n°7 est de vouloir vendre à tout le monde. Tous les profils ne sont pas des clientes potentielles. Cibler les bonnes personnes est bien plus efficace que multiplier les tentatives." },
+      { q: "Quelle posture est recommandée pour éviter les erreurs et fidéliser ?", options: ["Rester vendeuse stricte", "Ignorer les besoins réels", "Se concentrer uniquement sur le closing", "Passer de vendeuse à accompagnante"], correct: 3, explain: "Pour éviter les erreurs et fidéliser, il faut passer de vendeuse à accompagnante. Cette posture crée une relation durable, des achats récurrents et des recommandations naturelles." },
+      { q: "Que signifie réellement \"closer\", selon le module 8 ?", options: ["Guider, clarifier, faciliter la décision", "Pousser, manipuler, insister", "Forcer la décision rapidement", "Répéter la même question plusieurs fois"], correct: 0, explain: "Closer ne signifie pas forcer. C'est guider, clarifier les derniers doutes et faciliter naturellement la décision d'achat. Un bon closing est presque invisible." },
+      { q: "Que ressent une cliente si on lui demande brutalement \"Alors, tu prends ?\"", options: ["De la confiance", "De la pression", "De l'enthousiasme", "De la gratitude"], correct: 1, explain: "Cette question brutale crée immédiatement de la pression. La cliente se sent acculée, ce qui génère souvent un recul ou un non par réflexe de protection." },
+      { q: "Une hésitation de la cliente signifie-t-elle automatiquement un refus ?", options: ["Oui, toujours", "Oui, il faut abandonner immédiatement", "Non, elle peut avoir besoin de temps, réflexion ou réassurance", "Non, il faut insister davantage"], correct: 2, explain: "Non, une hésitation n'est pas un refus. Elle peut signifier qu'elle a besoin de temps, d'une dernière réassurance ou d'une information qui lève un doute. Il faut explorer, pas abandonner." },
+      { q: "Sur quoi repose un bon closing, selon le module 8 ?", options: ["La rapidité, la pression, l'insistance", "Le prix bas et les promotions", "Le nombre de relances envoyées", "Le timing, l'écoute, la confiance, la fluidité"], correct: 3, explain: "Un bon closing repose sur 4 éléments : le bon timing (ni trop tôt ni trop tard), l'écoute active, la confiance établie tout au long de l'échange, et la fluidité naturelle de la conclusion." },
+      { q: "Quelles questions révèlent l'intention d'achat d'une cliente ?", options: ["\"Comment je commande ?\" / \"En combien de temps voit-on les résultats ?\"", "\"Quel temps fait-il ?\"", "\"Comment vas-tu ?\"", "\"Que penses-tu de mon profil ?\""], correct: 0, explain: "Les signaux d'achat sont des questions logistiques et pratiques : 'Comment je commande ?', 'C'est livré en combien de temps ?', 'En combien de temps voit-on les résultats ?'. Ces questions révèlent une décision déjà prise." },
+      { q: "Quelle est la méthode en 4 étapes pour une story efficace, selon le module 9 ?", options: ["Bonjour, Produit, Prix, Merci", "Hook, Problème, Solution, CTA", "Photo, Texte, Musique, Publication", "Intro, Ingrédients, Actifs, Prix"], correct: 1, explain: "La méthode story en 4 étapes : Hook (accrocher dès la première seconde), Problème (créer l'identification), Solution (présenter le produit ou conseil), CTA (inviter à agir : commenter, répondre, commander)." },
+      { q: "PIEGE — Quelle affirmation est FAUSSE selon la formation La Vente ?", options: ["Vendre c'est aider et résoudre un besoin", "Le client achète uniquement le produit physique", "L'énergie de la conseillère influence la décision d'achat", "Un non ne remet pas en cause la valeur personnelle"], correct: 1, explain: "FAUX : le client n'achète jamais uniquement un produit physique. Il achète une transformation, une émotion, une projection de résultat. Le produit n'est que le véhicule de cette transformation." },
+      { q: "PIEGE — Laquelle de ces phrases est correcte selon toute la formation ?", options: ["Il faut présenter le maximum de produits pour maximiser les chances de vente", "La pression est parfois nécessaire pour conclure une vente", "Le bon conseil personnalisé vaut mieux que le catalogue complet", "Plus on envoie d'informations, plus la cliente est convaincue"], correct: 2, explain: "Le conseil personnalisé et ciblé est toujours plus efficace que noyer la cliente sous des informations. Moins c'est souvent plus : une recommandation précise et adaptée convertit mieux." },
+      { q: "PIEGE FINAL — Quel est le fil conducteur de toute la formation La Vente ?", options: ["Apprendre les meilleures techniques de closing pour vendre vite", "Mémoriser tous les ingrédients et actifs des produits Mihi", "Passer du mode vendeuse au mode conseillère authentique qui aide, écoute et guide", "Comprendre le plan de compensation pour mieux le présenter"], correct: 2, explain: "Le fil conducteur de toute la formation est de passer du mode vendeuse au mode conseillère authentique : aider plutôt que vendre, écouter plutôt que parler, guider plutôt que pousser. La vente devient alors une conséquence naturelle du service rendu." }
+    ];
+
+    var currentIndex = 0; var score = 0; var answered = false;
+    var panel = document.createElement("div"); panel.id = "baa-quiz-panel";
+    panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;justify-content:center;align-items:flex-start;padding-top:40px;padding-bottom:40px;overflow-y:auto;";
+    var box = document.createElement("div");
+    box.style.cssText = "background:#f8f3ee;width:90%;max-width:600px;border-radius:20px;padding:30px;font-family:Arial,sans-serif;max-height:90vh;overflow-y:auto;";
+    box.innerHTML = "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'><h2 style='color:#8b735d;margin:0;'>Quiz — La Vente</h2><span id='close-quiz' style='cursor:pointer;font-size:28px;color:#8b735d;'>X</span></div><div style='color:#999;font-size:13px;margin-bottom:20px;'>Maitrise complète — 50 questions</div><div id='quiz-progress-container' style='margin-bottom:20px;'><div style='display:flex;justify-content:space-between;margin-bottom:6px;'><span id='quiz-progress-text' style='color:#8b735d;font-size:13px;font-weight:bold;'>Question 1 / 50</span><span id='quiz-score-text' style='color:#c9a86a;font-size:13px;font-weight:bold;'>Score : 0</span></div><div style='background:#f0e6d3;border-radius:20px;height:10px;overflow:hidden;'><div id='quiz-progress-barre' style='background:#c9a86a;height:100%;border-radius:20px;width:0%;transition:width 0.4s ease;'></div></div></div><div id='quiz-content'></div>";
+    panel.appendChild(box); document.body.appendChild(panel);
+    document.getElementById("close-quiz").onclick = function() { panel.remove(); if (typeof window.__baaOpenQuizPanel === "function") window.__baaOpenQuizPanel(); };
+
+    function renderQuestion() {
+      answered = false; var qData = questions[currentIndex];
+      document.getElementById("quiz-progress-text").innerText = "Question " + (currentIndex+1) + " / " + questions.length;
+      document.getElementById("quiz-score-text").innerText = "Score : " + score;
+      document.getElementById("quiz-progress-barre").style.width = Math.round((currentIndex/questions.length)*100) + "%";
+      var html = "<div style='background:white;border-radius:14px;padding:20px;border:1px solid #e8d4b0;margin-bottom:16px;'>";
+      html += "<div style='color:#3a3a3a;font-size:16px;font-weight:bold;margin-bottom:16px;line-height:1.4;'>" + qData.q + "</div>";
+      html += "<div id='quiz-options'>";
+      qData.options.forEach(function(opt, idx) {
+        html += "<div class='quiz-option' data-idx='" + idx + "' style='background:#f8f3ee;border:1px solid #e8d4b0;border-radius:10px;padding:12px 16px;margin-bottom:10px;cursor:pointer;color:#3a3a3a;font-size:14px;'>" + opt + "</div>";
+      });
+      html += "</div><div id='quiz-explain' style='display:none;margin-top:12px;padding:14px;border-radius:10px;font-size:13px;line-height:1.5;'></div></div>";
+      html += "<button id='quiz-next-btn' style='width:100%;background:#c9a86a;color:white;border:none;padding:14px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:15px;display:none;'>" + (currentIndex === questions.length-1 ? "Voir mon résultat" : "Question suivante") + "</button>";
+      document.getElementById("quiz-content").innerHTML = html;
+      document.querySelectorAll(".quiz-option").forEach(function(optEl) {
+        optEl.onclick = function() {
+          if (answered) return; answered = true;
+          var chosenIdx = parseInt(optEl.getAttribute("data-idx"));
+          document.querySelectorAll(".quiz-option").forEach(function(el) {
+            var idx = parseInt(el.getAttribute("data-idx"));
+            if (idx === qData.correct) { el.style.background="#e6f7ec"; el.style.border="1px solid #2ecc71"; el.style.color="#1e8449"; el.style.fontWeight="bold"; }
+            else if (idx === chosenIdx) { el.style.background="#fdecec"; el.style.border="1px solid #e74c3c"; el.style.color="#c0392b"; }
+            el.style.cursor="default";
+          });
+          var explainBox = document.getElementById("quiz-explain");
+          if (chosenIdx === qData.correct) { score++; document.getElementById("quiz-score-text").innerText = "Score : " + score; explainBox.style.background="#e6f7ec"; explainBox.style.color="#1e8449"; explainBox.innerHTML = "<strong>Bonne réponse !</strong> " + qData.explain; }
+          else { explainBox.style.background="#fdecec"; explainBox.style.color="#c0392b"; explainBox.innerHTML = "<strong>Pas tout à fait.</strong> " + qData.explain; }
+          explainBox.style.display="block";
+          document.getElementById("quiz-next-btn").style.display="block";
+        };
+      });
+      document.getElementById("quiz-next-btn").onclick = function() { currentIndex++; if (currentIndex >= questions.length) renderResult(); else renderQuestion(); };
     }
-    document.getElementById("recommencer-quiz").onclick = function() { currentQ=0; score=0; afficherQuestion(); };
+
+    function renderResult() {
+      document.getElementById("quiz-progress-barre").style.width = "100%";
+      document.getElementById("quiz-progress-text").innerText = "Quiz terminé !";
+      document.getElementById("quiz-score-text").innerText = "Score : " + score + " / " + questions.length;
+      var pctFinal = Math.round((score/questions.length)*100);
+      var message = pctFinal === 100 ? "Parfait ! Maîtrise totale de la formation La Vente !" : pctFinal >= 80 ? "Excellent ! Tu maîtrises très bien les fondamentaux de la vente." : pctFinal >= 60 ? "Bien joué ! Quelques points à consolider avant de passer à l'action." : "N'hésite pas à relire les modules pour bien ancrer les bases.";
+      var couleur = pctFinal >= 80 ? "#2ecc71" : pctFinal >= 60 ? "#c9a86a" : "#f39c12";
+      var html = "<div style='text-align:center;background:white;border-radius:14px;padding:30px 20px;border:1px solid #e8d4b0;'>";
+      html += "<div style='font-size:48px;margin-bottom:12px;'>" + (pctFinal >= 80 ? "🎉" : pctFinal >= 60 ? "👏" : "💪") + "</div>";
+      html += "<div style='font-size:32px;font-weight:bold;color:" + couleur + ";margin-bottom:8px;'>" + score + " / " + questions.length + "</div>";
+      html += "<div style='color:#8b735d;font-size:15px;margin-bottom:20px;'>" + message + "</div>";
+      html += "<button id='quiz-restart-btn' style='background:#c9a86a;color:white;border:none;padding:12px 24px;border-radius:10px;cursor:pointer;font-weight:bold;font-size:14px;'>Recommencer le quiz</button></div>";
+      document.getElementById("quiz-content").innerHTML = html;
+      document.getElementById("quiz-restart-btn").onclick = function() { currentIndex=0; score=0; renderQuestion(); };
+      if (uid) {
+        var updateData = { quizModule8Score: score, quizModule8Total: questions.length, quizModule8Date: new Date().toISOString() };
+        if (pctFinal >= 80) updateData.quizModule8Complete = true; else updateData.quizModule8Complete = false;
+        db.collection("users").doc(uid).update(updateData).catch(function(e) { console.log("Erreur sauvegarde quiz:", e); });
+        if (pctFinal >= 80 && typeof window.ajouterPointsBadge === "function") window.ajouterPointsBadge(20);
+      }
+    }
+    renderQuestion();
   }
-  afficherQuestion();
 }
