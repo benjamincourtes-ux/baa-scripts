@@ -18,7 +18,7 @@ function openCreateurVisuels() {
     photo: null
   };
 
-  var FONTS = ["Arial","Georgia","Verdana","Trebuchet MS","Courier New","Impact","Comic Sans MS"];
+  var FONTS = ["Arial","Georgia","Verdana","Trebuchet MS","Courier New","Impact","Comic Sans MS","Palatino","Garamond","Bookman","Tahoma","Arial Narrow","Century Gothic","Lucida Sans","Times New Roman"];
   var COLORS_BG = ["#ffffff","#0f0f0f","#f8f3ee","#26215C","#D4537E","#27AE60","#D85A30","#2980B9","#f5d48a","#E8D5FF","#FFE0E0","#D5F5E3","#FDEBD0","#1a1208","#993556","#4B1528"];
   var COLORS_TEXT = ["#ffffff","#000000","#c9a86a","#f5d48a","#D4537E","#26215C","#D85A30","#27AE60","#2980B9","#ff6b6b","#333333","#888888","#3d1f05","#1a8a4a"];
   var GRADIENTS = [
@@ -335,7 +335,13 @@ function openCreateurVisuels() {
     var el = state.selected !== null ? state.elements.find(function(e) { return e.id === state.selected; }) : null;
     if (el) {
       var elText = document.getElementById("el-text");
-      if (elText) elText.oninput = function() { el.text = elText.value; render(); };
+      if (elText) {
+        elText.oninput = function() { el.text = elText.value; };
+        elText.onblur = function() { el.text = elText.value; render(); };
+        elText.onmousedown = function(e) { e.stopPropagation(); };
+        elText.onclick = function(e) { e.stopPropagation(); };
+        setTimeout(function() { if (document.getElementById("el-text")) document.getElementById("el-text").focus(); }, 50);
+      }
 
       var elSize = document.getElementById("el-size");
       if (elSize) elSize.oninput = function() { el.fontSize = parseInt(elSize.value); render(); };
@@ -351,13 +357,15 @@ function openCreateurVisuels() {
 
       var elFront = document.getElementById("el-front");
       if (elFront) elFront.onclick = function() {
-        var idx = state.elements.findIndex(function(e) { return e.id === el.id; });
+        var selId = state.selected;
+        var idx = state.elements.findIndex(function(e) { return e.id === selId; });
         if (idx < state.elements.length - 1) { var tmp = state.elements[idx+1]; state.elements[idx+1] = state.elements[idx]; state.elements[idx] = tmp; render(); }
       };
 
       var elBack = document.getElementById("el-back");
       if (elBack) elBack.onclick = function() {
-        var idx = state.elements.findIndex(function(e) { return e.id === el.id; });
+        var selId = state.selected;
+        var idx = state.elements.findIndex(function(e) { return e.id === selId; });
         if (idx > 0) { var tmp = state.elements[idx-1]; state.elements[idx-1] = state.elements[idx]; state.elements[idx] = tmp; render(); }
       };
 
