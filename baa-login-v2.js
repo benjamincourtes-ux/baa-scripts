@@ -5,6 +5,26 @@ function initBeautyAddictLogin() {
   // Couleur du jour désactivée
 
   console.log("BAA Login init...");
+
+  // Son de validation
+  window.baaPlaySuccess = function() {
+    try {
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      var notes = [523, 659, 784, 1047]; // Do Mi Sol Do
+      notes.forEach(function(freq, i) {
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.value = freq;
+        osc.type = "sine";
+        gain.gain.setValueAtTime(0, ctx.currentTime + i*0.12);
+        gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + i*0.12 + 0.05);
+        gain.gain.linearRampToValueAtTime(0, ctx.currentTime + i*0.12 + 0.2);
+        osc.start(ctx.currentTime + i*0.12);
+        osc.stop(ctx.currentTime + i*0.12 + 0.2);
+      });
+    } catch(e) {}
+  };
   if (!window.firebase) { console.log("Firebase absent"); window.__baaLoginInitialized = false; return; }
   if (!firebase.apps || firebase.apps.length === 0) {
     firebase.initializeApp({ apiKey: "AIzaSyC94wzVrEtrqxhshdFsRHR7HiL5wJEkYG0", authDomain: "beauty-addict-academy.firebaseapp.com", projectId: "beauty-addict-academy", storageBucket: "beauty-addict-academy.firebasestorage.app", messagingSenderId: "311669980538", appId: "1:311669980538:web:eaf8a95e987473c6412ac3" });
