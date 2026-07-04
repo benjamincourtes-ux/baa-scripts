@@ -269,6 +269,22 @@ function openCreateurVisuels() {
         chLabel.textContent="Changer la photo"; propDiv.appendChild(chLabel);
 
       } else if (selEl.type==="line"||selEl.type==="rect") {
+        if (selEl.type==="rect") {
+          var shapeTypeDiv = document.createElement("div"); shapeTypeDiv.style.cssText="display:flex;gap:6px;margin-bottom:8px;";
+          [["Carré",0],["Arrondi",12],["Rond",50]].forEach(function(r) {
+            var rb = document.createElement("button");
+            rb.textContent=r[0]; rb.style.cssText="flex:1;background:"+(selEl.radius===r[1]?"#c9a86a":"rgba(255,255,255,0.08)")+";color:"+(selEl.radius===r[1]?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:5px;border-radius:6px;cursor:pointer;font-size:10px;touch-action:manipulation;";
+            rb.onclick=function(e){e.stopPropagation();var s=state.elements.find(function(x){return x.id===state.selected;});if(s){s.radius=r[1];renderCanvasOnly();}};
+            shapeTypeDiv.appendChild(rb);
+          });
+          propDiv.appendChild(shapeTypeDiv);
+          var opLabel = document.createElement("p"); opLabel.style.cssText="color:rgba(255,255,255,0.4);font-size:10px;margin:0 0 4px;"; opLabel.textContent="Opacité"; propDiv.appendChild(opLabel);
+          var opSlider = document.createElement("input"); opSlider.type="range"; opSlider.min=10; opSlider.max=100; opSlider.value=Math.round((selEl.opacity||1)*100);
+          opSlider.style.cssText="width:100%;margin-bottom:8px;";
+          opSlider.oninput=function(){var s=state.elements.find(function(x){return x.id===state.selected;});if(s){s.opacity=parseInt(opSlider.value)/100;renderCanvasOnly();}};
+          opSlider.onclick=function(e){e.stopPropagation();};
+          propDiv.appendChild(opSlider);
+        }
         var cLabel2 = document.createElement("p"); cLabel2.style.cssText="color:rgba(255,255,255,0.4);font-size:10px;margin:0 0 4px;"; cLabel2.textContent="Couleur"; propDiv.appendChild(cLabel2);
         var cDiv2 = document.createElement("div"); cDiv2.style.cssText="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;";
         COLORS_TEXT.forEach(function(c) {
@@ -344,6 +360,7 @@ function openCreateurVisuels() {
         img.src=el.photoUrl; img.style.cssText="width:"+(el.w*cW/100)+"px;height:"+(el.h*cH/100)+"px;object-fit:cover;display:block;border-radius:"+(el.rounded?50:0)+"%;pointer-events:none;";
         div.appendChild(img);
       } else if (el.type==="line") {
+        div.style.paddingTop="10px"; div.style.paddingBottom="10px"; div.style.marginTop="-10px";
         var line = document.createElement("div"); line.style.cssText="width:"+(el.w*cW/100)+"px;height:3px;background:"+el.color+";border-radius:2px;pointer-events:none;"; div.appendChild(line);
       } else if (el.type==="rect") {
         var rect = document.createElement("div"); rect.style.cssText="width:"+(el.w*cW/100)+"px;height:"+(el.h*cH/100)+"px;background:"+el.color+";border-radius:"+el.radius+"px;opacity:"+el.opacity+";pointer-events:none;"; div.appendChild(rect);
