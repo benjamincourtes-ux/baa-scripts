@@ -111,6 +111,18 @@ function openCreateurVisuels() {
       return d;
     }
 
+    section("FORMAT");
+    var formatDiv = document.createElement("div");
+    formatDiv.style.cssText = "display:flex;gap:6px;margin-bottom:14px;";
+    [["square","Carré"],["story","Story"],["landscape","Large"]].forEach(function(f) {
+      var b = document.createElement("button");
+      b.textContent = f[1];
+      b.style.cssText = "flex:1;background:"+(state.format===f[0]?"#c9a86a":"rgba(255,255,255,0.08)")+";color:"+(state.format===f[0]?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:7px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:bold;touch-action:manipulation;";
+      b.onclick = function(e) { e.stopPropagation(); state.format=f[0]; fullRender(); };
+      formatDiv.appendChild(b);
+    });
+    container.appendChild(formatDiv);
+
     section("AJOUTER");
     var grid = document.createElement("div");
     grid.style.cssText = "display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;";
