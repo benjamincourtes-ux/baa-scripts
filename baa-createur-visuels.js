@@ -326,7 +326,8 @@ function openCreateurVisuels() {
 
     state.elements.forEach(function(el) {
       var div = document.createElement("div");
-      div.style.cssText = "position:absolute;left:"+(el.x/100*cW)+"px;top:"+(el.y/100*cH)+"px;cursor:move;user-select:none;touch-action:none;"+(state.selected===el.id?"outline:2px dashed #c9a86a;outline-offset:3px;":"");
+      var transformTxt = el.type==="text" ? "transform:translateX(-50%);" : "";
+      div.style.cssText = "position:absolute;left:"+(el.x/100*cW)+"px;top:"+(el.y/100*cH)+"px;cursor:move;user-select:none;touch-action:none;"+transformTxt+(state.selected===el.id?"outline:2px dashed #c9a86a;outline-offset:3px;":"");
 
       if (el.type==="text") {
         var span = document.createElement("span");
