@@ -76,9 +76,19 @@ function openQuizModule8() {
       btn.innerText = ["A","B","C","D"][i] + ". " + opt;
       btn.onclick = function() {
         if (answered) return; answered = true;
-        if (i === q.correct) { score++; btn.style.background="#d5f5e3"; btn.style.borderColor="#2ecc71"; btn.style.color="#1a8a4a"; }
-        else { btn.style.background="#fadbd8"; btn.style.borderColor="#e74c3c"; btn.style.color="#c0392b"; opts.querySelectorAll("button")[q.correct].style.background="#d5f5e3"; opts.querySelectorAll("button")[q.correct].style.borderColor="#2ecc71"; }
-        setTimeout(function() { currentQ++; if (currentQ < questions.length) afficherQuestion(); else afficherResultat(); }, 800);
+        var allBtns = opts.querySelectorAll("button");
+        allBtns.forEach(function(b) { b.style.pointerEvents = "none"; });
+        if (i === q.correct) {
+          score++;
+          btn.style.background="#d5f5e3"; btn.style.borderColor="#2ecc71"; btn.style.color="#1a8a4a";
+          btn.innerHTML = ["A","B","C","D"][i] + ". " + opt + " <span style='float:right;'>✅</span>";
+        } else {
+          btn.style.background="#fadbd8"; btn.style.borderColor="#e74c3c"; btn.style.color="#c0392b";
+          btn.innerHTML = ["A","B","C","D"][i] + ". " + opt + " <span style='float:right;'>❌</span>";
+          allBtns[q.correct].style.background="#d5f5e3"; allBtns[q.correct].style.borderColor="#2ecc71"; allBtns[q.correct].style.color="#1a8a4a";
+          allBtns[q.correct].innerHTML = ["A","B","C","D"][q.correct] + ". " + q.options[q.correct] + " <span style='float:right;'>✅</span>";
+        }
+        setTimeout(function() { currentQ++; if (currentQ < questions.length) afficherQuestion(); else afficherResultat(); }, 1500);
       };
       opts.appendChild(btn);
     });
