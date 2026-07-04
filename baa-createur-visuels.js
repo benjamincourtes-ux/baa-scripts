@@ -337,6 +337,7 @@ function openCreateurVisuels() {
         div.appendChild(delBtn);
 
         var resizeHandle = document.createElement("div");
+        resizeHandle.setAttribute("data-resize","1");
         resizeHandle.style.cssText="position:absolute;right:-6px;bottom:-6px;width:16px;height:16px;background:#c9a86a;border-radius:50%;cursor:se-resize;z-index:10;touch-action:none;";
         div.appendChild(resizeHandle);
 
@@ -357,7 +358,7 @@ function openCreateurVisuels() {
 
       function startDrag(e) {
         var tgt = e.target;
-        if (tgt.tagName === "BUTTON" || tgt.style.cursor === "se-resize" || tgt.style.background === "#e74c3c") return;
+        if (tgt.getAttribute("data-resize") || tgt.tagName === "BUTTON" || tgt.style.background === "#e74c3c") return;
         if (state.selected!==el.id){state.selected=el.id;fullRender();return;}
         e.stopPropagation(); e.preventDefault();
         var startX=e.clientX||(e.touches&&e.touches[0].clientX)||0;
