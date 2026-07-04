@@ -12,10 +12,13 @@
     { id: "organisation", nom: "Organisation & Gestion du Temps", titre: "Formation — Organisation & Gestion du Temps" }
   ];
 
+  var dernierTitre = "";
+  var dejaAjoute = false;
+
   function getFormationCourante() {
-    var titre = document.title.trim().toLowerCase();
+    var titre = document.title.trim();
     for (var i = 0; i < FORMATIONS.length; i++) {
-      if (titre === FORMATIONS[i].titre.toLowerCase()) return FORMATIONS[i];
+      if (titre === FORMATIONS[i].titre) return FORMATIONS[i];
     }
     return null;
   }
@@ -31,27 +34,6 @@
     btn.id = "baa-formation-btn";
     btn.style.cssText = "background:linear-gradient(135deg,#c9a86a,#f5d48a);color:#1a0a00;border:none;padding:14px 28px;border-radius:25px;cursor:pointer;font-family:Arial,sans-serif;font-size:14px;font-weight:bold;box-shadow:0 4px 16px rgba(201,168,106,0.4);";
     btn.innerText = "✅ J'ai lu cette formation";
-
-    btn.onclick = function() {
-      var auth = firebase.auth();
-      var db = firebase.firestore();
-      var uid = auth.currentUser ? auth.currentUser.uid : null;
-      if (!uid) { alert("Tu dois être connectée pour valider ta lecture."); return; }
-
-      var updateData = {};
-      updateData["formation_" + formation.id + "_lu"] = true;
-      updateData["formation_" + formation.id + "_date"] = new Date().toISOString();
-
-      db.collection("users").doc(uid).update(updateData).then(function() {
-        btn.innerText = "🎉 Formation validée !";
-        btn.style.background = "linear-gradient(135deg,#27AE60,#2ecc71)";
-        btn.style.color = "white";
-        btn.disabled = true;
-        if (typeof window.ajouterPointsBadge === "function") window.ajouterPointsBadge(10);
-        setTimeout(function() { wrap.style.opacity = "0"; wrap.style.transition = "opacity 0.5s"; setTimeout(function() { wrap.remove(); }, 500); }, 2000);
-      }).catch(function(e) { console.log("Erreur tracking formation:", e); });
-    };
-
     wrap.appendChild(btn);
     document.body.appendChild(wrap);
 
@@ -68,44 +50,34 @@
         }
       });
     });
+
+    btn.onclick = function() {
+      var user = firebase.auth().currentUser;
+      if (!user) { alert("Tu dois être connectée pour valider ta lecture."); return; }
+      var updateData = {};
+      updateData["formation_" + formation.id + "_lu"] = true;
+      updateData["formation_" + formation.id + "_date"] = new Date().toISOString();
+      firebase.firestore().collection("users").doc(user.uid).update(updateData).then(function() {
+        btn.innerText = "🎉 Formation validée ! +10 points";
+        btn.style.background = "linear-gradient(135deg,#27AE60,#2ecc71)";
+        btn.style.color = "white";
+        btn.disabled = true;
+        if (typeof window.ajouterPointsBadge === "function") window.ajouterPointsBadge(10);
+        setTimeout(function() { wrap.style.opacity = "0"; wrap.style.transition = "opacity 0.5s"; setTimeout(function() { wrap.remove(); }, 500); }, 2500);
+      }).catch(function(e) { console.log("Erreur tracking formation:", e); });
+    };
   }
 
-  // Attendre que la page soit chargée
-  function init() {
-    // Vérifier le titre courant
+  // Vérifier toutes les secondes
+  var intervalCheck = setInterval(function() {
+    if (typeof firebase === "undefined" || !firebase.auth) return;
+    var titre = document.title.trim();
+    if (titre === dernierTitre) return;
+    dernierTitre = titre;
+    // Titre a changé — retirer l'ancien bouton si présent
+    var ancien = document.getElementById("baa-formation-btn-wrap");
+    if (ancien) ancien.remove();
     var formation = getFormationCourante();
-    if (formation) {
-      var check = setInterval(function() {
-        if (typeof firebase !== "undefined" && firebase.auth) {
-          clearInterval(check);
-          ajouterBouton(formation);
-        }
-      }, 500);
-    }
-
-    // Observer les changements de titre (SPA)
-    var titleEl = document.querySelector("title");
-    if (titleEl) {
-      var observer = new MutationObserver(function() {
-        var btn = document.getElementById("baa-formation-btn-wrap");
-        if (btn) btn.remove();
-        var f = getFormationCourante();
-        if (f) {
-          var check2 = setInterval(function() {
-            if (typeof firebase !== "undefined" && firebase.auth) {
-              clearInterval(check2);
-              ajouterBouton(f);
-            }
-          }, 500);
-        }
-      });
-      observer.observe(titleEl, { childList: true });
-    }
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    setTimeout(init, 1000);
-  }
+    if (formation) ajouterBouton(formation);
+  }, 1000);
 })();
