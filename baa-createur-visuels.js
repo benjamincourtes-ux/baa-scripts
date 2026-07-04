@@ -169,11 +169,11 @@ function openCreateurVisuels() {
         var dataUrl = c.toDataURL("image/png");
         if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
           var img = new Image(); img.src = dataUrl;
-          var newTab = window.open("about:blank","_blank");
-          if (newTab) {
-            newTab.document.write("<html><head><title>Visuel</title></head><body style='margin:0;background:#111;text-align:center;padding:20px;'><img src='"+dataUrl+"' style='max-width:100%;border-radius:8px;' /><br><p style='color:white;font-family:Arial;font-size:16px;margin-top:16px;'>Appuie longuement sur l image puis Enregistrer</p></body></html>");
-            newTab.document.close();
-          }
+          // Afficher l'image dans un overlay dans la même page
+          var dlOverlay = document.createElement("div");
+          dlOverlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9999999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;";
+          dlOverlay.innerHTML = "<p style='color:#f5d48a;font-family:Arial;font-size:15px;text-align:center;margin-bottom:16px;'>Appuie longuement sur l image puis Enregistrer 📲</p><img src='"+dataUrl+"' style='max-width:100%;max-height:70vh;border-radius:8px;' /><button ontouchend='this.parentNode.remove()' onclick='this.parentNode.remove()' style='margin-top:20px;background:#c9a86a;color:#1a1208;border:none;padding:12px 28px;border-radius:20px;font-size:15px;font-weight:bold;cursor:pointer;'>Fermer</button>";
+          document.body.appendChild(dlOverlay);
         } else {
           var link = document.createElement("a"); link.download="visuel-beauty-addict.png"; link.href=dataUrl; link.click();
         }
@@ -236,8 +236,8 @@ function openCreateurVisuels() {
         html += "<div style='width:"+(el.w*cW/100)+"px;height:"+(el.h*cH/100)+"px;background:"+el.color+";border-radius:"+el.radius+"px;opacity:"+el.opacity+";pointer-events:none;'></div>";
       }
       if (sel) {
-        html += "<div onclick='event.stopPropagation();window.__cvDelEl("+el.id+")' ontouchstart='event.preventDefault();event.stopPropagation();window.__cvDelEl("+el.id+")' style='position:absolute;top:-16px;right:-16px;width:32px;height:32px;background:#e74c3c;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white;font-size:18px;font-weight:bold;z-index:10;line-height:1;touch-action:manipulation;'>×</div>";
-        html += "<div data-resize-id='"+el.id+"' style='position:absolute;right:-12px;bottom:-12px;width:28px;height:28px;background:#c9a86a;border-radius:50%;cursor:se-resize;z-index:10;touch-action:none;'></div>";
+        html += "<div onclick='event.stopPropagation();window.__cvDelEl("+el.id+")' ontouchend='event.preventDefault();event.stopPropagation();window.__cvDelEl("+el.id+")' style='position:absolute;top:-10px;right:-10px;width:20px;height:20px;background:#e74c3c;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white;font-size:14px;font-weight:bold;z-index:10;line-height:1;'>×</div>";
+        html += "<div data-resize-id='"+el.id+"' style='position:absolute;right:-6px;bottom:-6px;width:14px;height:14px;background:#c9a86a;border-radius:50%;cursor:se-resize;z-index:10;'></div>";
       }
       html += "</div>";
     });
@@ -248,7 +248,8 @@ function openCreateurVisuels() {
     canvasDiv.querySelectorAll(".cv-el-div").forEach(function(div) {
       var elId = parseInt(div.getAttribute("data-id"));
       function startDrag(e) {
-        if (e.target.getAttribute("data-resize-id") || e.target.style.background==="#e74c3c") return;
+        var tgt = e.target;
+        if (tgt.getAttribute("data-resize-id") || tgt.style.background==="#e74c3c" || tgt.getAttribute("ontouchend")) return;
         if (state.selected !== elId) return;
         e.stopPropagation(); e.preventDefault();
         var el = state.elements.find(function(x){return x.id===elId;});
@@ -386,6 +387,47 @@ function openCreateurVisuels() {
       var ta = document.getElementById("cv-el-text");
       if (ta) { setTimeout(function() { if(document.getElementById("cv-el-text")) document.getElementById("cv-el-text").focus(); }, 50); }
     }
+
+    // TOUCH EVENTS pour mobile - attachés en JS pur après render
+    setTimeout(function() { attachMobileEvents(); }, 10);
+  }
+
+  function attachMobileEvents() {
+    function addTouch(el, fn) {
+      if (!el) return;
+      el.addEventListener("touchend", function(e) { e.preventDefault(); e.stopPropagation(); fn(); }, {passive:false});
+    }
+
+    // Boutons AJOUTER
+    var btns = sidebar.querySelectorAll("button");
+    btns.forEach(function(btn) {
+      btn.addEventListener("touchend", function(e) { e.preventDefault(); btn.click(); }, {passive:false});
+    });
+
+    // Couleurs fond et texte
+    sidebar.querySelectorAll("div[onclick]").forEach(function(div) {
+      var fn = div.getAttribute("onclick");
+      if (fn) div.addEventListener("touchend", function(e) { e.preventDefault(); e.stopPropagation(); eval(fn); }, {passive:false});
+    });
+
+    // Croix delete et resize dans canvas
+    canvasDiv.querySelectorAll("[ontouchend]").forEach(function(el) {
+      var fn = el.getAttribute("ontouchend");
+      el.removeAttribute("ontouchend");
+      el.addEventListener("touchend", function(e) { e.preventDefault(); e.stopPropagation(); eval(fn); }, {passive:false});
+    });
+
+    // Bouton télécharger
+    var dlBtn = topbar.querySelector("button");
+    if (dlBtn) addTouch(dlBtn, window.__cvDownload);
+
+    // Bouton fermer
+    var closeBtn = topbar.querySelectorAll("button")[1];
+    if (closeBtn) addTouch(closeBtn, window.__cvClose);
+
+    // Photo input
+    var photoBtn = sidebar.querySelector("button[onclick*='cv-file-input']");
+    if (photoBtn) addTouch(photoBtn, function() { document.getElementById("cv-file-input").click(); });
   }
 
   updateTopbar();
