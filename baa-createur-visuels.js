@@ -376,10 +376,20 @@ function openCreateurVisuels() {
 
   var lastScrollTop = 0;
 
+  function saveScroll() {
+    var el = document.getElementById("baa-mobile-bottom");
+    if (el) lastScrollTop = el.scrollTop;
+  }
+
+  function restoreScroll() {
+    setTimeout(function() {
+      var el = document.getElementById("baa-mobile-bottom");
+      if (el) el.scrollTop = lastScrollTop;
+    }, 0);
+  }
+
   function fullRender() {
-    // Sauvegarder scroll avant de recréer
-    var bottomBarOld = panel.querySelector("div:last-child");
-    if (bottomBarOld) lastScrollTop = bottomBarOld.scrollTop;
+    saveScroll();
     panel.innerHTML="";
     panel.appendChild(fileInput);
     var isMobile = window.innerWidth < 768;
@@ -406,11 +416,11 @@ function openCreateurVisuels() {
 
       // SIDEBAR EN BAS — scrollable horizontalement
       var bottomBar = document.createElement("div");
+      bottomBar.id = "baa-mobile-bottom";
       bottomBar.style.cssText = "flex:1;background:#140e04;overflow-y:auto;padding:12px;border-top:1px solid rgba(201,168,106,0.2);";
       buildSidebarContent(bottomBar);
       panel.appendChild(bottomBar);
-      // Restaurer scroll
-      if (lastScrollTop > 0) setTimeout(function() { bottomBar.scrollTop = lastScrollTop; }, 0);
+      restoreScroll();
 
     } else {
       // LAYOUT DESKTOP
