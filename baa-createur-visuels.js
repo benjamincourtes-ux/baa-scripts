@@ -344,30 +344,25 @@ function openCreateurVisuels() {
       }
 
       var elSize = document.getElementById("el-size");
-      if (elSize) elSize.oninput = function() { el.fontSize = parseInt(elSize.value); render(); };
+      if (elSize) { elSize.onmousedown=function(e){e.stopPropagation();}; elSize.oninput = function(e) { e.stopPropagation(); var selId=state.selected; var selEl=state.elements.find(function(x){return x.id===selId;}); if(selEl){selEl.fontSize=parseInt(elSize.value);} render(); }; }
 
       var elFont = document.getElementById("el-font");
-      if (elFont) elFont.onchange = function() { el.fontFamily = elFont.value; render(); };
+      if (elFont) {
+        elFont.onmousedown = function(e) { e.stopPropagation(); };
+        elFont.onchange = function(e) { e.stopPropagation(); var selId = state.selected; var selEl = state.elements.find(function(x){return x.id===selId;}); if(selEl){selEl.fontFamily=elFont.value;} render(); };
+      }
 
       var elBold = document.getElementById("el-bold");
-      if (elBold) elBold.onclick = function() { el.bold = !el.bold; render(); };
+      if (elBold) { elBold.onmousedown = function(e){e.preventDefault();e.stopPropagation();}; elBold.onclick = function(e) { e.preventDefault(); e.stopPropagation(); var selId=state.selected; var selEl=state.elements.find(function(x){return x.id===selId;}); if(selEl){selEl.bold=!selEl.bold;} render(); }; }
 
       var elItalic = document.getElementById("el-italic");
-      if (elItalic) elItalic.onclick = function() { el.italic = !el.italic; render(); };
+      if (elItalic) { elItalic.onmousedown = function(e){e.preventDefault();e.stopPropagation();}; elItalic.onclick = function(e) { e.preventDefault(); e.stopPropagation(); var selId=state.selected; var selEl=state.elements.find(function(x){return x.id===selId;}); if(selEl){selEl.italic=!selEl.italic;} render(); }; }
 
       var elFront = document.getElementById("el-front");
-      if (elFront) elFront.onclick = function() {
-        var selId = state.selected;
-        var idx = state.elements.findIndex(function(e) { return e.id === selId; });
-        if (idx < state.elements.length - 1) { var tmp = state.elements[idx+1]; state.elements[idx+1] = state.elements[idx]; state.elements[idx] = tmp; render(); }
-      };
+      if (elFront) { elFront.onmousedown=function(e){e.preventDefault();e.stopPropagation();}; elFront.onclick = function(e) { e.preventDefault(); e.stopPropagation(); var selId = state.selected; var idx = state.elements.findIndex(function(x) { return x.id === selId; }); if (idx < state.elements.length - 1) { var tmp = state.elements[idx+1]; state.elements[idx+1] = state.elements[idx]; state.elements[idx] = tmp; render(); } }; }
 
       var elBack = document.getElementById("el-back");
-      if (elBack) elBack.onclick = function() {
-        var selId = state.selected;
-        var idx = state.elements.findIndex(function(e) { return e.id === selId; });
-        if (idx > 0) { var tmp = state.elements[idx-1]; state.elements[idx-1] = state.elements[idx]; state.elements[idx] = tmp; render(); }
-      };
+      if (elBack) { elBack.onmousedown=function(e){e.preventDefault();e.stopPropagation();}; elBack.onclick = function(e) { e.preventDefault(); e.stopPropagation(); var selId = state.selected; var idx = state.elements.findIndex(function(x) { return x.id === selId; }); if (idx > 0) { var tmp = state.elements[idx-1]; state.elements[idx-1] = state.elements[idx]; state.elements[idx] = tmp; render(); } }; }
 
       var elRectPhoto = document.getElementById("el-rect-photo");
       if (elRectPhoto) elRectPhoto.onclick = function() { el.rounded = false; render(); };
@@ -380,7 +375,8 @@ function openCreateurVisuels() {
 
       // Couleur texte/rect
       panel.querySelectorAll(".text-color-btn").forEach(function(btn) {
-        btn.onclick = function() { el.color = btn.getAttribute("data-color"); render(); };
+        btn.onmousedown = function(e) { e.preventDefault(); e.stopPropagation(); };
+        btn.onclick = function(e) { e.preventDefault(); e.stopPropagation(); var selId = state.selected; var selEl = state.elements.find(function(x){return x.id===selId;}); if(selEl){selEl.color=btn.getAttribute("data-color");} render(); };
       });
     }
 
