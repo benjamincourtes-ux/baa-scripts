@@ -377,7 +377,7 @@ function initBeautyAddictLogin() {
           function calcPts(d) {
             var pts = d.badgePoints || 0;
             if (!d.badgePoints) {
-              var quizFields = ["quizBonDemarrageComplete","quizModule2Complete","quizModule3Complete","quizModule4Complete","quizModule5Complete","quizModule6Complete","quizModule7Complete"];
+            var quizFields = ["quizBonDemarrageComplete","quizModule2Complete","quizModule3Complete","quizModule4Complete","quizModule5Complete","quizModule6Complete","quizModule7Complete","quizModule8Complete"];
               quizFields.forEach(function(f) { if (d[f] === true) pts += 20; });
             }
             return pts;
@@ -709,9 +709,10 @@ function initBeautyAddictLogin() {
           { key: "quizModule4", label: "Module 4 - Guide des Messages", fn: "openQuizModule4" },
           { key: "quizModule5", label: "Module 5 - Developpement Personnel", fn: "openQuizModule5" },
           { key: "quizModule6", label: "Module 6", fn: "openQuizModule6" },
-          { key: "quizModule7", label: "Module 7", fn: "openQuizModule7" }
+          { key: "quizModule7", label: "Module 7", fn: "openQuizModule7" },
+          { key: "quizModule8", label: "La Vente", fn: "openQuizModule8" }
         ];
-        var fns = { openQuizBonDemarrage: openQuizBonDemarrage, openQuizModule2: openQuizModule2, openQuizModule3: openQuizModule3, openQuizModule4: openQuizModule4, openQuizModule5: openQuizModule5, openQuizModule6: openQuizModule6, openQuizModule7: openQuizModule7 };
+        var fns = { openQuizBonDemarrage: openQuizBonDemarrage, openQuizModule2: openQuizModule2, openQuizModule3: openQuizModule3, openQuizModule4: openQuizModule4, openQuizModule5: openQuizModule5, openQuizModule6: openQuizModule6, openQuizModule7: openQuizModule7, openQuizModule8: openQuizModule8 };
         if (uid2) {
           db2.collection("users").doc(uid2).get().then(function(snap) {
             var d = snap.data() || {};
