@@ -30,12 +30,12 @@ function openCreateurVisuels() {
       "<span style='color:#f5d48a;font-size:15px;font-weight:bold;'>🎨 Créez vos visuels</span>" +
       "<div style='display:flex;gap:4px;'>" +
       [["square","Carré"],["story","Story"],["landscape","Large"]].map(function(f) {
-        return "<button ontouchstart='event.preventDefault();window.__cvSetFormat(\""+f[0]+"\")' style='background:"+(state.format===f[0]?"#c9a86a":"rgba(255,255,255,0.1)")+";color:"+(state.format===f[0]?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:bold;'>"+f[1]+"</button>";
+        return "<button onclick='window.__cvSetFormat(\""+f[0]+"\")' ontouchend='event.preventDefault();window.__cvSetFormat(\""+f[0]+"\")' style='background:"+(state.format===f[0]?"#c9a86a":"rgba(255,255,255,0.1)")+";color:"+(state.format===f[0]?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:bold;'>"+f[1]+"</button>";
       }).join("") +
       "</div></div>" +
       "<div style='display:flex;gap:8px;align-items:center;'>" +
       "<button ontouchstart='event.preventDefault();window.__cvDownload()' style='background:#c9a86a;color:#1a1208;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>⬇️ Télécharger PNG</button>" +
-      "<button ontouchstart='event.preventDefault();window.__cvClose()' style='background:none;border:none;color:rgba(255,255,255,0.6);font-size:24px;cursor:pointer;padding:0 4px;line-height:1;'>✕</button>" +
+      "<button onclick='window.__cvClose()' ontouchend='event.preventDefault();window.__cvClose()' style='background:none;border:none;color:rgba(255,255,255,0.6);font-size:24px;cursor:pointer;padding:0 4px;line-height:1;'>✕</button>" +
       "</div>";
   }
 
@@ -236,7 +236,7 @@ function openCreateurVisuels() {
         html += "<div style='width:"+(el.w*cW/100)+"px;height:"+(el.h*cH/100)+"px;background:"+el.color+";border-radius:"+el.radius+"px;opacity:"+el.opacity+";pointer-events:none;'></div>";
       }
       if (sel) {
-        html += "<div onclick='event.stopPropagation();window.__cvDelEl("+el.id+")' ontouchend='event.preventDefault();event.stopPropagation();window.__cvDelEl("+el.id+")' style='position:absolute;top:-10px;right:-10px;width:20px;height:20px;background:#e74c3c;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white;font-size:14px;font-weight:bold;z-index:10;line-height:1;'>×</div>";
+        html += "<div onclick='event.stopPropagation();window.__cvDelEl("+el.id+")' ontouchstart='event.preventDefault();event.stopPropagation();window.__cvDelEl("+el.id+")' style='position:absolute;top:-10px;right:-10px;width:20px;height:20px;background:#e74c3c;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white;font-size:14px;font-weight:bold;z-index:10;line-height:1;'>×</div>";
         html += "<div data-resize-id='"+el.id+"' style='position:absolute;right:-6px;bottom:-6px;width:14px;height:14px;background:#c9a86a;border-radius:50%;cursor:se-resize;z-index:10;'></div>";
       }
       html += "</div>";
@@ -315,7 +315,7 @@ function openCreateurVisuels() {
     // Ajouter
     html += "<div style='margin-bottom:14px;'><p style='color:#c9a86a;font-size:10px;font-weight:bold;margin:0 0 8px;letter-spacing:1px;'>AJOUTER</p><div style='display:grid;grid-template-columns:1fr 1fr;gap:6px;'>";
     html += "<button onclick='window.__cvAddText()' ontouchstart='event.preventDefault();window.__cvAddText()' ontouchstart='event.preventDefault();window.__cvAddText()' style='background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:8px;border-radius:6px;cursor:pointer;font-size:11px;'>T Texte</button>";
-    html += "<button ontouchstart='event.preventDefault();window.__cvAddPhoto()' style='background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:8px;border-radius:6px;cursor:pointer;font-size:11px;'>📷 Photo</button>";
+    html += "<label for='cv-file-input' style='background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);padding:8px;border-radius:6px;cursor:pointer;font-size:11px;display:block;text-align:center;'>📷 Photo</label>";
     html += "<button ontouchstart='event.preventDefault();window.__cvAddLine()' style='background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:8px;border-radius:6px;cursor:pointer;font-size:11px;'>— Ligne</button>";
     html += "<button ontouchstart='event.preventDefault();window.__cvAddRect()' style='background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:8px;border-radius:6px;cursor:pointer;font-size:11px;'>⬜ Forme</button>";
     html += "</div></div>";
@@ -388,8 +388,7 @@ function openCreateurVisuels() {
       if (ta) { setTimeout(function() { if(document.getElementById("cv-el-text")) document.getElementById("cv-el-text").focus(); }, 50); }
     }
 
-    // TOUCH EVENTS pour mobile - attachés en JS pur après render
-    setTimeout(function() { attachMobileEvents(); }, 10);
+    // Touch events gérés via ontouchstart/ontouchend inline
   }
 
   function attachMobileEvents() {
