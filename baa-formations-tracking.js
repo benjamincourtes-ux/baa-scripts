@@ -64,6 +64,7 @@
         btn.style.color = "white";
         btn.disabled = true;
         if (typeof window.ajouterPointsBadge === "function") window.ajouterPointsBadge(10);
+        if (typeof window.baaPlaySuccess === "function") window.baaPlaySuccess();
         setTimeout(function() { wrap.style.opacity = "0"; wrap.style.transition = "opacity 0.5s"; setTimeout(function() { wrap.remove(); }, 500); }, 2500);
       }).catch(function(e) { console.log("Erreur tracking formation:", e); });
     };
