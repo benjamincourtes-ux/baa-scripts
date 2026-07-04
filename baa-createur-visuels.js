@@ -139,6 +139,9 @@ function openCreateurVisuels() {
       // Propriétés élément sélectionné
       (state.selected !== null ? renderElemProps() : "<p style='color:rgba(255,255,255,0.3);font-size:11px;'>Clique sur un élément pour le modifier</p>");
 
+    sidebar.onmousedown = function(e) { e.stopPropagation(); };
+    sidebar.onclick = function(e) { e.stopPropagation(); };
+    sidebar.onwheel = function(e) { e.stopPropagation(); };
     main.appendChild(sidebar);
 
     // CANVAS ZONE
@@ -333,7 +336,17 @@ function openCreateurVisuels() {
 
   function attachEvents(cW, cH) {
     // Fermer
-    var closBtn = document.getElementById("close-createur"); if(closBtn){closBtn.onmousedown=function(e){e.stopPropagation();}; closBtn.onclick = function(e) { e.stopPropagation(); panel.remove(); };}
+    var closBtn = document.getElementById("close-createur");
+    if (closBtn) {
+      closBtn.onmousedown = function(e) { e.stopPropagation(); e.preventDefault(); };
+      closBtn.onclick = function(e) {
+        e.stopPropagation(); e.preventDefault();
+        panel.remove();
+        if (typeof window.__baaOpenOutilsPanel === "function") {
+          window.__baaOpenOutilsPanel();
+        }
+      };
+    }
 
     // Format
     panel.querySelectorAll(".fmt-btn").forEach(function(btn) {
