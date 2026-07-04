@@ -208,14 +208,14 @@ function openCreateurVisuels() {
         FONTS.forEach(function(f) {
           var fb = document.createElement("button");
           fb.textContent=f; fb.style.cssText="padding:4px 8px;border-radius:4px;cursor:pointer;font-size:11px;font-family:"+f+";background:"+(selEl.fontFamily===f?"#c9a86a":"rgba(255,255,255,0.06)")+";color:"+(selEl.fontFamily===f?"#1a1208":"rgba(255,255,255,0.7)")+";border:none;text-align:left;touch-action:manipulation;";
-          fb.onclick=function(e){e.stopPropagation();selEl.fontFamily=f;fullRender();};
+          fb.onclick=function(e){e.stopPropagation();selEl.fontFamily=f;renderCanvasOnly();updateFontBorders(fontDiv,f);};
           fontDiv.appendChild(fb);
         });
         propDiv.appendChild(fontDiv);
 
         var styleDiv = document.createElement("div"); styleDiv.style.cssText="display:flex;gap:6px;margin-bottom:8px;";
-        styleDiv.appendChild(btn("B",function(){selEl.bold=!selEl.bold;fullRender();},"background:"+(selEl.bold?"#c9a86a":"rgba(255,255,255,0.08)")+";color:"+(selEl.bold?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:5px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:12px;flex:1;"));
-        styleDiv.appendChild(btn("I",function(){selEl.italic=!selEl.italic;fullRender();},"background:"+(selEl.italic?"#c9a86a":"rgba(255,255,255,0.08)")+";color:"+(selEl.italic?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:5px;border-radius:6px;cursor:pointer;font-style:italic;font-size:12px;flex:1;"));
+        styleDiv.appendChild(btn("B",function(){selEl.bold=!selEl.bold;renderCanvasOnly();var bEl=styleDiv.children[0];if(bEl){bEl.style.background=selEl.bold?"#c9a86a":"rgba(255,255,255,0.08)";bEl.style.color=selEl.bold?"#1a1208":"rgba(255,255,255,0.6)";};},"background:"+(selEl.bold?"#c9a86a":"rgba(255,255,255,0.08)")+";color:"+(selEl.bold?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:5px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:12px;flex:1;"));
+        styleDiv.appendChild(btn("I",function(){selEl.italic=!selEl.italic;renderCanvasOnly();var iEl=styleDiv.children[1];if(iEl){iEl.style.background=selEl.italic?"#c9a86a":"rgba(255,255,255,0.08)";iEl.style.color=selEl.italic?"#1a1208":"rgba(255,255,255,0.6)";};},"background:"+(selEl.italic?"#c9a86a":"rgba(255,255,255,0.08)")+";color:"+(selEl.italic?"#1a1208":"rgba(255,255,255,0.6)")+";border:none;padding:5px;border-radius:6px;cursor:pointer;font-style:italic;font-size:12px;flex:1;"));
         propDiv.appendChild(styleDiv);
 
         var cLabel = document.createElement("p"); cLabel.style.cssText="color:rgba(255,255,255,0.4);font-size:10px;margin:0 0 4px;"; cLabel.textContent="Couleur"; propDiv.appendChild(cLabel);
@@ -223,7 +223,7 @@ function openCreateurVisuels() {
         COLORS_TEXT.forEach(function(c) {
           var cb = document.createElement("button");
           cb.style.cssText="width:22px;height:22px;border-radius:4px;background:"+c+";cursor:pointer;border:"+(selEl.color===c?"2px solid #f5d48a":"1px solid rgba(255,255,255,0.2)")+";padding:0;touch-action:manipulation;";
-          cb.onclick=function(e){e.stopPropagation();selEl.color=c;fullRender();};
+          cb.onclick=function(e){e.stopPropagation();selEl.color=c;renderCanvasOnly();updateColorBorders(cDiv,c);};
           cDiv.appendChild(cb);
         });
         propDiv.appendChild(cDiv);
@@ -244,7 +244,7 @@ function openCreateurVisuels() {
         COLORS_TEXT.forEach(function(c) {
           var cb = document.createElement("button");
           cb.style.cssText="width:22px;height:22px;border-radius:4px;background:"+c+";cursor:pointer;border:"+(selEl.color===c?"2px solid #f5d48a":"1px solid rgba(255,255,255,0.2)")+";padding:0;touch-action:manipulation;";
-          cb.onclick=function(e){e.stopPropagation();selEl.color=c;fullRender();};
+          cb.onclick=function(e){e.stopPropagation();selEl.color=c;renderCanvasOnly();updateColorBorders(cDiv2,c);};
           cDiv2.appendChild(cb);
         });
         propDiv.appendChild(cDiv2);
@@ -257,6 +257,20 @@ function openCreateurVisuels() {
     } else {
       var hint = document.createElement("p"); hint.style.cssText="color:rgba(255,255,255,0.3);font-size:11px;margin-top:12px;"; hint.textContent="Clique sur un élément pour le modifier"; container.appendChild(hint);
     }
+  }
+
+  function updateColorBorders(container, selectedColor) {
+    container.querySelectorAll("button").forEach(function(b) {
+      b.style.border = b.style.background === selectedColor ? "2px solid #f5d48a" : "1px solid rgba(255,255,255,0.2)";
+    });
+  }
+
+  function updateFontBorders(container, selectedFont) {
+    container.querySelectorAll("button").forEach(function(b) {
+      var isSelected = b.textContent === selectedFont;
+      b.style.background = isSelected ? "#c9a86a" : "rgba(255,255,255,0.06)";
+      b.style.color = isSelected ? "#1a1208" : "rgba(255,255,255,0.7)";
+    });
   }
 
   function fullRenderKeepScroll(container) {
