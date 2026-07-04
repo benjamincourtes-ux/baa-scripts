@@ -28,7 +28,7 @@
 
     var wrap = document.createElement("div");
     wrap.id = "baa-formation-btn-wrap";
-    wrap.style.cssText = "position:fixed;bottom:0;left:0;right:0;z-index:99998;text-align:center;padding:12px 20px;background:linear-gradient(135deg,#1a0a00,#3d1f05);box-shadow:0 -4px 20px rgba(0,0,0,0.2);";
+    wrap.style.cssText = "position:fixed;bottom:0;left:0;right:0;z-index:99998;text-align:center;padding:12px 20px;background:linear-gradient(135deg,#1a0a00,#3d1f05);box-shadow:0 -4px 20px rgba(0,0,0,0.2);display:none;";
 
     var btn = document.createElement("button");
     btn.id = "baa-formation-btn";
@@ -40,6 +40,7 @@
     // Vérifier si déjà lu
     firebase.auth().onAuthStateChanged(function(user) {
       if (!user) return;
+      wrap.style.display = "block";
       firebase.firestore().collection("users").doc(user.uid).get().then(function(snap) {
         var d = snap.data() || {};
         if (d["formation_" + formation.id + "_lu"]) {
