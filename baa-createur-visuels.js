@@ -390,6 +390,7 @@ function openCreateurVisuels() {
         // Sélectionner + drag
         elDiv.onmousedown = function(e) {
           if (e.target.hasAttribute("data-delete") || e.target.hasAttribute("data-resize")) return;
+          if (e.target.tagName === "TEXTAREA" || e.target.tagName === "INPUT" || e.target.tagName === "SELECT" || e.target.tagName === "BUTTON") return;
           e.stopPropagation(); e.preventDefault();
           if (state.selected !== elId) { state.selected = elId; render(); return; }
           var startX = e.clientX; var startY = e.clientY;
@@ -436,12 +437,17 @@ function openCreateurVisuels() {
           document.addEventListener("mousemove", onMove);
           document.addEventListener("mouseup", onUp);
         };
-        if (delBtn) delBtn.onclick = function(e) {
-          e.stopPropagation();
-          state.elements = state.elements.filter(function(el) { return el.id !== elId; });
-          state.selected = null;
-          render();
-        };
+        var delBtn = panel.querySelectorAll(".cv-el")[panel.querySelectorAll(".cv-el").length-1] ? elDiv.querySelector("[data-delete]") : null;
+        var delBtnEl = elDiv.querySelector("[data-delete]");
+        if (delBtnEl) {
+          delBtnEl.onmousedown = function(e) { e.stopPropagation(); e.preventDefault(); };
+          delBtnEl.onclick = function(e) {
+            e.stopPropagation(); e.preventDefault();
+            state.elements = state.elements.filter(function(el) { return el.id !== elId; });
+            state.selected = null;
+            render();
+          };
+        }
 
         // Double-clic pour éditer texte
         elDiv.ondblclick = function(e) {
