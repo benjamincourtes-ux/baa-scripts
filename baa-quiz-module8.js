@@ -133,6 +133,7 @@ function openQuizModule8() {
         if (pctFinal >= 80) updateData.quizModule8Complete = true; else updateData.quizModule8Complete = false;
         db.collection("users").doc(uid).update(updateData).catch(function(e) { console.log("Erreur sauvegarde quiz:", e); });
         if (pctFinal >= 80 && typeof window.ajouterPointsBadge === "function") window.ajouterPointsBadge(20);
+        if (pctFinal >= 80 && typeof window.baaPlaySuccess === "function") window.baaPlaySuccess();
       }
     }
     renderQuestion();
