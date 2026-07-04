@@ -160,8 +160,11 @@ function openCreateurVisuels() {
       if (!cvEl) return;
       html2canvas(cvEl, { scale: 1080/cvEl.offsetWidth, useCORS:true, allowTaint:true }).then(function(c) {
         var link = document.createElement("a"); link.download="visuel-beauty-addict.png"; link.href=c.toDataURL("image/png");
-        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) { var w=window.open(""); w.document.write("<img src='"+c.toDataURL("image/png")+"' style='max-width:100%;'><p style='font-family:Arial;text-align:center;color:#666;'>Appuie longuement pour enregistrer 📲</p>"); }
-        else link.click();
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+          var dataUrl = c.toDataURL("image/png");
+          var w=window.open("");
+          if(w){ w.document.write("<html><body style='margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;'><img src='"+dataUrl+"' style='max-width:100%;max-height:80vh;' /><p style='font-family:Arial;text-align:center;color:#fff;padding:16px;font-size:14px;'>Appuie longuement sur l image pour enregistrer 📲</p></body></html>"); w.document.close(); }
+        } else link.click();
       });
     };
     document.head.appendChild(s);
@@ -233,38 +236,52 @@ function openCreateurVisuels() {
     // Drag events
     canvasDiv.querySelectorAll(".cv-el-div").forEach(function(div) {
       var elId = parseInt(div.getAttribute("data-id"));
-      div.addEventListener("mousedown", function(e) {
+      function startDrag(e) {
         if (e.target.getAttribute("data-resize-id") || e.target.style.background==="#e74c3c") return;
         if (state.selected !== elId) return;
         e.stopPropagation(); e.preventDefault();
         var el = state.elements.find(function(x){return x.id===elId;});
         if (!el) return;
-        var startX=e.clientX, startY=e.clientY, startElX=el.x, startElY=el.y, moved=false;
+        var startX=e.clientX||e.touches[0].clientX, startY=e.clientY||e.touches[0].clientY, startElX=el.x, startElY=el.y, moved=false;
+        function getXY(ev) { return ev.touches ? {x:ev.touches[0].clientX,y:ev.touches[0].clientY} : {x:ev.clientX,y:ev.clientY}; }
         function onMove(ev) {
-          moved=true;
-          el.x=Math.max(0,Math.min(100,startElX+(ev.clientX-startX)/cW*100));
-          el.y=Math.max(0,Math.min(100,startElY+(ev.clientY-startY)/cH*100));
+          moved=true; var p=getXY(ev);
+          el.x=Math.max(0,Math.min(100,startElX+(p.x-startX)/cW*100));
+          el.y=Math.max(0,Math.min(100,startElY+(p.y-startY)/cH*100));
           div.style.left=(el.x/100*cW)+"px"; div.style.top=(el.y/100*cH)+"px";
         }
-        function onUp() { document.removeEventListener("mousemove",onMove); document.removeEventListener("mouseup",onUp); }
+        function onUp() {
+          document.removeEventListener("mousemove",onMove); document.removeEventListener("mouseup",onUp);
+          document.removeEventListener("touchmove",onMove); document.removeEventListener("touchend",onUp);
+        }
         document.addEventListener("mousemove",onMove); document.addEventListener("mouseup",onUp);
-      });
+        document.addEventListener("touchmove",onMove,{passive:false}); document.addEventListener("touchend",onUp);
+      }
+      div.addEventListener("mousedown", startDrag);
+      div.addEventListener("touchstart", startDrag, {passive:false});
       // Resize
       var rHandle = div.querySelector("[data-resize-id]");
-      if (rHandle) rHandle.addEventListener("mousedown", function(e) {
+      function startResize(e) {
         e.stopPropagation(); e.preventDefault();
         var el=state.elements.find(function(x){return x.id===elId;});
         if (!el) return;
-        var startX=e.clientX,startY=e.clientY,startW=el.w,startH=el.h;
+        var startX=e.clientX||e.touches[0].clientX,startY=e.clientY||e.touches[0].clientY,startW=el.w,startH=el.h;
+        function getXY2(ev){return ev.touches?{x:ev.touches[0].clientX,y:ev.touches[0].clientY}:{x:ev.clientX,y:ev.clientY};}
         function onMove(ev) {
-          el.w=Math.max(5,startW+(ev.clientX-startX)/cW*100);
-          el.h=Math.max(5,startH+(ev.clientY-startY)/cH*100);
+          var p=getXY2(ev);
+          el.w=Math.max(5,startW+(p.x-startX)/cW*100);
+          el.h=Math.max(5,startH+(p.y-startY)/cH*100);
           var img=div.querySelector("img"); if(img){img.style.width=(el.w*cW/100)+"px";img.style.height=(el.h*cH/100)+"px";}
           var d=div.querySelector("div:not([data-resize-id])"); if(d&&(el.type==="line"||el.type==="rect")){d.style.width=(el.w*cW/100)+"px";if(el.type==="rect")d.style.height=(el.h*cH/100)+"px";}
         }
-        function onUp(){document.removeEventListener("mousemove",onMove);document.removeEventListener("mouseup",onUp);}
+        function onUp(){
+          document.removeEventListener("mousemove",onMove);document.removeEventListener("mouseup",onUp);
+          document.removeEventListener("touchmove",onMove);document.removeEventListener("touchend",onUp);
+        }
         document.addEventListener("mousemove",onMove); document.addEventListener("mouseup",onUp);
-      });
+        document.addEventListener("touchmove",onMove,{passive:false}); document.addEventListener("touchend",onUp);
+      }
+      if (rHandle) { rHandle.addEventListener("mousedown",startResize); rHandle.addEventListener("touchstart",startResize,{passive:false}); }
       // Double-clic texte
       div.addEventListener("dblclick", function(e) {
         var el=state.elements.find(function(x){return x.id===elId;});
