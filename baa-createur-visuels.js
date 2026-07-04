@@ -222,8 +222,9 @@ function openCreateurVisuels() {
       html += "<p style='color:rgba(255,255,255,0.4);font-size:10px;margin:0 0 4px;'>Forme</p><div style='display:flex;gap:6px;margin-bottom:8px;'>" +
         "<button id='el-rect-photo' style='flex:1;background:" + (!el.rounded?"#c9a86a":"rgba(255,255,255,0.08)") + ";color:" + (!el.rounded?"#1a1208":"rgba(255,255,255,0.6)") + ";border:none;padding:5px;border-radius:6px;cursor:pointer;font-size:11px;'>Carré</button>" +
         "<button id='el-round-photo' style='flex:1;background:" + (el.rounded?"#c9a86a":"rgba(255,255,255,0.08)") + ";color:" + (el.rounded?"#1a1208":"rgba(255,255,255,0.6)") + ";border:none;padding:5px;border-radius:6px;cursor:pointer;font-size:11px;'>Rond</button>" +
-        "</div>";
-      html += "<button id='el-change-photo' style='width:100%;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:7px;border-radius:6px;cursor:pointer;font-size:11px;margin-bottom:6px;'>Changer la photo</button>";
+        "</div>" +
+        "<button id='el-full-photo' style='width:100%;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:7px;border-radius:6px;cursor:pointer;font-size:11px;margin-bottom:6px;'>⬜ Plein écran</button>" +
+        "<button id='el-change-photo' style='width:100%;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.7);border:none;padding:7px;border-radius:6px;cursor:pointer;font-size:11px;margin-bottom:6px;'>Changer la photo</button>";
     } else if (el.type === "line" || el.type === "rect") {
       html += "<p style='color:rgba(255,255,255,0.4);font-size:10px;margin:0 0 4px;'>Couleur</p><div style='display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;'>" +
         COLORS_TEXT.map(function(c) {
@@ -364,6 +365,8 @@ function openCreateurVisuels() {
       if (elRectPhoto) elRectPhoto.onclick = function() { el.rounded = false; render(); };
       var elRoundPhoto = document.getElementById("el-round-photo");
       if (elRoundPhoto) elRoundPhoto.onclick = function() { el.rounded = true; render(); };
+      var elFullPhoto = document.getElementById("el-full-photo");
+      if (elFullPhoto) elFullPhoto.onclick = function() { el.x = 0; el.y = 0; el.w = 100; el.h = 100; el.rounded = false; render(); };
       var elChangePhoto = document.getElementById("el-change-photo");
       if (elChangePhoto) elChangePhoto.onclick = function() { document.getElementById("cv-photo-input").click(); };
 
@@ -384,23 +387,28 @@ function openCreateurVisuels() {
       panel.querySelectorAll(".cv-el").forEach(function(elDiv) {
         var elId = parseInt(elDiv.getAttribute("data-id"));
 
-        // Sélectionner
+        // Sélectionner + drag
         elDiv.onmousedown = function(e) {
           if (e.target.hasAttribute("data-delete") || e.target.hasAttribute("data-resize")) return;
-          e.stopPropagation();
-          state.selected = elId;
-          render();
+          e.stopPropagation(); e.preventDefault();
+          if (state.selected !== elId) { state.selected = elId; render(); return; }
           var startX = e.clientX; var startY = e.clientY;
           var elObj = state.elements.find(function(el) { return el.id === elId; });
           var startElX = elObj.x; var startElY = elObj.y;
+          var moved = false;
           function onMove(ev) {
+            moved = true;
             var dx = ev.clientX - startX; var dy = ev.clientY - startY;
             elObj.x = Math.max(0, Math.min(100, startElX + dx/cW*100));
             elObj.y = Math.max(0, Math.min(100, startElY + dy/cH*100));
             var elDom = panel.querySelector("[data-id='" + elId + "']");
             if (elDom) { elDom.style.left = (elObj.x/100*cW) + "px"; elDom.style.top = (elObj.y/100*cH) + "px"; }
           }
-          function onUp() { document.removeEventListener("mousemove", onMove); document.removeEventListener("mouseup", onUp); render(); }
+          function onUp() {
+            document.removeEventListener("mousemove", onMove);
+            document.removeEventListener("mouseup", onUp);
+            if (moved) render();
+          }
           document.addEventListener("mousemove", onMove);
           document.addEventListener("mouseup", onUp);
         };
