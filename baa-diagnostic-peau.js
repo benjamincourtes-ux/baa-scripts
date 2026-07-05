@@ -374,30 +374,28 @@ function openDiagnosticPeau() {
       actionsDiv.appendChild(envBtn);
     }
 
-    // Partager via WhatsApp
-    var waBtn = document.createElement("button");
-    waBtn.textContent = "💬 Envoyer via WhatsApp";
-    waBtn.style.cssText = "width:100%;background:#25D366;color:white;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;";
-    var waFn = function(e) { e.preventDefault(); e.stopPropagation(); window.open("https://wa.me/?text=" + encodeURIComponent(genererTextePartage()), "_blank"); };
-    waBtn.onclick = waFn;
-    waBtn.addEventListener("touchend", waFn, {passive:false});
-    actionsDiv.appendChild(waBtn);
+    // WhatsApp - vrai lien <a> natif
+    var textePartage = genererTextePartage();
+    var waLink = document.createElement("a");
+    waLink.href = "https://wa.me/?text=" + encodeURIComponent(textePartage);
+    waLink.target = "_blank";
+    waLink.rel = "noopener";
+    waLink.textContent = "💬 Envoyer via WhatsApp";
+    waLink.style.cssText = "width:100%;background:#25D366;color:white;padding:13px;border-radius:12px;font-weight:bold;font-size:14px;display:block;text-align:center;text-decoration:none;box-sizing:border-box;";
+    actionsDiv.appendChild(waLink);
 
-    // Partager via Messenger
-    var msBtn = document.createElement("button");
-    msBtn.textContent = "💙 Envoyer via Messenger";
-    msBtn.style.cssText = "width:100%;background:#0084FF;color:white;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;";
-    var msFn = function(e) {
-      e.preventDefault(); e.stopPropagation();
-      var texte = genererTextePartage();
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(texte).then(function() { alert("✅ Message copié ! Ouvre Messenger et colle-le."); });
-      }
-      window.open("https://www.messenger.com/", "_blank");
-    };
-    msBtn.onclick = msFn;
-    msBtn.addEventListener("touchend", msFn, {passive:false});
-    actionsDiv.appendChild(msBtn);
+    // Messenger - vrai lien <a> natif
+    var msLink = document.createElement("a");
+    msLink.href = "fb-messenger://share/?link=" + encodeURIComponent("https://mihi.care");
+    msLink.target = "_blank";
+    msLink.rel = "noopener";
+    msLink.textContent = "💙 Envoyer via Messenger";
+    msLink.style.cssText = "width:100%;background:#0084FF;color:white;padding:13px;border-radius:12px;font-weight:bold;font-size:14px;display:block;text-align:center;text-decoration:none;box-sizing:border-box;";
+    // Sur desktop ouvrir messenger.com
+    if (!/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      msLink.href = "https://www.messenger.com/";
+    }
+    actionsDiv.appendChild(msLink);
 
     // Télécharger en image PNG
     var dlBtn = document.createElement("button");
