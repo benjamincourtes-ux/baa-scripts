@@ -378,14 +378,26 @@ function openDiagnosticPeau() {
     var waBtn = document.createElement("button");
     waBtn.textContent = "💬 Envoyer via WhatsApp";
     waBtn.style.cssText = "width:100%;background:#25D366;color:white;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;";
-    waBtn.onclick = function() { window.open("https://wa.me/?text=" + encodeURIComponent(genererTextePartage()), "_blank"); };
+    waBtn.onclick = function() {
+      var texte = genererTextePartage();
+      var url = "whatsapp://send?text=" + encodeURIComponent(texte);
+      window.location.href = url;
+      setTimeout(function() {
+        window.open("https://wa.me/?text=" + encodeURIComponent(texte), "_blank");
+      }, 1000);
+    };
     actionsDiv.appendChild(waBtn);
 
     // Messenger
     var msBtn = document.createElement("button");
     msBtn.textContent = "💙 Envoyer via Messenger";
     msBtn.style.cssText = "width:100%;background:#0084FF;color:white;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;";
-    msBtn.onclick = function() { window.open("https://www.messenger.com/", "_blank"); };
+    msBtn.onclick = function() {
+      window.location.href = "fb-messenger://";
+      setTimeout(function() {
+        window.open("https://m.me/", "_blank");
+      }, 1000);
+    };
     actionsDiv.appendChild(msBtn);
 
     // Télécharger en image PNG
