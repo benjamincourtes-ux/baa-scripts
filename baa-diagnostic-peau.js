@@ -375,31 +375,25 @@ function openDiagnosticPeau() {
     }
 
     // Partager via WhatsApp
-    var waBtn = document.createElement("button");
+    var waBtn = document.createElement("a");
     waBtn.textContent = "💬 Envoyer via WhatsApp";
-    waBtn.style.cssText = "width:100%;background:#25D366;color:white;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;";
-    waBtn.addEventListener("click", function() {
-      var texte = genererTextePartage();
-      window.open("https://wa.me/?text=" + encodeURIComponent(texte), "_blank");
-    });
+    waBtn.style.cssText = "width:100%;background:#25D366;color:white;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;display:block;text-align:center;text-decoration:none;box-sizing:border-box;margin-bottom:8px;";
+    waBtn.href = "https://wa.me/?text=" + encodeURIComponent(genererTextePartage());
+    waBtn.target = "_blank";
     actionsDiv.appendChild(waBtn);
 
     // Partager via Messenger
-    var msBtn = document.createElement("button");
+    var msBtn = document.createElement("a");
     msBtn.textContent = "💙 Envoyer via Messenger";
-    msBtn.style.cssText = "width:100%;background:#0084FF;color:white;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;";
+    msBtn.style.cssText = "width:100%;background:#0084FF;color:white;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;display:block;text-align:center;text-decoration:none;box-sizing:border-box;margin-bottom:8px;";
+    msBtn.href = "https://www.messenger.com/";
+    msBtn.target = "_blank";
     msBtn.addEventListener("click", function() {
       var texte = genererTextePartage();
-      // Copier dans le presse-papier puis ouvrir Messenger
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(texte).then(function() {
-          alert("✅ Message copié ! Ouvre Messenger et colle-le.");
-          window.open("https://www.messenger.com/", "_blank");
-        }).catch(function() {
-          window.open("https://www.messenger.com/", "_blank");
+          alert("✅ Message copié ! Colle-le dans Messenger.");
         });
-      } else {
-        window.open("https://www.messenger.com/", "_blank");
       }
     });
     actionsDiv.appendChild(msBtn);
