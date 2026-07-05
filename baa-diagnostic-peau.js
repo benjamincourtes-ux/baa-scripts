@@ -377,38 +377,38 @@ function openDiagnosticPeau() {
     // Partager via WhatsApp
     var waBtn = document.createElement("button");
     waBtn.textContent = "💬 Envoyer via WhatsApp";
-    waBtn.style.cssText = "width:100%;background:#25D366;color:white;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;";
-    waBtn.onclick = function() {
+    waBtn.style.cssText = "width:100%;background:#25D366;color:white;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;";
+    waBtn.addEventListener("click", function() {
       var texte = genererTextePartage();
-      var url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(texte);
-      window.open(url, "_blank");
-    };
+      window.open("https://wa.me/?text=" + encodeURIComponent(texte), "_blank");
+    });
     actionsDiv.appendChild(waBtn);
 
     // Partager via Messenger
     var msBtn = document.createElement("button");
     msBtn.textContent = "💙 Envoyer via Messenger";
-    msBtn.style.cssText = "width:100%;background:#0084FF;color:white;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;";
-    msBtn.onclick = function() {
+    msBtn.style.cssText = "width:100%;background:#0084FF;color:white;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;";
+    msBtn.addEventListener("click", function() {
       var texte = genererTextePartage();
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        window.location.href = "fb-messenger://share/?link=" + encodeURIComponent("https://mihi.care") + "&app_id=966242223397117";
-        setTimeout(function() {
-          var win = window.open("https://m.me/", "_blank");
-          if (win) win.document.write("<p>Copie ce message :<br><br>" + texte.split("\n").join("<br>") + "</p>");
-        }, 2000);
+      // Copier dans le presse-papier puis ouvrir Messenger
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(texte).then(function() {
+          alert("✅ Message copié ! Ouvre Messenger et colle-le.");
+          window.open("https://www.messenger.com/", "_blank");
+        }).catch(function() {
+          window.open("https://www.messenger.com/", "_blank");
+        });
       } else {
-        var win = window.open("https://www.messenger.com/", "_blank");
-        setTimeout(function() { alert("Copie ce message dans Messenger :\n\n" + texte); }, 500);
+        window.open("https://www.messenger.com/", "_blank");
       }
-    };
+    });
     actionsDiv.appendChild(msBtn);
 
-    // Télécharger le diagnostic en PDF/image
+    // Télécharger en image PNG
     var dlBtn = document.createElement("button");
-    dlBtn.textContent = "⬇️ Télécharger le diagnostic";
-    dlBtn.style.cssText = "width:100%;background:white;color:#8b735d;border:2px solid #c9a86a;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;";
-    dlBtn.onclick = function() { telechargerDiagnostic(); };
+    dlBtn.textContent = "⬇️ Télécharger en image";
+    dlBtn.style.cssText = "width:100%;background:white;color:#8b735d;border:2px solid #c9a86a;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;";
+    dlBtn.addEventListener("click", function() { telechargerDiagnostic(); });
     actionsDiv.appendChild(dlBtn);
 
     var newBtn = document.createElement("button");
