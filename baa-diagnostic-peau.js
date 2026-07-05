@@ -387,7 +387,12 @@ function openDiagnosticPeau() {
         "<div style='background:linear-gradient(135deg,#c9a86a,#f5d48a);border-radius:12px;padding:16px;text-align:center;margin-bottom:12px;'><p style='color:#1a0a00;font-size:11px;font-weight:bold;margin:0 0 4px;'>TYPE DE PEAU</p><p style='color:#1a0a00;font-size:22px;font-weight:bold;margin:0;'>" + r2.typePeau + "</p><p style='color:rgba(0,0,0,0.6);font-size:12px;margin:6px 0 0;'>" + r2.etatGeneral + "</p></div>" +
         "<h3 style='color:#8b735d;font-size:13px;margin:0 0 8px;'>🌿 Produits Mihi recommandés</h3>" +
         (r2.produitsRecommandes ? r2.produitsRecommandes.map(function(p){return "<div style='background:white;border-radius:8px;padding:8px 10px;margin-bottom:6px;border-left:3px solid #c9a86a;'><strong style='color:#3a3a3a;font-size:12px;'>"+p.categorie+" : "+p.produit+"</strong><p style='color:#999;font-size:11px;margin:2px 0 0;'>"+p.raison+"</p></div>";}).join("") : "") +
-        "<p style='text-align:center;color:#c9a86a;font-weight:bold;font-size:12px;margin-top:16px;'>🐦‍🔥 Beauty Addict Academy</p>";
+        "<h3 style='color:#8b735d;font-size:13px;margin:12px 0 8px;'>📋 Routine personnalisée</h3>" +
+        "<div style='display:flex;gap:8px;margin-bottom:12px;'>" +
+        "<div style='flex:1;background:white;border-radius:8px;padding:10px;'><p style='color:#c9a86a;font-size:11px;font-weight:bold;margin:0 0 6px;'>☀️ MATIN</p>" + (r2.routine&&r2.routine.matin?r2.routine.matin.map(function(e,i){return "<p style='color:#555;font-size:11px;margin:0 0 3px;'>"+(i+1)+". "+e+"</p>";}).join(""):"") + "</div>" +
+        "<div style='flex:1;background:white;border-radius:8px;padding:10px;'><p style='color:#c9a86a;font-size:11px;font-weight:bold;margin:0 0 6px;'>🌙 SOIR</p>" + (r2.routine&&r2.routine.soir?r2.routine.soir.map(function(e,i){return "<p style='color:#555;font-size:11px;margin:0 0 3px;'>"+(i+1)+". "+e+"</p>";}).join(""):"") + "</div>" +
+        "</div>" +
+        "<p style='text-align:center;color:#c9a86a;font-weight:bold;font-size:12px;margin-top:8px;'>🐦‍🔥 Beauty Addict Academy</p>";
       document.body.appendChild(tempDiv);
 
       var loadH2C = function(cb){if(window.html2canvas){cb();return;}var s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js";s.onload=cb;document.head.appendChild(s);};
