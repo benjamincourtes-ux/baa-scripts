@@ -281,6 +281,7 @@ function openVictoiresPanel() {
       });
       if (typeof window.ajouterPointsBadge === "function") window.ajouterPointsBadge(10);
               if (typeof window.baaPlaySuccess === "function") window.baaPlaySuccess();
+              if (typeof window.baaTelegram !== "undefined") window.baaTelegram.victoire(userData.prenom||"Une Phénix", texte.substring(0,200));
       emailjs.init("D_JtKhPDgOQWi_ECO");
       tousLesMembres.forEach(function(m) {
         if (m._uid !== uid) envoyerNotif(m._uid, "victoire", (userData.prenom||"") + " a partage une nouvelle victoire !" + (categorieSelectionnee ? " (" + categorieSelectionnee + ")" : ""));
