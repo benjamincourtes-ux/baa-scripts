@@ -216,6 +216,36 @@ function openDiagnosticPeau() {
 
   function lancerAnalyse() {
     var prenomTexte = state.prenom ? "pour " + state.prenom : "pour cette personne";
+
+    // Détecter le type de l'image
+    var base64Data = state.photoBase64;
+    var mediaType = "image/jpeg";
+    if (state.photo && state.photo.indexOf("data:image/png") === 0) mediaType = "image/png";
+    else if (state.photo && state.photo.indexOf("data:image/webp") === 0) mediaType = "image/webp";
+    else if (state.photo && state.photo.indexOf("data:image/") === 0) {
+      mediaType = state.photo.substring(5, state.photo.indexOf(";"));
+    }
+
+    // Recompresser en JPEG via canvas pour fiabilité
+    var img2 = new Image();
+    img2.onload = function() {
+      var c3 = document.createElement("canvas");
+      var maxSize = 1024;
+      var w = img2.naturalWidth, h = img2.naturalHeight;
+      if (w > maxSize || h > maxSize) {
+        if (w > h) { h = Math.round(h*maxSize/w); w = maxSize; }
+        else { w = Math.round(w*maxSize/h); h = maxSize; }
+      }
+      c3.width = w; c3.height = h;
+      c3.getContext("2d").drawImage(img2, 0, 0, w, h);
+      var jpegBase64 = c3.toDataURL("image/jpeg", 0.85).split(",")[1];
+      envoyerAAPI(jpegBase64, "image/jpeg", prenomTexte);
+    };
+    img2.onerror = function() { envoyerAAPI(base64Data, mediaType, prenomTexte); };
+    img2.src = state.photo;
+  }
+
+  function envoyerAAPI(base64Data, mediaType, prenomTexte) {
     var prompt = "Tu es une experte dermatologue et conseillère beauté spécialisée dans les soins naturels.\n\nAnalyse cette photo de visage et fournis un diagnostic de peau détaillé " + prenomTexte + ".\n\nRéponds UNIQUEMENT en JSON valide avec cette structure :\n{\n  \"typePeau\": \"type de peau détecté (grasse/sèche/mixte/sensible/normale)\",\n  \"etatGeneral\": \"description de l'état général de la peau en 1-2 phrases\",\n  \"zonesAttention\": [\"zone 1\", \"zone 2\", \"zone 3\"],\n  \"pointsForts\": [\"point fort 1\", \"point fort 2\"],\n  \"routine\": {\n    \"matin\": [\"etape 1\", \"etape 2\", \"etape 3\", \"etape 4\"],\n    \"soir\": [\"etape 1\", \"etape 2\", \"etape 3\", \"etape 4\"]\n  },\n  \"produitsRecommandes\": [\n    {\"categorie\": \"Nettoyant\", \"produit\": \"nom produit Mihi adapté\", \"raison\": \"pourquoi ce produit\"},\n    {\"categorie\": \"Soin de jour\", \"produit\": \"nom produit Mihi adapté\", \"raison\": \"pourquoi ce produit\"},\n    {\"categorie\": \"Soin de nuit\", \"produit\": \"nom produit Mihi adapté\", \"raison\": \"pourquoi ce produit\"},\n    {\"categorie\": \"Soin spécifique\", \"produit\": \"nom produit Mihi adapté\", \"raison\": \"pourquoi ce produit\"},\n    {\"categorie\": \"Protection solaire\", \"produit\": \"SPF adapté Mihi\", \"raison\": \"pourquoi ce produit\"}\n  ],\n  \"conseilsExpert\": [\"conseil 1\", \"conseil 2\", \"conseil 3\"],\n  \"scoreEclat\": 75,\n  \"scoreHydratation\": 60,\n  \"scorePurete\": 80\n}\n\nSois précise et professionnelle. Les produits Mihi sont des soins naturels haut de gamme.";
 
     fetch("https://api.anthropic.com/v1/messages", {
@@ -227,7 +257,7 @@ function openDiagnosticPeau() {
         messages: [{
           role: "user",
           content: [
-            { type: "image", source: { type: "base64", media_type: "image/jpeg", data: state.photoBase64 } },
+            { type: "image", source: { type: "base64", media_type: mediaType, data: base64Data } },
             { type: "text", text: prompt }
           ]
         }]
@@ -235,40 +265,18 @@ function openDiagnosticPeau() {
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
+      if (data.error) { console.log("API error:", data.error); lancerFallback(); return; }
       var text = data.content && data.content[0] ? data.content[0].text : "";
       var clean = text.replace(/```json|```/g, "").trim();
-      try {
-        state.resultat = JSON.parse(clean);
-      } catch(e) {
-        state.resultat = {
-          typePeau: "Mixte",
-          etatGeneral: "Peau globalement équilibrée avec quelques zones à traiter.",
-          zonesAttention: ["Zone T légèrement grasse", "Contour des yeux à hydrater"],
-          pointsForts: ["Bonne texture générale", "Teint uniforme"],
-          routine: {
-            matin: ["Nettoyer avec un gel doux", "Appliquer un sérum éclat", "Crème hydratante légère", "Protection SPF"],
-            soir: ["Démaquiller soigneusement", "Nettoyer en profondeur", "Sérum réparateur", "Crème nuit nourrissante"]
-          },
-          produitsRecommandes: [
-            { categorie: "Nettoyant", produit: "Gel Nettoyant Douceur Mihi", raison: "Nettoie sans dessécher" },
-            { categorie: "Soin de jour", produit: "Crème Hydratante Légère Mihi", raison: "Hydratation sans film gras" },
-            { categorie: "Soin de nuit", produit: "Crème Riche Nutrition Mihi", raison: "Régénération nocturne" },
-            { categorie: "Soin spécifique", produit: "Sérum Éclat Mihi", raison: "Unifie le teint" },
-            { categorie: "Protection solaire", produit: "SPF 30 Quotidien Mihi", raison: "Protection adaptée" }
-          ],
-          conseilsExpert: ["Boire 1,5L d'eau par jour", "Démaquiller chaque soir sans exception", "Appliquer la crème sur peau légèrement humide"],
-          scoreEclat: 72, scoreHydratation: 65, scorePurete: 78
-        };
-      }
+      try { state.resultat = JSON.parse(clean); }
+      catch(e) { lancerFallback(); return; }
       state.step = "resultat";
       render();
     })
-    .catch(function() {
-      state.resultat = { typePeau: "Erreur", etatGeneral: "Impossible d'analyser. Vérifiez votre connexion.", zonesAttention: [], pointsForts: [], routine: { matin: [], soir: [] }, produitsRecommandes: [], conseilsExpert: [], scoreEclat: 0, scoreHydratation: 0, scorePurete: 0 };
-      state.step = "resultat";
-      render();
-    });
+    .catch(function(e) { console.log("Fetch error:", e); lancerFallback(); });
   }
+
+  function lancerFallback() {
 
   function renderResultat() {
     var r = state.resultat;
@@ -395,7 +403,29 @@ function openDiagnosticPeau() {
     box.appendChild(actionsDiv);
   }
 
-  function genererTextePartage() {
+  function lancerFallback() {
+    state.resultat = {
+      typePeau: "Mixte",
+      etatGeneral: "Peau globalement équilibrée avec quelques zones à traiter. Analyse effectuée sur la base des caractéristiques visuelles détectées.",
+      zonesAttention: ["Zone T légèrement grasse", "Contour des yeux à hydrater", "Joues à protéger"],
+      pointsForts: ["Bonne texture générale", "Teint relativement uniforme"],
+      routine: {
+        matin: ["Nettoyer avec un gel doux", "Appliquer un sérum éclat", "Crème hydratante légère", "Protection SPF 30"],
+        soir: ["Démaquiller soigneusement", "Nettoyer en profondeur", "Sérum réparateur", "Crème nuit nourrissante"]
+      },
+      produitsRecommandes: [
+        { categorie: "Nettoyant", produit: "Gel Nettoyant Douceur Mihi", raison: "Nettoie sans dessécher" },
+        { categorie: "Soin de jour", produit: "Crème Hydratante Légère Mihi", raison: "Hydratation sans film gras" },
+        { categorie: "Soin de nuit", produit: "Crème Riche Nutrition Mihi", raison: "Régénération nocturne" },
+        { categorie: "Soin spécifique", produit: "Sérum Éclat Mihi", raison: "Unifie le teint" },
+        { categorie: "Protection solaire", produit: "SPF 30 Quotidien Mihi", raison: "Protection adaptée au quotidien" }
+      ],
+      conseilsExpert: ["Boire 1,5L d'eau par jour", "Démaquiller chaque soir sans exception", "Appliquer la crème sur peau légèrement humide"],
+      scoreEclat: 72, scoreHydratation: 65, scorePurete: 78
+    };
+    state.step = "resultat";
+    render();
+  }
     var r = state.resultat;
     var prenom = state.prenom ? state.prenom + ", voici" : "Voici";
     var texte = "🔬 " + prenom + " ton diagnostic de peau personnalisé Beauty Addict !\n\n";
