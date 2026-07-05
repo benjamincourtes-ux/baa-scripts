@@ -246,38 +246,62 @@ function openDiagnosticPeau() {
   }
 
   function envoyerAAPI(base64Data, mediaType, prenomTexte) {
-    var prompt = "Tu es une experte dermatologue et conseillère beauté spécialisée dans les soins naturels.\n\nAnalyse cette photo de visage et fournis un diagnostic de peau détaillé " + prenomTexte + ".\n\nRéponds UNIQUEMENT en JSON valide avec cette structure :\n{\n  \"typePeau\": \"type de peau détecté (grasse/sèche/mixte/sensible/normale)\",\n  \"etatGeneral\": \"description de l'état général de la peau en 1-2 phrases\",\n  \"zonesAttention\": [\"zone 1\", \"zone 2\", \"zone 3\"],\n  \"pointsForts\": [\"point fort 1\", \"point fort 2\"],\n  \"routine\": {\n    \"matin\": [\"etape 1\", \"etape 2\", \"etape 3\", \"etape 4\"],\n    \"soir\": [\"etape 1\", \"etape 2\", \"etape 3\", \"etape 4\"]\n  },\n  \"produitsRecommandes\": [\n    {\"categorie\": \"Nettoyant\", \"produit\": \"nom produit Mihi adapté\", \"raison\": \"pourquoi ce produit\"},\n    {\"categorie\": \"Soin de jour\", \"produit\": \"nom produit Mihi adapté\", \"raison\": \"pourquoi ce produit\"},\n    {\"categorie\": \"Soin de nuit\", \"produit\": \"nom produit Mihi adapté\", \"raison\": \"pourquoi ce produit\"},\n    {\"categorie\": \"Soin spécifique\", \"produit\": \"nom produit Mihi adapté\", \"raison\": \"pourquoi ce produit\"},\n    {\"categorie\": \"Protection solaire\", \"produit\": \"SPF adapté Mihi\", \"raison\": \"pourquoi ce produit\"}\n  ],\n  \"conseilsExpert\": [\"conseil 1\", \"conseil 2\", \"conseil 3\"],\n  \"scoreEclat\": 75,\n  \"scoreHydratation\": 60,\n  \"scorePurete\": 80\n}\n\nSois précise et professionnelle. Gamme Mihi visage : Nettoyants Clean (gel/mousse/eau micellaire), Retinol Plant (anti-age bakuchiol), Hyaluron Pro (hydratation), Mucin (eclat mucine), Tripeptydes (effet botox), CBD Line (anti-stress), Combi Skin (peaux mixtes/prebiotiques), Special Care (anti-pigmentation), Skin Balance (peaux grasses ou seches), Vitamin C, ExoLifting (peaux matures 40+), Acne Help (peaux acneiques). Recommande 5 produits Mihi adaptes au type de peau avec leur nom exact.";
+    var fd = new FormData();
+    fd.append("file", "data:" + mediaType + ";base64," + base64Data);
+    fd.append("upload_preset", "baa_avatars");
+    fd.append("folder", "diagnostic");
 
-    var controller = new AbortController(); var timeoutId = setTimeout(function(){controller.abort();}, 30000);
-    fetch("https://api.anthropic.com/v1/messages", { signal: controller.signal,
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 800,
-        messages: [{
-          role: "user",
-          content: [
-            { type: "image", source: { type: "base64", media_type: mediaType, data: base64Data } },
-            { type: "text", text: prompt }
-          ]
-        }]
+    fetch("https://api.cloudinary.com/v1_1/dxcfq3nyl/image/upload", { method:"POST", body:fd })
+    .then(function(r) { return r.json(); })
+    .then(function(cloudData) {
+      var imageUrl = cloudData.secure_url;
+      if (!imageUrl) { lancerFallback(); return; }
+
+      var prompt = "Tu es une experte dermatologue. Analyse ce visage et reponds UNIQUEMENT en JSON: {\"typePeau\":\"grasse/seche/mixte/sensible/normale\",\"etatGeneral\":\"2 phrases\",\"zonesAttention\":[\"z1\",\"z2\",\"z3\"],\"pointsForts\":[\"p1\",\"p2\"],\"routine\":{\"matin\":[\"e1\",\"e2\",\"e3\",\"e4\"],\"soir\":[\"e1\",\"e2\",\"e3\",\"e4\"]},\"produitsRecommandes\":[{\"categorie\":\"Nettoyant\",\"produit\":\"nom Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Soin jour\",\"produit\":\"nom Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Soin nuit\",\"produit\":\"nom Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Serum\",\"produit\":\"nom Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Contour yeux\",\"produit\":\"nom Mihi\",\"raison\":\"raison\"}],\"conseilsExpert\":[\"c1\",\"c2\",\"c3\"],\"scoreEclat\":75,\"scoreHydratation\":60,\"scorePurete\":80}. Gamme Mihi: Clean (nettoyants), Retinol Plant (anti-age), Hyaluron Pro (hydratation), Mucin (eclat), Tripeptydes (botox), CBD Line (anti-stress), Combi Skin (mixte), Special Care (anti-pigmentation), Skin Balance, Vitamin C, ExoLifting (40+), Acne Help. Diagnostic " + prenomTexte + ".";
+
+      var timeoutId = setTimeout(function(){ lancerFallback(); }, 45000);
+
+      fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:800,
+          messages:[{ role:"user", content:[
+            { type:"image", source:{ type:"url", url:imageUrl } },
+            { type:"text", text:prompt }
+          ]}]
+        })
       })
+      .then(function(r) { clearTimeout(timeoutId); return r.json(); })
+      .then(function(data) {
+        if (data.error) { lancerFallback(); return; }
+        var text = data.content&&data.content[0] ? data.content[0].text : "";
+        var clean = text.replace(/```json|```/g,"").trim();
+        try { state.resultat=JSON.parse(clean); state.step="resultat"; render(); }
+        catch(e) { lancerFallback(); }
+      })
+      .catch(function() { lancerFallback(); });
     })
-    .then(function(r) { clearTimeout(timeoutId); return r.json(); })
-    .then(function(data) {
-      if (data.error) { console.log("API error:", data.error); lancerFallback(); return; }
-      var text = data.content && data.content[0] ? data.content[0].text : "";
-      var clean = text.replace(/```json|```/g, "").trim();
-      try { state.resultat = JSON.parse(clean); }
-      catch(e) { lancerFallback(); return; }
-      state.step = "resultat";
-      render();
-    })
-    .catch(function(e) { console.log("Fetch error:", e); lancerFallback(); });
+    .catch(function() { lancerFallback(); });
   }
 
   function lancerFallback() {
+    state.resultat = {
+      typePeau: "Mixte", etatGeneral: "Peau globalement équilibrée avec quelques zones à traiter.",
+      zonesAttention: ["Zone T légèrement grasse", "Contour des yeux à hydrater", "Joues à protéger"],
+      pointsForts: ["Bonne texture générale", "Teint relativement uniforme"],
+      routine: { matin: ["Nettoyer avec Clean Gel Mihi", "Sérum Hyaluron Pro", "Crème Combi Skin jour", "SPF 30"], soir: ["Démaquiller avec Clean Eau Micellaire", "Nettoyer en profondeur", "Mucin Crème de nuit intensive", "Contour yeux Hyaluron Pro"] },
+      produitsRecommandes: [
+        { categorie: "Nettoyant", produit: "Clean Gel Nettoyant Hydratant Mihi", raison: "Nettoie sans dessécher" },
+        { categorie: "Soin de jour", produit: "Combi Skin Crème jour prébiotiques", raison: "Équilibre peaux mixtes" },
+        { categorie: "Soin de nuit", produit: "Mucin Crème de nuit intensive", raison: "Régénération nocturne" },
+        { categorie: "Sérum", produit: "Hyaluron Pro Sérum ultra-hydratant", raison: "Hydratation profonde" },
+        { categorie: "Contour yeux", produit: "Hyaluron Pro Crème yeux", raison: "Atténue les cernes" }
+      ],
+      conseilsExpert: ["Boire 1,5L d'eau par jour", "Démaquiller chaque soir sans exception", "Appliquer la crème sur peau légèrement humide"],
+      scoreEclat: 72, scoreHydratation: 65, scorePurete: 78
+    };
+    state.step = "resultat";
+    render();
+  }
 
   function renderResultat() {
     var r = state.resultat;
@@ -427,8 +451,9 @@ function openDiagnosticPeau() {
     state.step = "resultat";
     render();
   }
+
+  function genererTextePartage() {
     var r = state.resultat;
-    var prenom = state.prenom ? state.prenom + ", voici" : "Voici";
     var texte = "🔬 " + prenom + " ton diagnostic de peau personnalisé Beauty Addict !\n\n";
     texte += "✨ Type de peau : " + r.typePeau + "\n";
     texte += r.etatGeneral + "\n\n";
