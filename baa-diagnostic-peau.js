@@ -257,6 +257,7 @@ function openDiagnosticPeau() {
     fetch("https://api.cloudinary.com/v1_1/dxcfq3nyl/image/upload", { method:"POST", body:fd })
     .then(function(r) { return r.json(); })
     .then(function(cloudData) {
+      console.log("Cloudinary response:", JSON.stringify(cloudData).slice(0,300));
       if (!cloudData.secure_url) { lancerFallback(); return; }
 
       var colors = cloudData.colors || [];
@@ -296,6 +297,7 @@ function openDiagnosticPeau() {
       }).catch(function(){ appelClaude("", prompt); });
 
       function appelClaude(apiKey, prompt) {
+        console.log("appelClaude - apiKey present:", !!apiKey);
         var headers = { "Content-Type": "application/json", "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" };
         if (apiKey) headers["x-api-key"] = apiKey;
 
@@ -307,7 +309,8 @@ function openDiagnosticPeau() {
         })
         .then(function(r) { return r.json(); })
         .then(function(data) {
-          if (data.error) { lancerFallback(); return; }
+          console.log("Claude response:", JSON.stringify(data).slice(0,200));
+          if (data.error) { console.log("Claude error:", data.error); lancerFallback(); return; }
           var text = data.content&&data.content[0] ? data.content[0].text : "";
           var clean = text.replace(/```json|```/g,"").trim();
           try { state.resultat=JSON.parse(clean); state.step="resultat"; render(); }
