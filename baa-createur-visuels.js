@@ -515,6 +515,81 @@ function openCreateurVisuels() {
     }
   }
 
+  // Exposer la fonction d'injection pour le générateur IA
+  window.__baaInjectVisuel = function(ambiance, config, format) {
+    state.bg = ambiance.bg;
+    state.bgType = ambiance.bgType || "solid";
+    if (ambiance.bgGradient) state.bgGradient = ambiance.bgGradient;
+    state.format = format || "square";
+    state.elements = [];
+    state.selected = null;
+    state.nextId = 1;
+
+    var hasPhoto = config.photoUrl ? true : false;
+
+    if (hasPhoto) {
+      // Photo en plein fond
+      state.elements.push({
+        id: state.nextId++, type:"photo", x:0, y:0, w:100, h:100,
+        photoUrl: config.photoUrl, rounded:false
+      });
+      // Overlay sombre pour lisibilité du texte
+      state.elements.push({
+        id: state.nextId++, type:"rect", x:0, y:55, w:100, h:45,
+        color:"rgba(0,0,0,0.55)", radius:0, opacity:1
+      });
+      // Titre sur l'overlay
+      state.elements.push({
+        id: state.nextId++, type:"text", x:50, y:64,
+        text: (config.emoji||"") + " " + config.titre,
+        fontSize:36, fontFamily: ambiance.font||"Georgia",
+        color:"#ffffff", bold:true, italic:false, w:80, h:10
+      });
+      if (config.sousTitre) {
+        state.elements.push({
+          id: state.nextId++, type:"text", x:50, y:76,
+          text: config.sousTitre,
+          fontSize:18, fontFamily:"Arial",
+          color:"rgba(255,255,255,0.85)", bold:false, italic:false, w:80, h:10
+        });
+      }
+      state.elements.push({
+        id: state.nextId++, type:"text", x:50, y:90,
+        text: config.tag||"",
+        fontSize:14, fontFamily:"Arial",
+        color: ambiance.tagColor||"#c9a86a", bold:false, italic:false, w:60, h:10
+      });
+    } else {
+      // Sans photo — layout texte centré
+      state.elements.push({
+        id: state.nextId++, type:"text", x:50, y:30,
+        text: (config.emoji||"") + " " + config.titre,
+        fontSize:42, fontFamily: ambiance.font||"Georgia",
+        color: ambiance.titleColor||"#ffffff", bold:true, italic:false, w:80, h:10
+      });
+      state.elements.push({
+        id: state.nextId++, type:"line", x:30, y:48, w:40, h:1,
+        color: ambiance.tagColor||"#c9a86a"
+      });
+      if (config.sousTitre) {
+        state.elements.push({
+          id: state.nextId++, type:"text", x:50, y:58,
+          text: config.sousTitre,
+          fontSize:22, fontFamily:"Arial",
+          color: ambiance.subColor||"rgba(255,255,255,0.6)", bold:false, italic:false, w:80, h:10
+        });
+      }
+      state.elements.push({
+        id: state.nextId++, type:"text", x:50, y:88,
+        text: config.tag||"",
+        fontSize:16, fontFamily:"Arial",
+        color: ambiance.tagColor||"#c9a86a", bold:false, italic:false, w:60, h:10
+      });
+    }
+
+    fullRender();
+  };
+
   fullRender();
 }
 
