@@ -374,31 +374,47 @@ function openDiagnosticPeau() {
       actionsDiv.appendChild(envBtn);
     }
 
-    // WhatsApp
-    var waBtn = document.createElement("button");
-    waBtn.textContent = "💬 Envoyer via WhatsApp";
-    waBtn.style.cssText = "width:100%;background:#25D366;color:white;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;";
-    waBtn.onclick = function() {
-      var texte = genererTextePartage();
-      var url = "whatsapp://send?text=" + encodeURIComponent(texte);
-      window.location.href = url;
-      setTimeout(function() {
-        window.open("https://wa.me/?text=" + encodeURIComponent(texte), "_blank");
-      }, 1000);
-    };
-    actionsDiv.appendChild(waBtn);
+    // Partager l'image via Web Share API (WhatsApp, Messenger, etc.)
+    var shareBtn = document.createElement("button");
+    shareBtn.textContent = "📤 Partager le diagnostic";
+    shareBtn.style.cssText = "width:100%;background:linear-gradient(135deg,#c9a86a,#f5d48a);color:#1a0a00;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;margin-bottom:8px;";
+    shareBtn.onclick = function() {
+      // Générer l'image puis la partager
+      var r2 = state.resultat;
+      var tempDiv = document.createElement("div");
+      tempDiv.style.cssText = "position:fixed;left:-9999px;top:0;width:600px;background:#f8f3ee;padding:24px;font-family:Arial,sans-serif;";
+      tempDiv.innerHTML = "<div style='text-align:center;margin-bottom:16px;'><h1 style='color:#8b735d;font-size:20px;margin:0;'>🔬 Diagnostic Peau IA</h1><p style='color:#c9a86a;font-size:13px;margin:4px 0 0;'>Beauty Addict Academy — " + new Date().toLocaleDateString("fr-FR") + (state.prenom?" — "+state.prenom:"") + "</p></div>" +
+        "<div style='background:linear-gradient(135deg,#c9a86a,#f5d48a);border-radius:12px;padding:16px;text-align:center;margin-bottom:12px;'><p style='color:#1a0a00;font-size:11px;font-weight:bold;margin:0 0 4px;'>TYPE DE PEAU</p><p style='color:#1a0a00;font-size:22px;font-weight:bold;margin:0;'>" + r2.typePeau + "</p><p style='color:rgba(0,0,0,0.6);font-size:12px;margin:6px 0 0;'>" + r2.etatGeneral + "</p></div>" +
+        "<h3 style='color:#8b735d;font-size:13px;margin:0 0 8px;'>🌿 Produits Mihi recommandés</h3>" +
+        (r2.produitsRecommandes ? r2.produitsRecommandes.map(function(p){return "<div style='background:white;border-radius:8px;padding:8px 10px;margin-bottom:6px;border-left:3px solid #c9a86a;'><strong style='color:#3a3a3a;font-size:12px;'>"+p.categorie+" : "+p.produit+"</strong><p style='color:#999;font-size:11px;margin:2px 0 0;'>"+p.raison+"</p></div>";}).join("") : "") +
+        "<p style='text-align:center;color:#c9a86a;font-weight:bold;font-size:12px;margin-top:16px;'>🐦‍🔥 Beauty Addict Academy</p>";
+      document.body.appendChild(tempDiv);
 
-    // Messenger
-    var msBtn = document.createElement("button");
-    msBtn.textContent = "💙 Envoyer via Messenger";
-    msBtn.style.cssText = "width:100%;background:#0084FF;color:white;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;";
-    msBtn.onclick = function() {
-      window.location.href = "fb-messenger://";
-      setTimeout(function() {
-        window.open("https://m.me/", "_blank");
-      }, 1000);
+      var loadH2C = function(cb){if(window.html2canvas){cb();return;}var s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js";s.onload=cb;document.head.appendChild(s);};
+      loadH2C(function(){
+        html2canvas(tempDiv,{scale:2,useCORS:true,logging:false,backgroundColor:"#f8f3ee"}).then(function(canvas){
+          document.body.removeChild(tempDiv);
+          canvas.toBlob(function(blob) {
+            var file = new File([blob], "diagnostic-peau.png", {type:"image/png"});
+            if (navigator.share && navigator.canShare && navigator.canShare({files:[file]})) {
+              navigator.share({
+                title: "Mon diagnostic de peau Beauty Addict",
+                text: "Voici mon diagnostic de peau personnalisé 🔬",
+                files: [file]
+              }).catch(function(){});
+            } else {
+              // Fallback : afficher l'image pour la sauvegarder
+              var dataUrl = canvas.toDataURL("image/png");
+              var dlDiv=document.createElement("div");
+              dlDiv.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9999999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;";
+              dlDiv.innerHTML="<p style='color:#f5d48a;font-size:14px;text-align:center;margin-bottom:12px;'>Appuie longuement sur l'image pour enregistrer, puis partage 📲</p><img src='"+dataUrl+"' style='max-width:100%;max-height:65vh;border-radius:8px;'/><button onclick='this.parentNode.remove()' style='margin-top:12px;background:#c9a86a;color:#1a0a00;border:none;padding:10px 24px;border-radius:20px;font-size:14px;font-weight:bold;cursor:pointer;'>Fermer</button>";
+              document.body.appendChild(dlDiv);
+            }
+          }, "image/png");
+        }).catch(function(){ document.body.removeChild(tempDiv); });
+      });
     };
-    actionsDiv.appendChild(msBtn);
+    actionsDiv.appendChild(shareBtn);
 
     // Télécharger en image PNG
     var dlBtn = document.createElement("button");
