@@ -346,18 +346,21 @@ function initBeautyAddictLogin() {
             var titre = document.getElementById("annonce-formation-titre").value.trim();
             var desc = document.getElementById("annonce-formation-desc").value.trim();
             if (!titre) { alert("Merci de saisir un titre."); return; }
+            if (typeof window.baaTelegram !== "undefined") window.baaTelegram.annonce("📚 Nouvelle formation disponible !", titre + (desc ? "\n\n" + desc : "") + "\n\n👉 Connecte-toi sur l'Académie pour la découvrir !");
             envoyerATous({ titre_message: "Nouvelle formation disponible :", corps_message: titre + (desc ? " - " + desc : ""), lien_action: "Connecte-toi sur l Academie pour la decouvrir." }, "annonce-formation-msg", "envoyer-annonce-formation");
           };
           document.getElementById("envoyer-annonce-outil").onclick = function() {
             var nom = document.getElementById("annonce-outil-nom").value.trim();
             var desc = document.getElementById("annonce-outil-desc").value.trim();
             if (!nom) { alert("Merci de saisir un nom d outil."); return; }
+            if (typeof window.baaTelegram !== "undefined") window.baaTelegram.annonce("🔧 Nouvel outil disponible !", nom + (desc ? "\n\n" + desc : "") + "\n\n👉 Va dans la section Outils de l'Académie !");
             envoyerATous({ titre_message: "Nouvel outil disponible :", corps_message: nom + (desc ? " - " + desc : ""), lien_action: "Va dans la section Outils de l Academie pour l utiliser." }, "annonce-outil-msg", "envoyer-annonce-outil");
           };
           document.getElementById("envoyer-annonce-info").onclick = function() {
             var titre = document.getElementById("annonce-info-titre").value.trim();
             var desc = document.getElementById("annonce-info-desc").value.trim();
             if (!titre) { alert("Merci de saisir un titre."); return; }
+            if (typeof window.baaTelegram !== "undefined") window.baaTelegram.annonce("📢 " + titre, desc || "");
             envoyerATous({ titre_message: "Info importante :", corps_message: titre + (desc ? " - " + desc : ""), lien_action: "Connecte-toi sur l Academie pour en savoir plus." }, "annonce-info-msg", "envoyer-annonce-info");
           };
         }
@@ -485,6 +488,7 @@ function initBeautyAddictLogin() {
                   msg.innerText = "Defi lance ! Il expire dans " + duree + "h.";
                   window.__baaDefiInitialized = false;
                   if (typeof initDefiEclair === "function") initDefiEclair();
+                  if (typeof window.baaTelegram !== "undefined") window.baaTelegram.defi(titre, desc, duree);
                   // Email à toutes les membres actives
                   emailjs.init("D_JtKhPDgOQWi_ECO");
                   db.collection("users").where("accountStatus", "==", "active").get().then(function(members) {
