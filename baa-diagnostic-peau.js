@@ -246,31 +246,59 @@ function openDiagnosticPeau() {
   }
 
   function envoyerAAPI(base64Data, mediaType, prenomTexte) {
+    // Etape 1 : Upload Cloudinary avec analyse couleurs et visage
     var fd = new FormData();
     fd.append("file", "data:" + mediaType + ";base64," + base64Data);
     fd.append("upload_preset", "baa_avatars");
     fd.append("folder", "diagnostic");
+    fd.append("colors", "true");
+    fd.append("faces", "true");
 
     fetch("https://api.cloudinary.com/v1_1/dxcfq3nyl/image/upload", { method:"POST", body:fd })
     .then(function(r) { return r.json(); })
     .then(function(cloudData) {
-      var imageUrl = cloudData.secure_url;
-      if (!imageUrl) { lancerFallback(); return; }
+      if (!cloudData.secure_url) { lancerFallback(); return; }
 
-      var prompt = "Tu es une experte dermatologue. Analyse ce visage et reponds UNIQUEMENT en JSON: {\"typePeau\":\"grasse/seche/mixte/sensible/normale\",\"etatGeneral\":\"2 phrases\",\"zonesAttention\":[\"z1\",\"z2\",\"z3\"],\"pointsForts\":[\"p1\",\"p2\"],\"routine\":{\"matin\":[\"e1\",\"e2\",\"e3\",\"e4\"],\"soir\":[\"e1\",\"e2\",\"e3\",\"e4\"]},\"produitsRecommandes\":[{\"categorie\":\"Nettoyant\",\"produit\":\"nom Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Soin jour\",\"produit\":\"nom Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Soin nuit\",\"produit\":\"nom Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Serum\",\"produit\":\"nom Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Contour yeux\",\"produit\":\"nom Mihi\",\"raison\":\"raison\"}],\"conseilsExpert\":[\"c1\",\"c2\",\"c3\"],\"scoreEclat\":75,\"scoreHydratation\":60,\"scorePurete\":80}. Gamme Mihi: Clean (nettoyants), Retinol Plant (anti-age), Hyaluron Pro (hydratation), Mucin (eclat), Tripeptydes (botox), CBD Line (anti-stress), Combi Skin (mixte), Special Care (anti-pigmentation), Skin Balance, Vitamin C, ExoLifting (40+), Acne Help. Diagnostic " + prenomTexte + ".";
+      // Analyser les données retournées par Cloudinary
+      var colors = cloudData.colors || [];
+      var faces = cloudData.faces || [];
+      var dominantColors = colors.slice(0,5).map(function(c){return c[0];}).join(", ");
 
-      var timeoutId = setTimeout(function(){ lancerFallback(); }, 45000);
+      // Déduire des caractéristiques de peau à partir des couleurs
+      var photoDesc = "Analyse chromatique du visage : couleurs dominantes " + (dominantColors||"non disponibles") + ". ";
+      if (faces.length > 0) photoDesc += "Visage bien visible. ";
+
+      var hasRed = colors.some(function(c){
+        var r=parseInt(c[0].substr(1,2),16), g=parseInt(c[0].substr(3,2),16);
+        return r>160 && g<120;
+      });
+      var isPale = colors.some(function(c){
+        var r=parseInt(c[0].substr(1,2),16), g=parseInt(c[0].substr(3,2),16), b=parseInt(c[0].substr(5,2),16);
+        return r>200 && g>185 && b>170;
+      });
+      var isMat = colors.some(function(c){
+        var r=parseInt(c[0].substr(1,2),16), g=parseInt(c[0].substr(3,2),16), b=parseInt(c[0].substr(5,2),16);
+        return r>100 && r<180 && g>80 && g<150 && b>60 && b<130;
+      });
+      var hasShin = colors.some(function(c){ return parseFloat(c[1]) > 30; });
+
+      if (hasRed) photoDesc += "Rougeurs ou irritations détectées. ";
+      if (isPale) photoDesc += "Teint clair. ";
+      if (isMat) photoDesc += "Teint mat ou doré. ";
+      if (hasShin) photoDesc += "Zones brillantes visibles (possiblement peau grasse). ";
+      if (!hasRed && !hasShin && isPale) photoDesc += "Peau apparemment équilibrée. ";
+
+      // Etape 2 : Claude en mode texte uniquement (pas de CORS)
+      var prompt = "Tu es une experte dermatologue. Voici les données chromatiques d'une photo de visage : " + photoDesc + "Base-toi sur ces informations pour établir un diagnostic de peau personnalisé et realiste " + prenomTexte + ". Le diagnostic doit varier selon les caracteristiques detectees. Reponds UNIQUEMENT en JSON: {\"typePeau\":\"type precise\",\"etatGeneral\":\"description personnalisee 2 phrases\",\"zonesAttention\":[\"z1\",\"z2\",\"z3\"],\"pointsForts\":[\"p1\",\"p2\"],\"routine\":{\"matin\":[\"e1\",\"e2\",\"e3\",\"e4\"],\"soir\":[\"e1\",\"e2\",\"e3\",\"e4\"]},\"produitsRecommandes\":[{\"categorie\":\"Nettoyant\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison precise\"},{\"categorie\":\"Soin jour\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Soin nuit\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Serum\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Contour yeux\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison\"}],\"conseilsExpert\":[\"c1\",\"c2\",\"c3\"],\"scoreEclat\":0,\"scoreHydratation\":0,\"scorePurete\":0}. Gamme Mihi: Clean (nettoyants gel/mousse/micellaire), Retinol Plant (anti-age bakuchiol), Hyaluron Pro (hydratation SPF15), Mucin (eclat mucine), Tripeptydes (botox naturel), CBD Line (anti-stress), Combi Skin (mixte prebiotiques), Special Care (anti-pigmentation SPF30), Skin Balance (grasse ou seche), Vitamin C, ExoLifting (matures 40+), Acne Help (acneique). Adapte les scores et produits selon les caracteristiques detectees.";
 
       fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:800,
-          messages:[{ role:"user", content:[
-            { type:"image", source:{ type:"url", url:imageUrl } },
-            { type:"text", text:prompt }
-          ]}]
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:900,
+          messages:[{ role:"user", content: prompt }]
         })
       })
-      .then(function(r) { clearTimeout(timeoutId); return r.json(); })
+      .then(function(r) { return r.json(); })
       .then(function(data) {
         if (data.error) { lancerFallback(); return; }
         var text = data.content&&data.content[0] ? data.content[0].text : "";
@@ -281,26 +309,6 @@ function openDiagnosticPeau() {
       .catch(function() { lancerFallback(); });
     })
     .catch(function() { lancerFallback(); });
-  }
-
-  function lancerFallback() {
-    state.resultat = {
-      typePeau: "Mixte", etatGeneral: "Peau globalement équilibrée avec quelques zones à traiter.",
-      zonesAttention: ["Zone T légèrement grasse", "Contour des yeux à hydrater", "Joues à protéger"],
-      pointsForts: ["Bonne texture générale", "Teint relativement uniforme"],
-      routine: { matin: ["Nettoyer avec Clean Gel Mihi", "Sérum Hyaluron Pro", "Crème Combi Skin jour", "SPF 30"], soir: ["Démaquiller avec Clean Eau Micellaire", "Nettoyer en profondeur", "Mucin Crème de nuit intensive", "Contour yeux Hyaluron Pro"] },
-      produitsRecommandes: [
-        { categorie: "Nettoyant", produit: "Clean Gel Nettoyant Hydratant Mihi", raison: "Nettoie sans dessécher" },
-        { categorie: "Soin de jour", produit: "Combi Skin Crème jour prébiotiques", raison: "Équilibre peaux mixtes" },
-        { categorie: "Soin de nuit", produit: "Mucin Crème de nuit intensive", raison: "Régénération nocturne" },
-        { categorie: "Sérum", produit: "Hyaluron Pro Sérum ultra-hydratant", raison: "Hydratation profonde" },
-        { categorie: "Contour yeux", produit: "Hyaluron Pro Crème yeux", raison: "Atténue les cernes" }
-      ],
-      conseilsExpert: ["Boire 1,5L d'eau par jour", "Démaquiller chaque soir sans exception", "Appliquer la crème sur peau légèrement humide"],
-      scoreEclat: 72, scoreHydratation: 65, scorePurete: 78
-    };
-    state.step = "resultat";
-    render();
   }
 
   function renderResultat() {
@@ -397,7 +405,8 @@ function openDiagnosticPeau() {
     waBtn.style.cssText = "width:100%;background:#25D366;color:white;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;";
     waBtn.onclick = function() {
       var texte = genererTextePartage();
-      window.open("https://wa.me/?text=" + encodeURIComponent(texte), "_blank");
+      var url = "https://api.whatsapp.com/send?text=" + encodeURIComponent(texte);
+      window.open(url, "_blank");
     };
     actionsDiv.appendChild(waBtn);
 
@@ -407,8 +416,16 @@ function openDiagnosticPeau() {
     msBtn.style.cssText = "width:100%;background:#0084FF;color:white;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;";
     msBtn.onclick = function() {
       var texte = genererTextePartage();
-      window.open("fb-messenger://share?text=" + encodeURIComponent(texte), "_blank");
-      setTimeout(function() { window.open("https://www.facebook.com/dialog/send?app_id=966242223397117&display=popup&link=https://beautyaddictacademy.com&redirect_uri=https://beautyaddictacademy.com", "_blank"); }, 500);
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        window.location.href = "fb-messenger://share/?link=" + encodeURIComponent("https://mihi.care") + "&app_id=966242223397117";
+        setTimeout(function() {
+          var win = window.open("https://m.me/", "_blank");
+          if (win) win.document.write("<p>Copie ce message :<br><br>" + texte.split("\n").join("<br>") + "</p>");
+        }, 2000);
+      } else {
+        var win = window.open("https://www.messenger.com/", "_blank");
+        setTimeout(function() { alert("Copie ce message dans Messenger :\n\n" + texte); }, 500);
+      }
     };
     actionsDiv.appendChild(msBtn);
 
@@ -429,24 +446,15 @@ function openDiagnosticPeau() {
   }
 
   function lancerFallback() {
+    state.isFallback = true;
     state.resultat = {
-      typePeau: "Mixte",
-      etatGeneral: "Peau globalement équilibrée avec quelques zones à traiter. Analyse effectuée sur la base des caractéristiques visuelles détectées.",
-      zonesAttention: ["Zone T légèrement grasse", "Contour des yeux à hydrater", "Joues à protéger"],
-      pointsForts: ["Bonne texture générale", "Teint relativement uniforme"],
-      routine: {
-        matin: ["Nettoyer avec un gel doux", "Appliquer un sérum éclat", "Crème hydratante légère", "Protection SPF 30"],
-        soir: ["Démaquiller soigneusement", "Nettoyer en profondeur", "Sérum réparateur", "Crème nuit nourrissante"]
-      },
-      produitsRecommandes: [
-        { categorie: "Nettoyant", produit: "Gel Nettoyant Douceur Mihi", raison: "Nettoie sans dessécher" },
-        { categorie: "Soin de jour", produit: "Crème Hydratante Légère Mihi", raison: "Hydratation sans film gras" },
-        { categorie: "Soin de nuit", produit: "Crème Riche Nutrition Mihi", raison: "Régénération nocturne" },
-        { categorie: "Soin spécifique", produit: "Sérum Éclat Mihi", raison: "Unifie le teint" },
-        { categorie: "Protection solaire", produit: "SPF 30 Quotidien Mihi", raison: "Protection adaptée au quotidien" }
-      ],
-      conseilsExpert: ["Boire 1,5L d'eau par jour", "Démaquiller chaque soir sans exception", "Appliquer la crème sur peau légèrement humide"],
-      scoreEclat: 72, scoreHydratation: 65, scorePurete: 78
+      typePeau: "Non déterminé",
+      etatGeneral: "⚠️ L'analyse IA n'a pas pu aboutir. Relance le diagnostic avec une photo plus lumineuse et le visage bien visible.",
+      zonesAttention: [], pointsForts: [],
+      routine: { matin: [], soir: [] },
+      produitsRecommandes: [],
+      conseilsExpert: ["Assure-toi d'avoir une bonne connexion internet", "Prends la photo en bonne lumière", "Le visage doit être bien visible et dégagé"],
+      scoreEclat: 0, scoreHydratation: 0, scorePurete: 0
     };
     state.step = "resultat";
     render();
@@ -466,29 +474,41 @@ function openDiagnosticPeau() {
 
   function telechargerDiagnostic() {
     var r = state.resultat;
-    var html = "<!DOCTYPE html><html><head><meta charset='UTF-8'><style>body{font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;background:#f8f3ee;}h1{color:#8b735d;}h2{color:#c9a86a;font-size:15px;margin-top:20px;}p{color:#555;font-size:14px;line-height:1.6;}.badge{background:linear-gradient(135deg,#c9a86a,#f5d48a);border-radius:12px;padding:16px;text-align:center;margin:16px 0;}.score{display:inline-block;margin:8px;text-align:center;background:white;border-radius:8px;padding:10px 16px;}.produit{background:white;border-radius:8px;padding:10px;margin:6px 0;border-left:3px solid #c9a86a;}.footer{text-align:center;margin-top:30px;color:#c9a86a;font-weight:bold;}</style></head><body>";
-    html += "<h1>🔬 Diagnostic Peau IA Beauty Addict</h1>";
-    if (state.prenom) html += "<p><strong>Pour :</strong> " + state.prenom + "</p>";
-    html += "<p><strong>Date :</strong> " + new Date().toLocaleDateString("fr-FR") + "</p>";
-    html += "<div class='badge'><strong style='font-size:20px;color:#1a0a00;'>Type de peau : " + r.typePeau + "</strong><p style='color:rgba(0,0,0,0.6);margin:8px 0 0;'>" + r.etatGeneral + "</p></div>";
-    html += "<div>" + [["✨ Éclat",r.scoreEclat],["💧 Hydratation",r.scoreHydratation],["🌿 Pureté",r.scorePurete]].map(function(s){return "<div class='score'><div style='font-size:22px;font-weight:bold;color:#c9a86a;'>"+s[1]+"%</div><div style='font-size:12px;color:#8b735d;'>"+s[0]+"</div></div>";}).join("") + "</div>";
-    html += "<h2>🌿 Produits Mihi recommandés</h2>";
-    if (r.produitsRecommandes) r.produitsRecommandes.forEach(function(p){ html += "<div class='produit'><strong>" + p.categorie + " :</strong> " + p.produit + "<br><small style='color:#999;'>" + p.raison + "</small></div>"; });
-    html += "<h2>☀️ Routine Matin</h2>";
-    if (r.routine && r.routine.matin) r.routine.matin.forEach(function(e,i){ html += "<p>" + (i+1) + ". " + e + "</p>"; });
-    html += "<h2>🌙 Routine Soir</h2>";
-    if (r.routine && r.routine.soir) r.routine.soir.forEach(function(e,i){ html += "<p>" + (i+1) + ". " + e + "</p>"; });
-    html += "<h2>💡 Conseils d'experte</h2>";
-    if (r.conseilsExpert) r.conseilsExpert.forEach(function(c){ html += "<p>• " + c + "</p>"; });
-    html += "<div class='footer'>🐦‍🔥 Beauty Addict Academy — Diagnostic généré par IA</div></body></html>";
+    // Créer un div temporaire pour le rendu
+    var tempDiv = document.createElement("div");
+    tempDiv.style.cssText = "position:fixed;left:-9999px;top:0;width:600px;background:#f8f3ee;padding:24px;font-family:Arial,sans-serif;";
+    tempDiv.innerHTML = "<div style='text-align:center;margin-bottom:16px;'><h1 style='color:#8b735d;font-size:20px;margin:0;'>🔬 Diagnostic Peau IA</h1><p style='color:#c9a86a;font-size:13px;margin:4px 0 0;'>Beauty Addict Academy — " + new Date().toLocaleDateString("fr-FR") + (state.prenom?" — "+state.prenom:"") + "</p></div>" +
+      "<div style='background:linear-gradient(135deg,#c9a86a,#f5d48a);border-radius:12px;padding:16px;text-align:center;margin-bottom:12px;'><p style='color:#1a0a00;font-size:11px;font-weight:bold;margin:0 0 4px;letter-spacing:1px;'>TYPE DE PEAU</p><p style='color:#1a0a00;font-size:22px;font-weight:bold;margin:0 0 6px;'>" + r.typePeau + "</p><p style='color:rgba(0,0,0,0.6);font-size:12px;margin:0;'>" + r.etatGeneral + "</p></div>" +
+      "<div style='display:flex;gap:8px;margin-bottom:12px;'>" + [["✨ Éclat",r.scoreEclat,"#c9a86a"],["💧 Hydratation",r.scoreHydratation,"#2980B9"],["🌿 Pureté",r.scorePurete,"#27AE60"]].map(function(s){return "<div style='flex:1;background:white;border-radius:8px;padding:10px;text-align:center;border:1px solid #e8d4b0;'><div style='font-size:20px;font-weight:bold;color:"+s[2]+";'>"+s[1]+"%</div><div style='font-size:11px;color:#8b735d;margin-top:2px;'>"+s[0]+"</div></div>";}).join("") + "</div>" +
+      "<h3 style='color:#8b735d;font-size:13px;margin:0 0 8px;'>🌿 Produits Mihi recommandés</h3>" +
+      (r.produitsRecommandes ? r.produitsRecommandes.map(function(p){return "<div style='background:white;border-radius:8px;padding:8px 10px;margin-bottom:6px;border-left:3px solid #c9a86a;'><strong style='color:#3a3a3a;font-size:12px;'>"+p.categorie+" : "+p.produit+"</strong><p style='color:#999;font-size:11px;margin:2px 0 0;'>"+p.raison+"</p></div>";}).join("") : "") +
+      "<h3 style='color:#8b735d;font-size:13px;margin:12px 0 8px;'>📋 Routine personnalisée</h3>" +
+      "<div style='display:flex;gap:8px;'>" +
+      "<div style='flex:1;background:white;border-radius:8px;padding:10px;'><p style='color:#c9a86a;font-size:11px;font-weight:bold;margin:0 0 6px;'>☀️ MATIN</p>" + (r.routine&&r.routine.matin?r.routine.matin.map(function(e,i){return "<p style='color:#555;font-size:11px;margin:0 0 3px;'>"+(i+1)+". "+e+"</p>";}).join(""):"") + "</div>" +
+      "<div style='flex:1;background:white;border-radius:8px;padding:10px;'><p style='color:#c9a86a;font-size:11px;font-weight:bold;margin:0 0 6px;'>🌙 SOIR</p>" + (r.routine&&r.routine.soir?r.routine.soir.map(function(e,i){return "<p style='color:#555;font-size:11px;margin:0 0 3px;'>"+(i+1)+". "+e+"</p>";}).join(""):"") + "</div>" +
+      "</div>" +
+      "<p style='text-align:center;color:#c9a86a;font-weight:bold;font-size:12px;margin-top:16px;'>🐦‍🔥 Beauty Addict Academy</p>";
+    document.body.appendChild(tempDiv);
 
-    var blob = new Blob([html], {type:"text/html"});
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement("a");
-    a.href = url;
-    a.download = "diagnostic-peau-" + (state.prenom||"beautyAddict") + ".html";
-    a.click();
-    URL.revokeObjectURL(url);
+    var loadH2C = function(cb){if(window.html2canvas){cb();return;}var s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js";s.onload=cb;document.head.appendChild(s);};
+    loadH2C(function(){
+      html2canvas(tempDiv, {scale:2,useCORS:true,logging:false,backgroundColor:"#f8f3ee"}).then(function(canvas){
+        document.body.removeChild(tempDiv);
+        var dataUrl = canvas.toDataURL("image/png");
+        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+          var dlDiv=document.createElement("div");
+          dlDiv.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9999999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;";
+          var msgP=document.createElement("p");msgP.style.cssText="color:#f5d48a;font-size:14px;text-align:center;margin-bottom:12px;";msgP.textContent="Appuie longuement sur l image pour enregistrer 📲";
+          var img=document.createElement("img");img.src=dataUrl;img.style.cssText="max-width:100%;max-height:70vh;border-radius:8px;";
+          var closeB=document.createElement("button");closeB.textContent="Fermer";closeB.style.cssText="margin-top:12px;background:#c9a86a;color:#1a0a00;border:none;padding:10px 24px;border-radius:20px;font-size:14px;font-weight:bold;cursor:pointer;touch-action:manipulation;";
+          closeB.onclick=function(){dlDiv.remove();};
+          dlDiv.appendChild(msgP);dlDiv.appendChild(img);dlDiv.appendChild(closeB);
+          document.body.appendChild(dlDiv);
+        } else {
+          var a=document.createElement("a");a.download="diagnostic-peau-"+(state.prenom||"beautyAddict")+".png";a.href=dataUrl;a.click();
+        }
+      }).catch(function(){document.body.removeChild(tempDiv);});
+    });
   }
 
   function envoyerDiagnostic() {
