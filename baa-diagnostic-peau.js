@@ -378,26 +378,25 @@ function openDiagnosticPeau() {
     var waBtn = document.createElement("button");
     waBtn.textContent = "💬 Envoyer via WhatsApp";
     waBtn.style.cssText = "width:100%;background:#25D366;color:white;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;";
-    waBtn.onclick = function(e) {
-      e.stopPropagation();
-      window.open("https://wa.me/?text=" + encodeURIComponent(genererTextePartage()), "_blank");
-    };
+    var waFn = function(e) { e.preventDefault(); e.stopPropagation(); window.open("https://wa.me/?text=" + encodeURIComponent(genererTextePartage()), "_blank"); };
+    waBtn.onclick = waFn;
+    waBtn.addEventListener("touchend", waFn, {passive:false});
     actionsDiv.appendChild(waBtn);
 
     // Partager via Messenger
     var msBtn = document.createElement("button");
     msBtn.textContent = "💙 Envoyer via Messenger";
     msBtn.style.cssText = "width:100%;background:#0084FF;color:white;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;";
-    msBtn.onclick = function(e) {
-      e.stopPropagation();
+    var msFn = function(e) {
+      e.preventDefault(); e.stopPropagation();
       var texte = genererTextePartage();
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(texte).then(function() {
-          alert("✅ Message copié ! Ouvre Messenger et colle-le.");
-        });
+        navigator.clipboard.writeText(texte).then(function() { alert("✅ Message copié ! Ouvre Messenger et colle-le."); });
       }
       window.open("https://www.messenger.com/", "_blank");
     };
+    msBtn.onclick = msFn;
+    msBtn.addEventListener("touchend", msFn, {passive:false});
     actionsDiv.appendChild(msBtn);
 
     // Télécharger en image PNG
