@@ -246,80 +246,44 @@ function openDiagnosticPeau() {
   }
 
   function envoyerAAPI(base64Data, mediaType, prenomTexte) {
-    // Etape 1 : Upload Cloudinary avec analyse couleurs et visage
-    var fd = new FormData();
-    fd.append("file", "data:" + mediaType + ";base64," + base64Data);
-    fd.append("upload_preset", "baa_avatars");
-    fd.append("folder", "diagnostic");
-    fd.append("colors", "true");
-    fd.append("faces", "true");
+    // Appel direct à Claude avec le header browser access comme Phénix
+    var db = firebase.firestore();
+    db.collection("config").doc("assistant").get().then(function(snap) {
+      var apiKey = snap.exists ? snap.data().apiKey || "" : "";
+      if (!apiKey) {
+        db.collection("config").doc("api").get().then(function(s2){
+          appelClaude(s2.exists ? s2.data().apiKey||"" : "");
+        }).catch(function(){ appelClaude(""); });
+      } else { appelClaude(apiKey); }
+    }).catch(function(){ appelClaude(""); });
 
-    fetch("https://api.cloudinary.com/v1_1/dxcfq3nyl/image/upload", { method:"POST", body:fd })
-    .then(function(r) { return r.json(); })
-    .then(function(cloudData) {
-      console.log("Cloudinary response:", JSON.stringify(cloudData).slice(0,300));
-      if (!cloudData.secure_url) { lancerFallback(); return; }
+    function appelClaude(apiKey) {
+      console.log("appelClaude - apiKey present:", !!apiKey);
+      var headers = { "Content-Type": "application/json", "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" };
+      if (apiKey) headers["x-api-key"] = apiKey;
 
-      var colors = cloudData.colors || [];
-      var faces = cloudData.faces || [];
-      var dominantColors = colors.slice(0,5).map(function(c){return c[0];}).join(", ");
+      var prompt = "Tu es une experte dermatologue. Analyse cette photo de visage et etablis un diagnostic de peau personnalise " + prenomTexte + ". Reponds UNIQUEMENT en JSON: {\"typePeau\":\"type precise\",\"etatGeneral\":\"description personnalisee 2 phrases\",\"zonesAttention\":[\"z1\",\"z2\",\"z3\"],\"pointsForts\":[\"p1\",\"p2\"],\"routine\":{\"matin\":[\"e1\",\"e2\",\"e3\",\"e4\"],\"soir\":[\"e1\",\"e2\",\"e3\",\"e4\"]},\"produitsRecommandes\":[{\"categorie\":\"Nettoyant\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Soin jour\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Soin nuit\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Serum\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Contour yeux\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison\"}],\"conseilsExpert\":[\"c1\",\"c2\",\"c3\"],\"scoreEclat\":0,\"scoreHydratation\":0,\"scorePurete\":0}. Gamme Mihi: Clean (nettoyants), Retinol Plant (anti-age), Hyaluron Pro (hydratation), Mucin (eclat), Tripeptydes (botox), CBD Line (anti-stress), Combi Skin (mixte), Special Care (anti-pigmentation), Skin Balance, Vitamin C, ExoLifting (40+), Acne Help.";
 
-      var photoDesc = "Analyse chromatique du visage : couleurs dominantes " + (dominantColors||"non disponibles") + ". ";
-      if (faces.length > 0) photoDesc += "Visage bien visible. ";
-
-      var hasRed = colors.some(function(c){
-        var r=parseInt(c[0].substr(1,2),16), g=parseInt(c[0].substr(3,2),16);
-        return r>160 && g<120;
-      });
-      var isPale = colors.some(function(c){
-        var r=parseInt(c[0].substr(1,2),16), g=parseInt(c[0].substr(3,2),16), b=parseInt(c[0].substr(5,2),16);
-        return r>200 && g>185 && b>170;
-      });
-      var isMat = colors.some(function(c){
-        var r=parseInt(c[0].substr(1,2),16), g=parseInt(c[0].substr(3,2),16), b=parseInt(c[0].substr(5,2),16);
-        return r>100 && r<180 && g>80 && g<150 && b>60 && b<130;
-      });
-      var hasShin = colors.some(function(c){ return parseFloat(c[1]) > 30; });
-
-      if (hasRed) photoDesc += "Rougeurs ou irritations détectées. ";
-      if (isPale) photoDesc += "Teint clair. ";
-      if (isMat) photoDesc += "Teint mat ou doré. ";
-      if (hasShin) photoDesc += "Zones brillantes visibles (possiblement peau grasse). ";
-
-      var prompt = "Tu es une experte dermatologue. Voici les données chromatiques d'une photo de visage : " + photoDesc + " Sur cette base, établis un diagnostic de peau personnalisé " + prenomTexte + ". Reponds UNIQUEMENT en JSON: {\"typePeau\":\"type precise\",\"etatGeneral\":\"description personnalisee 2 phrases\",\"zonesAttention\":[\"z1\",\"z2\",\"z3\"],\"pointsForts\":[\"p1\",\"p2\"],\"routine\":{\"matin\":[\"e1\",\"e2\",\"e3\",\"e4\"],\"soir\":[\"e1\",\"e2\",\"e3\",\"e4\"]},\"produitsRecommandes\":[{\"categorie\":\"Nettoyant\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Soin jour\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Soin nuit\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Serum\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Contour yeux\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison\"}],\"conseilsExpert\":[\"c1\",\"c2\",\"c3\"],\"scoreEclat\":0,\"scoreHydratation\":0,\"scorePurete\":0}. Gamme Mihi: Clean (nettoyants), Retinol Plant (anti-age), Hyaluron Pro (hydratation), Mucin (eclat), Tripeptydes (botox), CBD Line (anti-stress), Combi Skin (mixte), Special Care (anti-pigmentation), Skin Balance, Vitamin C, ExoLifting (40+), Acne Help.";
-
-      // Récupérer la clé API depuis Firebase comme Phénix
-      var db = firebase.firestore();
-      db.collection("config").doc("assistant").get().then(function(snap) {
-        var apiKey = snap.exists ? snap.data().apiKey || "" : "";
-        if (!apiKey) { db.collection("config").doc("api").get().then(function(s2){ apiKey = s2.exists ? s2.data().apiKey||"" : ""; appelClaude(apiKey, prompt); }); }
-        else { appelClaude(apiKey, prompt); }
-      }).catch(function(){ appelClaude("", prompt); });
-
-      function appelClaude(apiKey, prompt) {
-        console.log("appelClaude - apiKey present:", !!apiKey);
-        var headers = { "Content-Type": "application/json", "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" };
-        if (apiKey) headers["x-api-key"] = apiKey;
-
-        fetch("https://api.anthropic.com/v1/messages", {
-          method: "POST", headers: headers,
-          body: JSON.stringify({ model:"claude-haiku-4-5-20251001", max_tokens:900,
-            messages:[{ role:"user", content: prompt }]
-          })
+      fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST", headers: headers,
+        body: JSON.stringify({ model:"claude-haiku-4-5-20251001", max_tokens:900,
+          messages:[{ role:"user", content:[
+            { type:"image", source:{ type:"base64", media_type: mediaType, data: base64Data } },
+            { type:"text", text: prompt }
+          ]}]
         })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          console.log("Claude response:", JSON.stringify(data).slice(0,200));
-          if (data.error) { console.log("Claude error:", data.error); lancerFallback(); return; }
-          var text = data.content&&data.content[0] ? data.content[0].text : "";
-          var clean = text.replace(/```json|```/g,"").trim();
-          try { state.resultat=JSON.parse(clean); state.step="resultat"; render(); }
-          catch(e) { lancerFallback(); }
-        })
-        .catch(function() { lancerFallback(); });
-      }
-    })
-    .catch(function() { lancerFallback(); });
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        console.log("Claude response:", JSON.stringify(data).slice(0,300));
+        if (data.error) { console.log("Claude error:", data.error); lancerFallback(); return; }
+        var text = data.content&&data.content[0] ? data.content[0].text : "";
+        var clean = text.replace(/```json|```/g,"").trim();
+        try { state.resultat=JSON.parse(clean); state.step="resultat"; render(); }
+        catch(e) { lancerFallback(); }
+      })
+      .catch(function(e) { console.log("fetch error:", e); lancerFallback(); });
+    }
   }
 
   function renderResultat() {
