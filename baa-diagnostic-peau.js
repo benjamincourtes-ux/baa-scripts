@@ -259,12 +259,10 @@ function openDiagnosticPeau() {
     .then(function(cloudData) {
       if (!cloudData.secure_url) { lancerFallback(); return; }
 
-      // Analyser les données retournées par Cloudinary
       var colors = cloudData.colors || [];
       var faces = cloudData.faces || [];
       var dominantColors = colors.slice(0,5).map(function(c){return c[0];}).join(", ");
 
-      // Déduire des caractéristiques de peau à partir des couleurs
       var photoDesc = "Analyse chromatique du visage : couleurs dominantes " + (dominantColors||"non disponibles") + ". ";
       if (faces.length > 0) photoDesc += "Visage bien visible. ";
 
@@ -286,27 +284,37 @@ function openDiagnosticPeau() {
       if (isPale) photoDesc += "Teint clair. ";
       if (isMat) photoDesc += "Teint mat ou doré. ";
       if (hasShin) photoDesc += "Zones brillantes visibles (possiblement peau grasse). ";
-      if (!hasRed && !hasShin && isPale) photoDesc += "Peau apparemment équilibrée. ";
 
-      // Etape 2 : Claude en mode texte uniquement (pas de CORS)
-      var prompt = "Tu es une experte dermatologue. Voici les données chromatiques d'une photo de visage : " + photoDesc + "Base-toi sur ces informations pour établir un diagnostic de peau personnalisé et realiste " + prenomTexte + ". Le diagnostic doit varier selon les caracteristiques detectees. Reponds UNIQUEMENT en JSON: {\"typePeau\":\"type precise\",\"etatGeneral\":\"description personnalisee 2 phrases\",\"zonesAttention\":[\"z1\",\"z2\",\"z3\"],\"pointsForts\":[\"p1\",\"p2\"],\"routine\":{\"matin\":[\"e1\",\"e2\",\"e3\",\"e4\"],\"soir\":[\"e1\",\"e2\",\"e3\",\"e4\"]},\"produitsRecommandes\":[{\"categorie\":\"Nettoyant\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison precise\"},{\"categorie\":\"Soin jour\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Soin nuit\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Serum\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Contour yeux\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison\"}],\"conseilsExpert\":[\"c1\",\"c2\",\"c3\"],\"scoreEclat\":0,\"scoreHydratation\":0,\"scorePurete\":0}. Gamme Mihi: Clean (nettoyants gel/mousse/micellaire), Retinol Plant (anti-age bakuchiol), Hyaluron Pro (hydratation SPF15), Mucin (eclat mucine), Tripeptydes (botox naturel), CBD Line (anti-stress), Combi Skin (mixte prebiotiques), Special Care (anti-pigmentation SPF30), Skin Balance (grasse ou seche), Vitamin C, ExoLifting (matures 40+), Acne Help (acneique). Adapte les scores et produits selon les caracteristiques detectees.";
+      var prompt = "Tu es une experte dermatologue. Voici les données chromatiques d'une photo de visage : " + photoDesc + " Sur cette base, établis un diagnostic de peau personnalisé " + prenomTexte + ". Reponds UNIQUEMENT en JSON: {\"typePeau\":\"type precise\",\"etatGeneral\":\"description personnalisee 2 phrases\",\"zonesAttention\":[\"z1\",\"z2\",\"z3\"],\"pointsForts\":[\"p1\",\"p2\"],\"routine\":{\"matin\":[\"e1\",\"e2\",\"e3\",\"e4\"],\"soir\":[\"e1\",\"e2\",\"e3\",\"e4\"]},\"produitsRecommandes\":[{\"categorie\":\"Nettoyant\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Soin jour\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Soin nuit\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Serum\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison\"},{\"categorie\":\"Contour yeux\",\"produit\":\"nom exact Mihi\",\"raison\":\"raison\"}],\"conseilsExpert\":[\"c1\",\"c2\",\"c3\"],\"scoreEclat\":0,\"scoreHydratation\":0,\"scorePurete\":0}. Gamme Mihi: Clean (nettoyants), Retinol Plant (anti-age), Hyaluron Pro (hydratation), Mucin (eclat), Tripeptydes (botox), CBD Line (anti-stress), Combi Skin (mixte), Special Care (anti-pigmentation), Skin Balance, Vitamin C, ExoLifting (40+), Acne Help.";
 
-      fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:900,
-          messages:[{ role:"user", content: prompt }]
+      // Récupérer la clé API depuis Firebase comme Phénix
+      var db = firebase.firestore();
+      db.collection("config").doc("assistant").get().then(function(snap) {
+        var apiKey = snap.exists ? snap.data().apiKey || "" : "";
+        if (!apiKey) { db.collection("config").doc("api").get().then(function(s2){ apiKey = s2.exists ? s2.data().apiKey||"" : ""; appelClaude(apiKey, prompt); }); }
+        else { appelClaude(apiKey, prompt); }
+      }).catch(function(){ appelClaude("", prompt); });
+
+      function appelClaude(apiKey, prompt) {
+        var headers = { "Content-Type": "application/json", "anthropic-version": "2023-06-01", "anthropic-dangerous-direct-browser-access": "true" };
+        if (apiKey) headers["x-api-key"] = apiKey;
+
+        fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST", headers: headers,
+          body: JSON.stringify({ model:"claude-haiku-4-5-20251001", max_tokens:900,
+            messages:[{ role:"user", content: prompt }]
+          })
         })
-      })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (data.error) { lancerFallback(); return; }
-        var text = data.content&&data.content[0] ? data.content[0].text : "";
-        var clean = text.replace(/```json|```/g,"").trim();
-        try { state.resultat=JSON.parse(clean); state.step="resultat"; render(); }
-        catch(e) { lancerFallback(); }
-      })
-      .catch(function() { lancerFallback(); });
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.error) { lancerFallback(); return; }
+          var text = data.content&&data.content[0] ? data.content[0].text : "";
+          var clean = text.replace(/```json|```/g,"").trim();
+          try { state.resultat=JSON.parse(clean); state.step="resultat"; render(); }
+          catch(e) { lancerFallback(); }
+        })
+        .catch(function() { lancerFallback(); });
+      }
     })
     .catch(function() { lancerFallback(); });
   }
