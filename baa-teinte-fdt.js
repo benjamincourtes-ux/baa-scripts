@@ -11,13 +11,14 @@ function openTeinteFoundation() {
   panel.appendChild(box);
 
   var TEINTES = [
-    { code:"051201", nom:"Light Ivory", type:"léger", hex:"#F5E6D3", sousTon:"froid/neutre", peau:"Très claire, teints porcelaine ou rosés", desc:"Parfait pour les peaux très claires avec des sous-tons roses ou neutres" },
-    { code:"051202", nom:"Medium Beige", type:"léger", hex:"#E8D0B0", sousTon:"neutre", peau:"Claire à medium, teints neutres", desc:"Idéal pour les peaux claires à medium sans dominante chaude ou froide" },
-    { code:"051203", nom:"Honey", type:"léger", hex:"#D4A96A", sousTon:"chaud/doré", peau:"Medium, teints dorés ou olivâtres", desc:"Sublime les peaux medium aux reflets dorés ou soleil" },
-    { code:"051211", nom:"Sand", type:"léger", hex:"#C49A6C", sousTon:"chaud/neutre", peau:"Medium foncé, teints naturels profonds", desc:"Conçu pour les peaux medium foncées avec des sous-tons neutres à chauds" },
-    { code:"051204", nom:"03 Natural", type:"matifiant", hex:"#F0DCC0", sousTon:"neutre", peau:"Claire à medium, peaux mixtes ou grasses", desc:"Fini mat pour les peaux claires qui brillent, sous-tons neutres" },
-    { code:"051205", nom:"04 Golden Beige", type:"matifiant", hex:"#D4A870", sousTon:"chaud/doré", peau:"Medium, peaux mixtes à grasses dorées", desc:"Contrôle le brillant sur les peaux medium aux reflets chauds" },
-    { code:"051206", nom:"05 Caramel", type:"matifiant", hex:"#B8834A", sousTon:"chaud", peau:"Medium foncé à foncé, peaux grasses", desc:"Fini mat parfait pour les peaux foncées chaudes qui ont tendance à briller" }
+    { code:"051201", nom:"Light Ivory", type:"léger", hex:"#E8DDD4", sousTon:"froid/neutre", peau:"Très claire, teints porcelaine ou rosés", desc:"Parfait pour les peaux très claires avec des sous-tons roses ou neutres" },
+    { code:"051202", nom:"Medium Beige", type:"léger", hex:"#D2C4B9", sousTon:"neutre", peau:"Claire à medium, teints neutres", desc:"Idéal pour les peaux claires à medium sans dominante chaude ou froide" },
+    { code:"051203", nom:"Honey", type:"léger", hex:"#CDB29C", sousTon:"chaud/doré", peau:"Medium, teints dorés ou olivâtres", desc:"Sublime les peaux medium aux reflets dorés ou soleil" },
+    { code:"051211", nom:"Sand", type:"léger", hex:"#C49B7C", sousTon:"chaud/neutre", peau:"Medium foncé, teints naturels profonds", desc:"Conçu pour les peaux medium foncées avec des sous-tons neutres à chauds" },
+    { code:"051204", nom:"03 Natural", type:"matifiant", hex:"#CFBAAB", sousTon:"neutre", peau:"Claire à medium, peaux mixtes ou grasses", desc:"Fini mat pour les peaux claires qui brillent, sous-tons neutres" },
+    { code:"051205", nom:"04 Golden Beige", type:"matifiant", hex:"#CBAE9A", sousTon:"chaud/doré", peau:"Medium, peaux mixtes à grasses dorées", desc:"Contrôle le brillant sur les peaux medium aux reflets chauds" },
+    { code:"051206", nom:"05 Caramel", type:"matifiant", hex:"#A0693A", sousTon:"chaud", peau:"Medium foncé à foncé, peaux grasses", desc:"Fini mat parfait pour les peaux foncées chaudes qui ont tendance à briller" },
+    { code:"051207", nom:"06 Mocca", type:"matifiant", hex:"#7A4F30", sousTon:"chaud", peau:"Foncé, teints métissés ou mates profondes", desc:"Fini mat pour les peaux foncées et métissées qui brillent" }
   ];
 
   var state = { step:"intro", photo:null, photoBase64:null, mediaType:"image/jpeg", resultat:null };
@@ -142,7 +143,7 @@ function openTeinteFoundation() {
       var headers={"Content-Type":"application/json","anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"};
       if(apiKey)headers["x-api-key"]=apiKey;
 
-      var teintesList = "Teintes fond de teint léger (acide hyaluronique): 051201 Light Ivory (hex #F5E6D3, très clair, sous-tons froids/neutres), 051202 Medium Beige (hex #E8D0B0, clair à medium, sous-tons neutres), 051203 Honey (hex #D4A96A, medium doré, sous-tons chauds), 051211 Sand (hex #C49A6C, medium foncé, sous-tons neutres/chauds). Teintes fond de teint matifiant: 051204 Natural (hex #F0DCC0, clair, sous-tons neutres), 051205 Golden Beige (hex #D4A870, medium, sous-tons dorés/chauds), 051206 Caramel (hex #B8834A, medium foncé à foncé, sous-tons chauds).";
+      var teintesList = "Teintes fond de teint léger (acide hyaluronique): 051201 Light Ivory (hex #E8DDD4, très clair, sous-tons froids/neutres), 051202 Medium Beige (hex #D2C4B9, clair à medium, sous-tons neutres), 051203 Honey (hex #CDB29C, medium, sous-tons chauds/dorés), 051211 Sand (hex #C49B7C, medium foncé, sous-tons neutres/chauds). Teintes fond de teint matifiant: 051204 Natural (hex #CFBAAB, clair, sous-tons neutres), 051205 Golden Beige (hex #CBAE9A, medium, sous-tons dorés/chauds), 051206 Caramel (hex #A0693A, medium foncé à foncé, sous-tons chauds), 051207 Mocca (hex #7A4F30, foncé, teints métissés, sous-tons chauds profonds). Compare attentivement la carnation détectée avec ces hex pour trouver la correspondance la plus proche.";
 
       var prompt = "Tu es une experte en colorimétrie et maquillage. Analyse cette photo de peau et détermine la teinte de fond de teint Mihi la plus adaptée. "+teintesList+" Reponds UNIQUEMENT en JSON: {\"carnation\":\"description précise de la carnation\",\"sousTons\":\"chauds/froids/neutres\",\"profondeur\":\"clair/medium/foncé\",\"teinteRecommandee\":{\"code\":\"code produit\",\"nom\":\"nom teinte\",\"type\":\"léger ou matifiant\",\"raison\":\"explication détaillée pourquoi cette teinte\"},\"teinteAlternative\":{\"code\":\"code produit\",\"nom\":\"nom teinte\",\"type\":\"léger ou matifiant\",\"raison\":\"pourquoi cette alternative\"},\"conseilApplication\":[\"conseil1\",\"conseil2\",\"conseil3\"],\"scoreCorrespondance\":0}";
 
