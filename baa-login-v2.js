@@ -1062,6 +1062,6 @@ else { window.addEventListener("load", function() { setTimeout(initBeautyAddictL
 (function(){
   var s = document.createElement('script');
   s.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
-  s.onload = function() { if(typeof emailjs !== 'undefined') emailjs.init('QSaO_MZ-14PmG4ObRqJiC'); };
+  s.onload = function() { if(typeof emailjs !== 'undefined') emailjs.init('D_JtKhPDgOQWi_ECO'); };
   document.head.appendChild(s);
 })();
