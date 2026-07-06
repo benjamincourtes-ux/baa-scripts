@@ -446,6 +446,21 @@ function openGestionBoutique() {
       });
       box.appendChild(banGrid);
 
+      // Section contact
+      var contactLabel = document.createElement("p"); contactLabel.style.cssText = "color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 8px;"; contactLabel.textContent = "📱 Tes coordonnées (onglet Me contacter)"; box.appendChild(contactLabel);
+      var inpTel = document.createElement("input"); inpTel.placeholder = "Ton numéro de téléphone"; inpTel.value = b.tel || ""; inpTel.style.cssText = "width:100%;padding:12px;border:1px solid #e8d4b0;border-radius:10px;font-size:14px;box-sizing:border-box;margin-bottom:8px;"; box.appendChild(inpTel);
+      var inpMail = document.createElement("input"); inpMail.type="email"; inpMail.placeholder = "Ton adresse email"; inpMail.value = b.email || ""; inpMail.style.cssText = "width:100%;padding:12px;border:1px solid #e8d4b0;border-radius:10px;font-size:14px;box-sizing:border-box;margin-bottom:8px;"; box.appendChild(inpMail);
+      var inpFb = document.createElement("input"); inpFb.placeholder = "Lien Facebook (optionnel)"; inpFb.value = b.facebook || ""; inpFb.style.cssText = "width:100%;padding:12px;border:1px solid #e8d4b0;border-radius:10px;font-size:14px;box-sizing:border-box;margin-bottom:8px;"; box.appendChild(inpFb);
+      var inpInsta = document.createElement("input"); inpInsta.placeholder = "Lien Instagram (optionnel)"; inpInsta.value = b.instagram || ""; inpInsta.style.cssText = "width:100%;padding:12px;border:1px solid #e8d4b0;border-radius:10px;font-size:14px;box-sizing:border-box;margin-bottom:16px;"; box.appendChild(inpInsta);
+
+      var inp4 = document.createElement("input"); inp4.placeholder = "Ton lien de parrainage Mihi (optionnel)"; inp4.value = b.lienParrainage || "";
+      inp4.style.cssText = "width:100%;padding:12px;border:1px solid #e8d4b0;border-radius:10px;font-size:14px;box-sizing:border-box;margin-bottom:10px;";
+      box.appendChild(inp4);
+
+      var inp4b = document.createElement("input"); inp4b.placeholder = "Texte du bouton (ex: Rejoins mon équipe 🐦‍🔥)"; inp4b.value = b.texteParrainage || "Rejoins mon équipe 🐦‍🔥";
+      inp4b.style.cssText = "width:100%;padding:12px;border:1px solid #e8d4b0;border-radius:10px;font-size:14px;box-sizing:border-box;margin-bottom:16px;";
+      box.appendChild(inp4b);
+
       var info = document.createElement("div"); info.style.cssText = "background:#f0f4ff;border-radius:10px;padding:12px;margin-bottom:16px;";
       info.innerHTML = "<p style='color:#2980B9;font-size:12px;margin:0;'>💡 Pour créer un lien PayPal.me, va sur <strong>paypal.me</strong> et crée ton lien personnalisé gratuit.</p>";
       box.appendChild(info);
@@ -460,6 +475,12 @@ function openGestionBoutique() {
         b.prenom = inp1.value.trim();
         b.paypal = paypalLink;
         b.message = inp3.value.trim();
+        b.lienParrainage = inp4.value.trim();
+        b.texteParrainage = inp4b.value.trim() || "Rejoins mon équipe 🐦‍🔥";
+        b.tel = inpTel.value.trim();
+        b.email = inpMail.value.trim();
+        b.facebook = inpFb.value.trim();
+        b.instagram = inpInsta.value.trim();
         b.actif = true;
         sauvegarderBoutique(b, function() {
           alert("✅ Configuration sauvegardée !");
@@ -584,6 +605,22 @@ function openGestionBoutique() {
           };
           pDiv.onclick = handleSelect;
           pDiv.addEventListener('touchend', function(e) { e.preventDefault(); handleSelect(); }, {passive:false});
+          
+          // Bouton rupture de stock
+          var rupture = b.ruptures && b.ruptures[photoKey];
+          var ruptureBtn = document.createElement("button");
+          ruptureBtn.textContent = rupture ? "🔴 Rupture" : "✅ Dispo";
+          ruptureBtn.style.cssText = "background:"+(rupture?"#fee":"#e6f7ec")+";color:"+(rupture?"#e74c3c":"#27AE60")+";border:1px solid "+(rupture?"#e74c3c":"#27AE60")+";padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px;font-weight:bold;flex-shrink:0;touch-action:manipulation;";
+          ruptureBtn.onclick = function(e) {
+            e.stopPropagation();
+            if (!b.ruptures) b.ruptures = {};
+            b.ruptures[photoKey] = !b.ruptures[photoKey];
+            ruptureBtn.textContent = b.ruptures[photoKey] ? "🔴 Rupture" : "✅ Dispo";
+            ruptureBtn.style.background = b.ruptures[photoKey] ? "#fee" : "#e6f7ec";
+            ruptureBtn.style.color = b.ruptures[photoKey] ? "#e74c3c" : "#27AE60";
+            ruptureBtn.style.borderColor = b.ruptures[photoKey] ? "#e74c3c" : "#27AE60";
+          };
+          infoEl.appendChild(ruptureBtn);
         });
 
         catDiv.appendChild(catHeader);
