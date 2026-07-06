@@ -217,26 +217,57 @@ function openAnalyseProfil() {
   }
 
   function lancerFallback() {
-    state.resultat = {
-      prenom: "Prospect",
-      analyse: {
-        personnalite: "Personne active et engagée sur les réseaux sociaux, qui valorise les relations authentiques.",
-        styleVie: "Mode de vie équilibré entre vie de famille et aspirations personnelles.",
-        valeurs: ["Authenticité", "Famille", "Bien-être"],
-        centresInteret: ["Beauté", "Lifestyle", "Développement personnel"],
-        pointsForts: ["Communicante", "Curieuse"],
-        motivations: "Recherche d'épanouissement personnel et de liberté"
-      },
-      strategie: {
-        angleApproche: "PASSION",
-        raisonAngle: "Son profil montre un intérêt pour la beauté et le bien-être",
-        tonRecommande: "amical",
-        avoidTopics: ["Pression commerciale", "Chiffres trop précis"]
-      },
-      messageRecrutement: "Bonjour ! Je suis tombée sur ton profil et j'adore ton énergie 😊 Je suis conseillère beauté pour Mihi, une marque de cosmétiques naturels haut de gamme, et je cherche des femmes motivées pour rejoindre mon équipe. C'est une activité qu'on peut faire à son rythme, depuis chez soi, en partageant des produits qu'on aime vraiment. Est-ce que ça te dirait qu'on en discute ?",
-      messageSuivi: "Bonjour, je me permets de te relancer 😊 Je sais que tu es sûrement très occupée ! Mon message concernait une opportunité beauté sympa — dis-moi si tu veux en savoir plus, je serais ravie d'échanger avec toi !",
-      conseilsApproche: ["Commencer par un compliment sincère", "Ne pas parler d'argent dès le premier message", "Proposer un échange sans pression"]
-    };
+    if (state.mode === "moi") {
+      state.resultat = {
+        prenom: "Toi",
+        scoreGlobal: 65,
+        analyse: {
+          pointsForts: ["Tu es active sur les réseaux sociaux", "Tu partages du contenu régulièrement", "Ta photo de profil est souriante et accessible"],
+          pointsAmeliorer: ["Ta bio ne mentionne pas clairement ton activité Mihi", "Tes posts manquent de cohérence visuelle", "Tu ne montres pas assez les résultats produits"],
+          photoProfilAvis: "Photo agréable et souriante. Assure-toi qu'elle soit récente et en bonne lumière.",
+          photoCouvertureAvis: "La photo de couverture est une opportunité manquée — utilise-la pour présenter Mihi ou ton univers beauté.",
+          bioAvis: "Ta bio pourrait être plus percutante en mentionnant ce que tu fais et comment tu peux aider tes clientes.",
+          postAvis: "Tes posts sont variés mais manquent d'une ligne directrice beauté/lifestyle cohérente avec Mihi."
+        },
+        conseilsPrioritaires: [
+          "Mets à jour ta bio avec ton activité Mihi et un emoji beauté",
+          "Crée une photo de couverture avec les produits Mihi",
+          "Poste 1 contenu beauté par jour (conseil, astuce, résultat)",
+          "Partage des témoignages clientes en stories",
+          "Utilise des hashtags beauté naturelle dans tes posts"
+        ],
+        exemplesBio: [
+          "💄 Conseillère beauté naturelle @Mihi | J'aide les femmes à sublimer leur peau avec des soins naturels haut de gamme ✨ | Contacte-moi pour un diagnostic gratuit 🔬",
+          "🌿 Passionnée de beauté naturelle & VDI Mihi | Soins naturels premium 💆 | Diagnostic peau personnalisé offert | DM pour en savoir plus 👇"
+        ],
+        conseilsContenu: [
+          "Avant/après avec tes produits Mihi préférés",
+          "Ta routine beauté du matin en vidéo courte",
+          "Témoignage d'une cliente satisfaite (avec sa permission)"
+        ]
+      };
+    } else {
+      state.resultat = {
+        prenom: "Prospect",
+        analyse: {
+          personnalite: "Personne active et engagée sur les réseaux sociaux, qui valorise les relations authentiques.",
+          styleVie: "Mode de vie équilibré entre vie de famille et aspirations personnelles.",
+          valeurs: ["Authenticité", "Famille", "Bien-être"],
+          centresInteret: ["Beauté", "Lifestyle", "Développement personnel"],
+          pointsForts: ["Communicante", "Curieuse"],
+          motivations: "Recherche d'épanouissement personnel et de liberté"
+        },
+        strategie: {
+          angleApproche: "PASSION",
+          raisonAngle: "Son profil montre un intérêt pour la beauté et le bien-être",
+          tonRecommande: "amical",
+          avoidTopics: ["Pression commerciale", "Chiffres trop précis"]
+        },
+        messageRecrutement: "Bonjour ! Je suis tombée sur ton profil et j'adore ton énergie 😊 Je suis conseillère beauté pour Mihi, une marque de cosmétiques naturels haut de gamme, et je cherche des femmes motivées pour rejoindre mon équipe. C'est une activité qu'on peut faire à son rythme, depuis chez soi, en partageant des produits qu'on aime vraiment. Est-ce que ça te dirait qu'on en discute ?",
+        messageSuivi: "Bonjour, je me permets de te relancer 😊 Je sais que tu es sûrement très occupée ! Mon message concernait une opportunité beauté sympa — dis-moi si tu veux en savoir plus, je serais ravie d'échanger avec toi !",
+        conseilsApproche: ["Commencer par un compliment sincère", "Ne pas parler d'argent dès le premier message", "Proposer un échange sans pression"]
+      };
+    }
     state.step = "resultat"; render();
   }
 
