@@ -70,9 +70,20 @@ function openAnalyseProfil() {
     box.appendChild(titre);
 
     var sub = document.createElement("p");
-    sub.style.cssText = "color:#999;font-size:12px;margin:0 0 16px;line-height:1.5;";
-    sub.textContent = "Prends 2-3 screenshots : photo profil, couverture, quelques posts. Plus tu en mets, plus l'analyse est précise !";
+    sub.style.cssText = "color:#999;font-size:12px;margin:0 0 16px;line-height:1.6;";
+    sub.textContent = "Pour une analyse précise, prends ces captures sur le profil public :";
     box.appendChild(sub);
+
+    var tipsDiv = document.createElement("div");
+    tipsDiv.style.cssText = "background:#fff8e6;border-radius:12px;padding:12px;border:1px solid #f5d48a;margin-bottom:14px;";
+    tipsDiv.innerHTML =
+      "<p style='color:#8a6a35;font-size:12px;font-weight:bold;margin:0 0 8px;'>📱 Quoi capturer :</p>" +
+      "<p style='color:#8a6a35;font-size:12px;margin:0 0 4px;'>📌 1. Le haut du profil (photo + couverture + bio)</p>" +
+      "<p style='color:#8a6a35;font-size:12px;margin:0 0 4px;'>📌 2. La section \"À propos\" (ville, travail, situation)</p>" +
+      "<p style='color:#8a6a35;font-size:12px;margin:0 0 4px;'>📌 3. Plusieurs posts récents (textes, photos...)</p>" +
+      "<p style='color:#8a6a35;font-size:12px;margin:0 0 4px;'>📌 4. Des posts qui montrent sa personnalité</p>" +
+      "<p style='color:#8a6a35;font-size:12px;margin:0;'>📌 5. Ses partages ou centres d'intérêt visibles</p>";
+    box.appendChild(tipsDiv);
 
     // Afficher les previews
     if (state.screenshots.length > 0) {
