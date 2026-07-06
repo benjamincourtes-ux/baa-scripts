@@ -503,7 +503,7 @@ function openGestionBoutique() {
 
         var catHeader = document.createElement("button");
         catHeader.style.cssText = "width:100%;background:#f3e7d3;border:1px solid #e8d4b0;border-radius:10px;padding:10px 14px;cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center;touch-action:manipulation;";
-        catHeader.innerHTML = "<span style='color:#8b735d;font-size:13px;font-weight:bold;'>" + catData.label + "</span><span style='color:#c9a86a;font-size:12px;'>" + catData.produits.filter(function(p){ return produitsSel.includes(p.ref); }).length + "/" + catData.produits.length + "</span>";
+        catHeader.innerHTML = "<span style='color:#8b735d;font-size:13px;font-weight:bold;'>" + catData.label + "</span><span style='color:#c9a86a;font-size:12px;'>" + catData.produits.filter(function(p){ var k = p.ref === "—" ? "prod_" + p.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : p.ref; return produitsSel.includes(k); }).length + "/" + catData.produits.length + "</span>";
 
         var catContent = document.createElement("div");
         catContent.style.cssText = "display:none;background:white;border:1px solid #e8d4b0;border-top:none;border-radius:0 0 10px 10px;";
@@ -514,8 +514,9 @@ function openGestionBoutique() {
         };
 
         catData.produits.forEach(function(prod) {
+          var photoKey = prod.ref === "—" ? "prod_" + prod.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : prod.ref;
           var pDiv = document.createElement("div"); pDiv.style.cssText = "display:flex;align-items:center;padding:10px 14px;border-bottom:none;cursor:pointer;touch-action:manipulation;";
-          var checked = produitsSel.includes(prod.ref);
+          var checked = produitsSel.includes(photoKey);
           var checkEl = document.createElement("div");
           checkEl.style.cssText = "width:20px;height:20px;border-radius:4px;border:2px solid " + (checked?"#c9a86a":"#ddd") + ";background:" + (checked?"#c9a86a":"white") + ";margin-right:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;";
           checkEl.innerHTML = checked ? "<span style='color:white;font-size:12px;font-weight:bold;'>✓</span>" : "";
@@ -523,10 +524,8 @@ function openGestionBoutique() {
           infoEl.innerHTML = "<p style='color:#3a3a3a;font-size:13px;margin:0 0 1px;'>" + prod.nom + "</p><p style='color:#c9a86a;font-size:12px;font-weight:bold;margin:0;'>" + prod.prix.toFixed(2) + " €</p>";
           pDiv.appendChild(checkEl); pDiv.appendChild(infoEl);
 
-          var photoKey = prod.ref === "—" ? "prod_" + prod.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : prod.ref;
-
           // Champs description et ingrédients si produit sélectionné
-          if (produitsSel.includes(photoKey) || produitsSel.includes(prod.ref)) {
+          if (produitsSel.includes(photoKey)) {
             var infoRow = document.createElement("div");
             infoRow.style.cssText = "padding:6px 14px 8px 52px;background:white;border-bottom:none;";
             
@@ -619,12 +618,12 @@ function openGestionBoutique() {
           catContent.appendChild(photoRow);
 
           var handleSelect = function() {
-            var idx = produitsSel.indexOf(prod.ref);
+            var idx = produitsSel.indexOf(photoKey);
             if (idx >= 0) {
               produitsSel.splice(idx, 1);
               checkEl.style.background = "white"; checkEl.style.borderColor = "#ddd"; checkEl.innerHTML = "";
             } else {
-              produitsSel.push(prod.ref);
+              produitsSel.push(photoKey);
               checkEl.style.background = "#c9a86a"; checkEl.style.borderColor = "#c9a86a"; checkEl.innerHTML = "<span style='color:white;font-size:12px;font-weight:bold;'>✓</span>";
             }
             b.produits = produitsSel;
