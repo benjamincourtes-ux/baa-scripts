@@ -419,7 +419,8 @@ function openGestionBoutique() {
   function renderProduits() {
     chargerBoutique(function(b) {
       state.boutique = b;
-      var produitsSel = b.produits || [];
+      // Ne pas pré-cocher si boutique jamais configurée
+      var produitsSel = (b && b.actif && b.produits) ? b.produits.slice() : [];
 
       var titre = document.createElement("p"); titre.style.cssText = "color:#8b735d;font-size:15px;font-weight:bold;margin:0 0 6px;"; titre.textContent = "🛍️ Choisir mes produits"; box.appendChild(titre);
       var sub = document.createElement("p"); sub.style.cssText = "color:#999;font-size:12px;margin:0 0 16px;"; sub.textContent = produitsSel.length + " produit(s) sélectionné(s)"; box.appendChild(sub);
@@ -449,7 +450,7 @@ function openGestionBoutique() {
           var infoEl = document.createElement("div"); infoEl.style.cssText = "flex:1;";
           infoEl.innerHTML = "<p style='color:#3a3a3a;font-size:13px;margin:0 0 1px;'>" + prod.nom + "</p><p style='color:#c9a86a;font-size:12px;font-weight:bold;margin:0;'>" + prod.prix.toFixed(2) + " €</p>";
           pDiv.appendChild(checkEl); pDiv.appendChild(infoEl);
-          pDiv.onclick = function() {
+          var handleSelect = function() {
             var idx = produitsSel.indexOf(prod.ref);
             if (idx >= 0) {
               produitsSel.splice(idx, 1);
@@ -460,6 +461,8 @@ function openGestionBoutique() {
             }
             b.produits = produitsSel;
           };
+          pDiv.onclick = handleSelect;
+          pDiv.addEventListener('touchend', function(e) { e.preventDefault(); handleSelect(); }, {passive:false});
           catContent.appendChild(pDiv);
         });
 
