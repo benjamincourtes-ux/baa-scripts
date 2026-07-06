@@ -347,6 +347,7 @@ function openGestionBoutique() {
     else if (state.step === "config") renderConfig();
     else if (state.step === "produits") renderProduits();
     else if (state.step === "lien") renderLien();
+    else if (state.step === "stats") renderStats();
   }
 
   function renderMenu() {
@@ -360,8 +361,9 @@ function openGestionBoutique() {
       box.appendChild(statusDiv);
 
       var btns = [
-        { icon:"⚙️", label:"Configurer ma boutique", sub:"Nom, PayPal, paramètres", step:"config" },
+        { icon:"⚙️", label:"Configurer ma boutique", sub:"Nom, PayPal, bannière, photo profil", step:"config" },
         { icon:"🛍️", label:"Gérer mes produits", sub:"Choisir quoi afficher", step:"produits" },
+        { icon:"📊", label:"Mes statistiques", sub:"Visites, paniers, commandes", step:"stats" },
         { icon:"🔗", label:"Mon lien boutique", sub:"Partager avec mes clientes", step:"lien" },
       ];
 
@@ -602,6 +604,61 @@ function openGestionBoutique() {
       var back = document.createElement("button"); back.textContent = "← Retour sans sauvegarder"; back.style.cssText = "background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;width:100%;margin-top:8px;";
       back.onclick = function() { state.step = "menu"; render(); }; box.appendChild(back);
     });
+  }
+
+  function renderStats() {
+    var user = firebase.auth().currentUser; if (!user) return;
+    var titre = document.createElement("p"); titre.style.cssText = "color:#8b735d;font-size:15px;font-weight:bold;margin:0 0 16px;"; titre.textContent = "📊 Statistiques de ta boutique"; box.appendChild(titre);
+    var loading = document.createElement("p"); loading.style.cssText = "color:#999;font-size:13px;text-align:center;padding:20px;"; loading.textContent = "Chargement..."; box.appendChild(loading);
+
+    firebase.firestore().collection("boutiques").doc(user.uid).collection("stats").doc("global").get().then(function(snap) {
+      box.removeChild(loading);
+      var stats = snap.exists ? snap.data() : {};
+      var visites = stats.visites || 0;
+      var paniers = stats.paniers || 0;
+      var commandes = stats.commandes || 0;
+      var ca = stats.chiffreAffaires || 0;
+
+      var grid = document.createElement("div"); grid.style.cssText = "display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;";
+      [
+        ["👁️", "Visites", visites, "#2980B9"],
+        ["🛒", "Paniers créés", paniers, "#c9a86a"],
+        ["💳", "Commandes", commandes, "#27AE60"],
+        ["💰", "CA généré", ca.toFixed(2)+"€", "#8e44ad"],
+      ].forEach(function(s) {
+        var card = document.createElement("div");
+        card.style.cssText = "background:white;border-radius:12px;padding:16px;text-align:center;border:1px solid #e8d4b0;";
+        card.innerHTML = "<div style='font-size:28px;margin-bottom:6px;'>"+s[0]+"</div><div style='font-size:24px;font-weight:bold;color:"+s[3]+";margin-bottom:4px;'>"+s[2]+"</div><div style='color:#999;font-size:11px;'>"+s[1]+"</div>";
+        grid.appendChild(card);
+      });
+      box.appendChild(grid);
+
+      // Taux de conversion
+      if (visites > 0) {
+        var tauxDiv = document.createElement("div"); tauxDiv.style.cssText = "background:#f8f3ee;border-radius:12px;padding:14px;margin-bottom:16px;";
+        var tauxPanier = Math.round(paniers/visites*100);
+        var tauxCommande = paniers > 0 ? Math.round(commandes/paniers*100) : 0;
+        tauxDiv.innerHTML = "<p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 10px;'>📈 Taux de conversion</p><div style='display:flex;justify-content:space-around;'><div style='text-align:center;'><p style='color:#c9a86a;font-size:20px;font-weight:bold;margin:0;'>"+tauxPanier+"%</p><p style='color:#999;font-size:11px;margin:0;'>Visite → Panier</p></div><div style='text-align:center;'><p style='color:#27AE60;font-size:20px;font-weight:bold;margin:0;'>"+tauxCommande+"%</p><p style='color:#999;font-size:11px;margin:0;'>Panier → Commande</p></div></div>";
+        box.appendChild(tauxDiv);
+      }
+
+      if (stats.derniereVisite) {
+        var dvDiv = document.createElement("p"); dvDiv.style.cssText = "color:#999;font-size:12px;text-align:center;margin-bottom:16px;";
+        dvDiv.textContent = "Dernière visite : " + new Date(stats.derniereVisite).toLocaleDateString("fr-FR", {day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"});
+        box.appendChild(dvDiv);
+      }
+
+      if (visites === 0) {
+        var empty = document.createElement("div"); empty.style.cssText = "text-align:center;padding:20px;";
+        empty.innerHTML = "<p style='font-size:40px;'>🌿</p><p style='color:#999;font-size:14px;'>Pas encore de visites. Partagez votre lien boutique !</p>";
+        box.appendChild(empty);
+      }
+    }).catch(function() {
+      loading.textContent = "Erreur de chargement.";
+    });
+
+    var back = document.createElement("button"); back.textContent = "← Retour"; back.style.cssText = "background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;width:100%;margin-top:8px;";
+    back.onclick = function() { state.step = "menu"; render(); }; box.appendChild(back);
   }
 
   function renderLien() {
