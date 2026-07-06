@@ -392,6 +392,58 @@ function openGestionBoutique() {
       inp3.style.cssText = "width:100%;padding:12px;border:1px solid #e8d4b0;border-radius:10px;font-size:14px;box-sizing:border-box;margin-bottom:16px;";
       box.appendChild(inp3);
 
+      // Photo de profil
+      var photoLabel = document.createElement("p"); photoLabel.style.cssText = "color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 8px;"; photoLabel.textContent = "📸 Photo de profil"; box.appendChild(photoLabel);
+      var fileInpProfil = document.createElement("input"); fileInpProfil.type="file"; fileInpProfil.accept="image/*"; fileInpProfil.style.display="none"; box.appendChild(fileInpProfil);
+      var profilRow = document.createElement("div"); profilRow.style.cssText = "display:flex;gap:10px;align-items:center;margin-bottom:16px;";
+      if (b.photoProfil) {
+        var profilImg = document.createElement("img"); profilImg.src = b.photoProfil; profilImg.style.cssText = "width:56px;height:56px;border-radius:50%;object-fit:cover;border:2px solid #c9a86a;flex-shrink:0;";
+        profilRow.appendChild(profilImg);
+      }
+      var profilBtn = document.createElement("button"); profilBtn.textContent = b.photoProfil ? "🔄 Changer la photo" : "📷 Ajouter une photo de profil";
+      profilBtn.style.cssText = "background:#f3e7d3;color:#8a6a35;border:1px solid #c9a86a;padding:10px 14px;border-radius:10px;cursor:pointer;font-size:13px;touch-action:manipulation;";
+      profilBtn.onclick = function() { fileInpProfil.click(); };
+      profilRow.appendChild(profilBtn);
+      var profilStatus = document.createElement("span"); profilStatus.style.cssText = "font-size:11px;color:#999;"; profilRow.appendChild(profilStatus);
+      fileInpProfil.onchange = async function() {
+        var file = this.files[0]; if (!file) return;
+        profilStatus.textContent = "Upload..."; profilBtn.disabled = true;
+        try {
+          var fd = new FormData(); fd.append("file",file); fd.append("upload_preset","baa_avatars"); fd.append("folder","boutique_profil");
+          var r = await fetch("https://api.cloudinary.com/v1_1/dxcfq3nyl/image/upload",{method:"POST",body:fd});
+          var data = await r.json();
+          if (data.secure_url) { b.photoProfil = data.secure_url; profilStatus.textContent = "✅"; profilBtn.textContent = "🔄 Changer la photo"; }
+          else { profilStatus.textContent = "❌"; }
+        } catch(e) { profilStatus.textContent = "❌"; }
+        profilBtn.disabled = false;
+      };
+      box.appendChild(profilRow);
+
+      // Choix bannière
+      var banLabel = document.createElement("p"); banLabel.style.cssText = "color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 8px;"; banLabel.textContent = "🖼️ Bannière de ta boutique"; box.appendChild(banLabel);
+      var BANNIERES = [
+        { id:"rose", label:"🌸 Rose & Or", bg:"linear-gradient(135deg,#f8b4c8,#f5d48a)" },
+        { id:"noir", label:"✨ Noir & Or", bg:"linear-gradient(135deg,#1a0a00,#c9a86a)" },
+        { id:"violet", label:"🔮 Violet", bg:"linear-gradient(135deg,#26215C,#534AB7)" },
+        { id:"vert", label:"🌿 Nature", bg:"linear-gradient(135deg,#2d6a4f,#95d5b2)" },
+        { id:"bleu", label:"💙 Bleu ciel", bg:"linear-gradient(135deg,#0077b6,#90e0ef)" },
+        { id:"peche", label:"🍑 Pêche", bg:"linear-gradient(135deg,#f4a261,#f8d7a3)" },
+      ];
+      var banGrid = document.createElement("div"); banGrid.style.cssText = "display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;";
+      BANNIERES.forEach(function(ban) {
+        var banBtn = document.createElement("button");
+        var selected = (b.banniere || "rose") === ban.id;
+        banBtn.style.cssText = "border-radius:10px;padding:16px 10px;cursor:pointer;border:3px solid "+(selected?"#c9a86a":"transparent")+";background:"+ban.bg+";color:white;font-size:13px;font-weight:bold;text-shadow:0 1px 3px rgba(0,0,0,0.4);touch-action:manipulation;";
+        banBtn.textContent = ban.label;
+        banBtn.onclick = function() {
+          b.banniere = ban.id;
+          banGrid.querySelectorAll("button").forEach(function(bb){ bb.style.borderColor="transparent"; });
+          banBtn.style.borderColor = "#c9a86a";
+        };
+        banGrid.appendChild(banBtn);
+      });
+      box.appendChild(banGrid);
+
       var info = document.createElement("div"); info.style.cssText = "background:#f0f4ff;border-radius:10px;padding:12px;margin-bottom:16px;";
       info.innerHTML = "<p style='color:#2980B9;font-size:12px;margin:0;'>💡 Pour créer un lien PayPal.me, va sur <strong>paypal.me</strong> et crée ton lien personnalisé gratuit.</p>";
       box.appendChild(info);
