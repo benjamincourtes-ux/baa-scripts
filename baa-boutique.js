@@ -94,7 +94,7 @@ var BAA_PRODUITS_MIHI = {
     {ref:"010109",nom:"Concentré SOS Acne Help",prix:6.9},
     {ref:"010110",nom:"Gel nettoyant Acne Help",prix:6.9},
     {ref:"010111",nom:"Masque nettoyant et purifiant",prix:7.9},
-    {ref:"—",nom:"Patch hydrogel pour les yeux (60pcs)",prix:15.9}
+    {ref:"—",nom:"Patch hydrogel Pro Age Care (60pcs)",prix:15.9},{ref:"—",nom:"Patch hydrogel Tone Up Plus (60pcs)",prix:15.9},{ref:"—",nom:"Patch hydrogel Hydro Boost Intense (60pcs)",prix:15.9}
   ]},
   "corps": { label:"🧴 Corps", produits:[
     {ref:"021201",nom:"Gommage corporel Perfect Citrus",prix:5.9},
