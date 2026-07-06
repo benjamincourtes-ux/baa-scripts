@@ -443,13 +443,22 @@ function openGestionBoutique() {
         catData.produits.forEach(function(prod) {
           var pDiv = document.createElement("div"); pDiv.style.cssText = "display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid #f0e6d3;cursor:pointer;touch-action:manipulation;";
           var checked = produitsSel.includes(prod.ref);
-          pDiv.innerHTML = "<div style='width:20px;height:20px;border-radius:4px;border:2px solid " + (checked?"#c9a86a":"#ddd") + ";background:" + (checked?"#c9a86a":"white") + ";margin-right:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;'>" + (checked?"<span style='color:white;font-size:12px;'>✓</span>":"") + "</div><div style='flex:1;'><p style='color:#3a3a3a;font-size:13px;margin:0 0 1px;'>" + prod.nom + "</p><p style='color:#c9a86a;font-size:12px;font-weight:bold;margin:0;'>" + prod.prix.toFixed(2) + " €</p></div>";
+          var checkEl = document.createElement("div");
+          checkEl.style.cssText = "width:20px;height:20px;border-radius:4px;border:2px solid " + (checked?"#c9a86a":"#ddd") + ";background:" + (checked?"#c9a86a":"white") + ";margin-right:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;";
+          checkEl.innerHTML = checked ? "<span style='color:white;font-size:12px;font-weight:bold;'>✓</span>" : "";
+          var infoEl = document.createElement("div"); infoEl.style.cssText = "flex:1;";
+          infoEl.innerHTML = "<p style='color:#3a3a3a;font-size:13px;margin:0 0 1px;'>" + prod.nom + "</p><p style='color:#c9a86a;font-size:12px;font-weight:bold;margin:0;'>" + prod.prix.toFixed(2) + " €</p>";
+          pDiv.appendChild(checkEl); pDiv.appendChild(infoEl);
           pDiv.onclick = function() {
             var idx = produitsSel.indexOf(prod.ref);
-            if (idx >= 0) produitsSel.splice(idx, 1);
-            else produitsSel.push(prod.ref);
+            if (idx >= 0) {
+              produitsSel.splice(idx, 1);
+              checkEl.style.background = "white"; checkEl.style.borderColor = "#ddd"; checkEl.innerHTML = "";
+            } else {
+              produitsSel.push(prod.ref);
+              checkEl.style.background = "#c9a86a"; checkEl.style.borderColor = "#c9a86a"; checkEl.innerHTML = "<span style='color:white;font-size:12px;font-weight:bold;'>✓</span>";
+            }
             b.produits = produitsSel;
-            sauvegarderBoutique(b, function() { renderProduits(); });
           };
           catContent.appendChild(pDiv);
         });
@@ -459,7 +468,17 @@ function openGestionBoutique() {
         box.appendChild(catDiv);
       });
 
-      var back = document.createElement("button"); back.textContent = "← Retour"; back.style.cssText = "background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;width:100%;margin-top:12px;";
+      var saveAllBtn = document.createElement("button");
+      saveAllBtn.textContent = "💾 Sauvegarder ma sélection";
+      saveAllBtn.style.cssText = "width:100%;background:#c9a86a;color:#1a0a00;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;margin-top:12px;touch-action:manipulation;";
+      saveAllBtn.onclick = function() {
+        sauvegarderBoutique(b, function() {
+          alert("✅ " + b.produits.length + " produit(s) sauvegardé(s) !");
+          state.step = "menu"; render();
+        });
+      };
+      box.appendChild(saveAllBtn);
+      var back = document.createElement("button"); back.textContent = "← Retour sans sauvegarder"; back.style.cssText = "background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;width:100%;margin-top:8px;";
       back.onclick = function() { state.step = "menu"; render(); }; box.appendChild(back);
     });
   }
