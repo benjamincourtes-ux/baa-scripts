@@ -10,7 +10,7 @@ function openAnalyseProfil() {
   box.style.cssText = "background:#f8f3ee;width:100%;max-width:560px;border-radius:20px;padding:24px;";
   panel.appendChild(box);
 
-  var state = { step:"intro", url:"", screenshots:[], base64s:[], resultat:null };
+  var state = { step:"intro", mode:null, url:"", screenshots:[], base64s:[], resultat:null };
 
   function render() {
     box.innerHTML = "";
@@ -52,11 +52,17 @@ function openAnalyseProfil() {
       "</div>";
     box.appendChild(content);
 
-    var btn = document.createElement("button");
-    btn.textContent = "📸 Analyser un profil";
-    btn.style.cssText = "width:100%;background:linear-gradient(135deg,#c9a86a,#f5d48a);color:#1a0a00;border:none;padding:14px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:15px;touch-action:manipulation;";
-    btn.onclick = function() { state.step = "screenshots"; render(); };
-    box.appendChild(btn);
+    var btn1 = document.createElement("button");
+    btn1.innerHTML = "<span style='font-size:18px;'>🎯</span> Analyser un profil prospect<br><span style='font-size:11px;font-weight:normal;opacity:0.7;'>Message de recrutement personnalisé</span>";
+    btn1.style.cssText = "width:100%;background:linear-gradient(135deg,#c9a86a,#f5d48a);color:#1a0a00;border:none;padding:14px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;margin-bottom:10px;line-height:1.6;";
+    btn1.onclick = function() { state.mode = "prospect"; state.step = "screenshots"; render(); };
+    box.appendChild(btn1);
+
+    var btn2 = document.createElement("button");
+    btn2.innerHTML = "<span style='font-size:18px;'>✨</span> Analyser mon propre profil<br><span style='font-size:11px;font-weight:normal;opacity:0.7;'>Conseils pour améliorer ton profil Facebook</span>";
+    btn2.style.cssText = "width:100%;background:white;color:#8b735d;border:2px solid #c9a86a;padding:14px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;line-height:1.6;";
+    btn2.onclick = function() { state.mode = "moi"; state.step = "screenshots"; render(); };
+    box.appendChild(btn2);
   }
 
   function renderScreenshots() {
@@ -66,7 +72,7 @@ function openAnalyseProfil() {
 
     var titre = document.createElement("p");
     titre.style.cssText = "color:#8b735d;font-size:15px;font-weight:bold;margin:0 0 6px;";
-    titre.textContent = "📱 Captures d'écran du profil";
+    titre.textContent = state.mode === "moi" ? "📱 Captures de ton profil Facebook" : "📱 Captures d'écran du profil prospect";
     box.appendChild(titre);
 
     var sub = document.createElement("p");
@@ -187,7 +193,10 @@ function openAnalyseProfil() {
       state.base64s.forEach(function(b64, i) {
         content.push({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: b64 } });
       });
-      content.push({ type: "text", text: "Tu es une experte en recrutement MLM beauté et en psychologie comportementale. Analyse ces captures d'écran du profil Facebook public de cette prospect et génère une stratégie de recrutement complète et personnalisée pour une VDI de la marque Mihi (cosmétiques naturels haut de gamme). Reponds UNIQUEMENT en JSON: {\"prenom\":\"prénom détecté ou Prospect si non visible\",\"analyse\":{\"personnalite\":\"description détaillée de la personnalité en 2-3 phrases\",\"styleVie\":\"description du style de vie\",\"valeurs\":[\"valeur1\",\"valeur2\",\"valeur3\"],\"centresInteret\":[\"interet1\",\"interet2\",\"interet3\"],\"pointsForts\":[\"force1\",\"force2\"],\"motivations\":\"ce qui la motive profondément\"},\"strategie\":{\"angleApproche\":\"BEAUTE/LIBERTE_FINANCIERE/FAMILLE/PASSION/ENTREPRENEURIAT\",\"raisonAngle\":\"pourquoi cet angle est le meilleur pour elle\",\"tonRecommande\":\"amical/professionnel/enthousiaste/bienveillant\",\"avoidTopics\":[\"sujet à éviter1\",\"sujet à éviter2\"]},\"messageRecrutement\":\"message complet naturel et chaleureux de 4-6 lignes prêt à envoyer sur Messenger, personnalisé avec ce qu'on sait d'elle, qui parle de l'opportunité Mihi sans être trop commercial\",\"messageSuivi\":\"message de relance naturel de 2-3 lignes à envoyer si pas de réponse après 3-4 jours\",\"conseilsApproche\":[\"conseil1\",\"conseil2\",\"conseil3\"]}" });
+      var promptText = state.mode === "moi"
+        ? "Tu es une experte en personal branding et marketing des réseaux sociaux pour le MLM beauté. Analyse ces captures d'écran de ce profil Facebook d'une VDI de la marque Mihi (cosmétiques naturels haut de gamme) et génère une analyse complète avec des conseils pour améliorer son profil. Reponds UNIQUEMENT en JSON: {\"prenom\":\"prénom détecté\",\"analyse\":{\"pointsForts\":[\"point fort 1\",\"point fort 2\",\"point fort 3\"],\"pointsAmeliorer\":[\"point à améliorer 1\",\"point à améliorer 2\",\"point à améliorer 3\"],\"photoProfilAvis\":\"analyse de la photo de profil\",\"photoCouvertureAvis\":\"analyse de la photo de couverture\",\"bioAvis\":\"analyse de la bio\",\"postAvis\":\"analyse du style et contenu des posts\"},\"conseilsPrioritaires\":[\"conseil actionnable 1\",\"conseil actionnable 2\",\"conseil actionnable 3\",\"conseil actionnable 4\",\"conseil actionnable 5\"],\"exemplesBio\":[\"exemple bio 1\",\"exemple bio 2\"],\"conseilsContenu\":[\"idée de post 1\",\"idée de post 2\",\"idée de post 3\"],\"scoreGlobal\":75}"
+        : "Tu es une experte en recrutement MLM beauté et en psychologie comportementale. Analyse ces captures d'écran du profil Facebook public de cette prospect et génère une stratégie de recrutement complète et personnalisée pour une VDI de la marque Mihi (cosmétiques naturels haut de gamme). Reponds UNIQUEMENT en JSON: {\"prenom\":\"prénom détecté ou Prospect si non visible\",\"analyse\":{\"personnalite\":\"description détaillée de la personnalité en 2-3 phrases\",\"styleVie\":\"description du style de vie\",\"valeurs\":[\"valeur1\",\"valeur2\",\"valeur3\"],\"centresInteret\":[\"interet1\",\"interet2\",\"interet3\"],\"pointsForts\":[\"force1\",\"force2\"],\"motivations\":\"ce qui la motive profondément\"},\"strategie\":{\"angleApproche\":\"BEAUTE/LIBERTE_FINANCIERE/FAMILLE/PASSION/ENTREPRENEURIAT\",\"raisonAngle\":\"pourquoi cet angle est le meilleur pour elle\",\"tonRecommande\":\"amical/professionnel/enthousiaste/bienveillant\",\"avoidTopics\":[\"sujet à éviter1\",\"sujet à éviter2\"]},\"messageRecrutement\":\"message complet naturel et chaleureux de 4-6 lignes prêt à envoyer sur Messenger, personnalisé avec ce qu'on sait d'elle, qui parle de l'opportunité Mihi sans être trop commercial\",\"messageSuivi\":\"message de relance naturel de 2-3 lignes à envoyer si pas de réponse après 3-4 jours\",\"conseilsApproche\":[\"conseil1\",\"conseil2\",\"conseil3\"]}";
+      content.push({ type: "text", text: promptText });
 
       fetch("https://api.anthropic.com/v1/messages", {
         method: "POST", headers: headers,
@@ -231,7 +240,85 @@ function openAnalyseProfil() {
     state.step = "resultat"; render();
   }
 
+  function renderResultatMoi() {
+    var r = state.resultat;
+
+    // Score global
+    var scoreDiv = document.createElement("div");
+    scoreDiv.style.cssText = "background:linear-gradient(135deg,#c9a86a,#f5d48a);border-radius:14px;padding:16px;text-align:center;margin-bottom:16px;";
+    var score = r.scoreGlobal || 70;
+    var scoreColor = score >= 75 ? "#27AE60" : score >= 50 ? "#c9a86a" : "#e74c3c";
+    scoreDiv.innerHTML = "<p style='color:#1a0a00;font-size:11px;font-weight:bold;margin:0 0 4px;letter-spacing:1px;'>SCORE DE TON PROFIL</p><p style='color:"+scoreColor+";font-size:48px;font-weight:bold;margin:0;'>"+score+"<span style='font-size:20px;'>/100</span></p><p style='color:rgba(0,0,0,0.6);font-size:13px;margin:4px 0 0;'>"+r.prenom+"</p>";
+    box.appendChild(scoreDiv);
+
+    // Points forts
+    if (r.analyse && r.analyse.pointsForts) {
+      var pfDiv = document.createElement("div"); pfDiv.style.cssText = "background:#e6f7ec;border-radius:12px;padding:14px;margin-bottom:12px;";
+      pfDiv.innerHTML = "<p style='color:#1e8449;font-size:13px;font-weight:bold;margin:0 0 8px;'>✅ Points forts de ton profil</p>" + r.analyse.pointsForts.map(function(p){return "<p style='color:#1e8449;font-size:13px;margin:0 0 4px;'>• "+p+"</p>";}).join("");
+      box.appendChild(pfDiv);
+    }
+
+    // Points à améliorer
+    if (r.analyse && r.analyse.pointsAmeliorer) {
+      var paDiv = document.createElement("div"); paDiv.style.cssText = "background:#fff8e6;border-radius:12px;padding:14px;margin-bottom:12px;";
+      paDiv.innerHTML = "<p style='color:#8a6a35;font-size:13px;font-weight:bold;margin:0 0 8px;'>⚠️ Points à améliorer</p>" + r.analyse.pointsAmeliorer.map(function(p){return "<p style='color:#8a6a35;font-size:13px;margin:0 0 4px;'>• "+p+"</p>";}).join("");
+      box.appendChild(paDiv);
+    }
+
+    // Analyse détaillée
+    var detailDiv = document.createElement("div"); detailDiv.style.cssText = "background:white;border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid #e8d4b0;";
+    detailDiv.innerHTML = "<p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 10px;'>🔍 Analyse détaillée</p>";
+    if (r.analyse) {
+      [["📸 Photo de profil", r.analyse.photoProfilAvis], ["🖼️ Photo de couverture", r.analyse.photoCouvertureAvis], ["📝 Bio", r.analyse.bioAvis], ["📱 Tes posts", r.analyse.postAvis]].forEach(function(item) {
+        if (item[1]) {
+          var d = document.createElement("div"); d.style.cssText = "border-bottom:1px solid #f0e6d3;padding:8px 0;";
+          d.innerHTML = "<p style='color:#c9a86a;font-size:11px;font-weight:bold;margin:0 0 3px;'>"+item[0]+"</p><p style='color:#555;font-size:12px;margin:0;'>"+item[1]+"</p>";
+          detailDiv.appendChild(d);
+        }
+      });
+    }
+    box.appendChild(detailDiv);
+
+    // Conseils prioritaires
+    if (r.conseilsPrioritaires) {
+      var cpDiv = document.createElement("div"); cpDiv.style.cssText = "background:#f0f4ff;border-radius:12px;padding:14px;margin-bottom:12px;";
+      cpDiv.innerHTML = "<p style='color:#2980B9;font-size:13px;font-weight:bold;margin:0 0 8px;'>🎯 Tes 5 actions prioritaires</p>" + r.conseilsPrioritaires.map(function(c,i){return "<p style='color:#2980B9;font-size:13px;margin:0 0 6px;'><span style='background:#2980B9;color:white;border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:bold;margin-right:6px;'>"+(i+1)+"</span>"+c+"</p>";}).join("");
+      box.appendChild(cpDiv);
+    }
+
+    // Exemples de bio
+    if (r.exemplesBio && r.exemplesBio.length > 0) {
+      var bioDiv = document.createElement("div"); bioDiv.style.cssText = "background:white;border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid #e8d4b0;";
+      bioDiv.innerHTML = "<p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 10px;'>✍️ Exemples de bio améliorée</p>";
+      r.exemplesBio.forEach(function(bio, i) {
+        var bDiv = document.createElement("div"); bDiv.style.cssText = "background:#f8f3ee;border-radius:8px;padding:10px;margin-bottom:8px;";
+        bDiv.innerHTML = "<p style='color:#999;font-size:10px;font-weight:bold;margin:0 0 4px;'>OPTION "+(i+1)+"</p><p style='color:#3a3a3a;font-size:13px;margin:0 0 8px;line-height:1.5;'>"+bio+"</p>";
+        var cpBtn = document.createElement("button");
+        cpBtn.textContent = "📋 Copier";
+        cpBtn.style.cssText = "background:#c9a86a;color:#1a0a00;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:bold;touch-action:manipulation;";
+        cpBtn.onclick = function() { if(navigator.clipboard) navigator.clipboard.writeText(bio).then(function(){cpBtn.textContent="✅ Copié!";setTimeout(function(){cpBtn.textContent="📋 Copier";},2000);}); };
+        bDiv.appendChild(cpBtn);
+        bioDiv.appendChild(bDiv);
+      });
+      box.appendChild(bioDiv);
+    }
+
+    // Idées de posts
+    if (r.conseilsContenu) {
+      var contDiv = document.createElement("div"); contDiv.style.cssText = "background:#f8f3ee;border-radius:12px;padding:14px;margin-bottom:16px;";
+      contDiv.innerHTML = "<p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 8px;'>💡 Idées de posts pour booster ton profil</p>" + r.conseilsContenu.map(function(c){return "<p style='color:#555;font-size:13px;margin:0 0 4px;'>• "+c+"</p>";}).join("");
+      box.appendChild(contDiv);
+    }
+
+    var newBtn = document.createElement("button");
+    newBtn.textContent = "🎯 Nouvelle analyse";
+    newBtn.style.cssText = "width:100%;background:linear-gradient(135deg,#c9a86a,#f5d48a);color:#1a0a00;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;";
+    newBtn.onclick = function() { state = { step:"intro", mode:null, url:"", screenshots:[], base64s:[], resultat:null }; render(); };
+    box.appendChild(newBtn);
+  }
+
   function renderResultat() {
+    if (state.mode === "moi") { renderResultatMoi(); return; }
     var r = state.resultat;
 
     // Badge prospect
