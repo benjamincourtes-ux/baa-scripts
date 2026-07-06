@@ -28,8 +28,8 @@ var BAA_PRODUITS_MIHI = {
     {ref:"—",nom:"Fond de teint léger Ivoire clair",prix:10.8},{ref:"—",nom:"Fond de teint léger Médium beige",prix:10.8},{ref:"—",nom:"Fond de teint léger Miel",prix:10.8},{ref:"—",nom:"Fond de teint léger Sand",prix:10.8},
     {ref:"051207",nom:"Anti-cernes (10ml)",prix:7.9},
     {ref:"—",nom:"Poudre compact mate visage (12g)",prix:8.9},
-    {ref:"—",nom:"Crayon yeux Black",prix:3.9},{ref:"—",nom:"Crayon yeux Copper",prix:3.9},{ref:"—",nom:"Crayon yeux Chocolate",prix:3.9},{ref:"—",nom:"Crayon yeux Summer gras",prix:3.9},{ref:"—",nom:"Crayon yeux Silver",prix:3.9},{ref:"—",nom:"Crayon yeux White",prix:3.9},{ref:"—",nom:"Crayon yeux Blue turquoise",prix:3.9},
-    {ref:"—",nom:"Crayon pour les yeux teinte 2 (1g)",prix:3.5},
+    {ref:"—",nom:"Crayon yeux Black",prix:3.9},{ref:"—",nom:"Crayon yeux Copper",prix:3.9},{ref:"—",nom:"Crayon yeux Chocolate",prix:3.9},{ref:"—",nom:"Crayon yeux Summer gras",prix:3.9},{ref:"—",nom:"Crayon yeux Silver",prix:3.9},{ref:"—",nom:"Crayon yeux White",prix:3.9},{ref:"—",nom:"Crayon yeux Blue",prix:3.9},{ref:"—",nom:"Crayon yeux Turquoise",prix:3.9},
+    
     {ref:"—",nom:"Duo fard à paupières mats (2,5g)",prix:6.9},
     {ref:"—",nom:"Duo fard à paupières satinés (2,5g)",prix:6.9},
     {ref:"—",nom:"Ombre à paupières cuite Duo Shine (1,8g)",prix:9.9},
