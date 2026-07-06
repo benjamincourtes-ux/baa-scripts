@@ -457,7 +457,8 @@ function openGestionBoutique() {
           // Ligne photo — toujours visible
           var photoRow = document.createElement("div");
           photoRow.style.cssText = "padding:4px 14px 10px 52px;background:white;border-bottom:1px solid #f0e6d3;display:flex;gap:8px;align-items:center;";
-          var photoUrl = (b.photos && b.photos[prod.ref]) || "";
+          var photoKey = prod.ref === "—" ? prod.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,30) : prod.ref;
+          var photoUrl = (b.photos && b.photos[photoKey]) || "";
           var prevImgEl = null;
           if (photoUrl) {
             prevImgEl = document.createElement("img");
@@ -486,7 +487,7 @@ function openGestionBoutique() {
               var data = await r.json();
               if (data.secure_url) {
                 if (!b.photos) b.photos = {};
-                b.photos[prod.ref] = data.secure_url;
+                b.photos[photoKey] = data.secure_url;
                 statusTxt.textContent = "✅"; uploadBtn.textContent = "🔄 Changer";
                 if (!prevImgEl) {
                   prevImgEl = document.createElement("img");
