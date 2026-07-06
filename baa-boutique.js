@@ -302,11 +302,11 @@ function openGestionBoutique() {
 
   var panel = document.createElement("div");
   panel.id = "baa-boutique-panel";
-  panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999999;display:flex;justify-content:center;align-items:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch;";
+  panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999999;display:flex;justify-content:center;align-items:flex-start;";
   document.body.appendChild(panel);
 
   var box = document.createElement("div");
-  box.style.cssText = "background:#f8f3ee;width:100%;max-width:560px;border-radius:20px;padding:24px;margin:20px 16px;font-family:Arial,sans-serif;min-height:100vh;";
+  box.style.cssText = "background:#f8f3ee;width:100%;max-width:560px;border-radius:20px;padding:24px;margin:20px 16px;font-family:Arial,sans-serif;max-height:calc(100vh - 40px);overflow-y:auto;-webkit-overflow-scrolling:touch;";
   panel.appendChild(box);
 
   var state = { step:"menu", boutique:null };
