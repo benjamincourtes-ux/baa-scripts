@@ -450,6 +450,35 @@ function openGestionBoutique() {
           var infoEl = document.createElement("div"); infoEl.style.cssText = "flex:1;";
           infoEl.innerHTML = "<p style='color:#3a3a3a;font-size:13px;margin:0 0 1px;'>" + prod.nom + "</p><p style='color:#c9a86a;font-size:12px;font-weight:bold;margin:0;'>" + prod.prix.toFixed(2) + " €</p>";
           pDiv.appendChild(checkEl); pDiv.appendChild(infoEl);
+          // Champ photo si produit sélectionné
+          var photoInput = null;
+          if (produitsSel.includes(prod.ref)) {
+            var photoRow = document.createElement("div");
+            photoRow.style.cssText = "padding:6px 14px 10px 52px;background:white;border-bottom:1px solid #f0e6d3;display:flex;gap:8px;align-items:center;";
+            var photoInp = document.createElement("input");
+            photoInp.type = "url";
+            photoInp.placeholder = "URL de la photo (optionnel)";
+            photoInp.value = (b.photos && b.photos[prod.ref]) || "";
+            photoInp.style.cssText = "flex:1;padding:6px 10px;border:1px solid #e8d4b0;border-radius:8px;font-size:12px;";
+            photoInp.oninput = function() {
+              if (!b.photos) b.photos = {};
+              b.photos[prod.ref] = photoInp.value.trim();
+            };
+            photoInp.onclick = function(e) { e.stopPropagation(); };
+            photoRow.appendChild(photoInp);
+            if (photoInp.value) {
+              var prevImg = document.createElement("img");
+              prevImg.src = photoInp.value;
+              prevImg.style.cssText = "width:36px;height:36px;object-fit:cover;border-radius:6px;border:1px solid #e8d4b0;flex-shrink:0;";
+              prevImg.onerror = function() { prevImg.style.display="none"; };
+              photoRow.appendChild(prevImg);
+            }
+            catContent.appendChild(pDiv);
+            catContent.appendChild(photoRow);
+          } else {
+            catContent.appendChild(pDiv);
+          }
+
           var handleSelect = function() {
             var idx = produitsSel.indexOf(prod.ref);
             if (idx >= 0) {
@@ -463,7 +492,6 @@ function openGestionBoutique() {
           };
           pDiv.onclick = handleSelect;
           pDiv.addEventListener('touchend', function(e) { e.preventDefault(); handleSelect(); }, {passive:false});
-          catContent.appendChild(pDiv);
         });
 
         catDiv.appendChild(catHeader);
