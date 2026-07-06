@@ -475,6 +475,20 @@ function openGestionBoutique() {
           uploadBtn.style.cssText = "background:#f3e7d3;color:#8a6a35;border:1px solid #c9a86a;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:11px;touch-action:manipulation;";
           uploadBtn.onclick = function(e) { e.stopPropagation(); fileInpPhoto.click(); };
           photoRow.appendChild(uploadBtn);
+          if (photoUrl) {
+            var delPhotoBtn = document.createElement("button");
+            delPhotoBtn.textContent = "🗑️";
+            delPhotoBtn.style.cssText = "background:#fee;color:#e74c3c;border:1px solid #e74c3c;padding:5px 8px;border-radius:8px;cursor:pointer;font-size:11px;touch-action:manipulation;";
+            delPhotoBtn.onclick = function(e) {
+              e.stopPropagation();
+              if (!b.photos) b.photos = {};
+              delete b.photos[photoKey];
+              if (prevImgEl) prevImgEl.remove();
+              delPhotoBtn.remove();
+              uploadBtn.textContent = "📷 Photo";
+            };
+            photoRow.appendChild(delPhotoBtn);
+          }
           var statusTxt = document.createElement("span");
           statusTxt.style.cssText = "font-size:11px;color:#999;";
           photoRow.appendChild(statusTxt);
