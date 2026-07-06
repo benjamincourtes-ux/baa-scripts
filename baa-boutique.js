@@ -523,8 +523,10 @@ function openGestionBoutique() {
           infoEl.innerHTML = "<p style='color:#3a3a3a;font-size:13px;margin:0 0 1px;'>" + prod.nom + "</p><p style='color:#c9a86a;font-size:12px;font-weight:bold;margin:0;'>" + prod.prix.toFixed(2) + " €</p>";
           pDiv.appendChild(checkEl); pDiv.appendChild(infoEl);
 
+          var photoKey = prod.ref === "—" ? "prod_" + prod.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : prod.ref;
+
           // Champs description et ingrédients si produit sélectionné
-          if (produitsSel.includes(prod.ref === "—" ? "prod_" + prod.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : prod.ref)) {
+          if (produitsSel.includes(photoKey) || produitsSel.includes(prod.ref)) {
             var infoRow = document.createElement("div");
             infoRow.style.cssText = "padding:6px 14px 8px 52px;background:white;border-bottom:none;";
             
@@ -557,7 +559,6 @@ function openGestionBoutique() {
           // Ligne photo — toujours visible
           var photoRow = document.createElement("div");
           photoRow.style.cssText = "padding:4px 14px 10px 52px;background:white;border-bottom:1px solid #f0e6d3;display:flex;gap:8px;align-items:center;";
-          var photoKey = prod.ref === "—" ? "prod_" + prod.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : prod.ref;
           var photoUrl = (b.photos && b.photos[photoKey]) || "";
           var prevImgEl = null;
           if (photoUrl) {
