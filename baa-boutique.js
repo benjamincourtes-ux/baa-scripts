@@ -524,36 +524,34 @@ function openGestionBoutique() {
           infoEl.innerHTML = "<p style='color:#3a3a3a;font-size:13px;margin:0 0 1px;'>" + prod.nom + "</p><p style='color:#c9a86a;font-size:12px;font-weight:bold;margin:0;'>" + prod.prix.toFixed(2) + " €</p>";
           pDiv.appendChild(checkEl); pDiv.appendChild(infoEl);
 
-          // Champs description et ingrédients si produit sélectionné
-          if (produitsSel.includes(photoKey)) {
-            var infoRow = document.createElement("div");
-            infoRow.style.cssText = "padding:6px 14px 8px 52px;background:white;border-bottom:none;";
-            
-            var descInp = document.createElement("textarea");
-            descInp.placeholder = "Description du produit...";
-            descInp.value = (b.descriptions && b.descriptions[photoKey]) || "";
-            descInp.rows = 2;
-            descInp.style.cssText = "width:100%;padding:8px;border:1px solid #e8d4b0;border-radius:8px;font-size:12px;box-sizing:border-box;margin-bottom:6px;resize:none;";
-            descInp.onclick = function(e) { e.stopPropagation(); };
-            descInp.oninput = function() {
-              if (!b.descriptions) b.descriptions = {};
-              b.descriptions[photoKey] = descInp.value;
-            };
-            infoRow.appendChild(descInp);
+          // Champs description et ingrédients — toujours visibles
+          var infoRow = document.createElement("div");
+          infoRow.style.cssText = "padding:6px 14px 8px 52px;background:white;border-bottom:none;";
+          
+          var descInp = document.createElement("textarea");
+          descInp.placeholder = "Description du produit...";
+          descInp.value = (b.descriptions && b.descriptions[photoKey]) || "";
+          descInp.rows = 2;
+          descInp.style.cssText = "width:100%;padding:8px;border:1px solid #e8d4b0;border-radius:8px;font-size:12px;box-sizing:border-box;margin-bottom:6px;resize:none;";
+          descInp.onclick = function(e) { e.stopPropagation(); };
+          descInp.oninput = function() {
+            if (!b.descriptions) b.descriptions = {};
+            b.descriptions[photoKey] = descInp.value;
+          };
+          infoRow.appendChild(descInp);
 
-            var ingInp = document.createElement("textarea");
-            ingInp.placeholder = "Ingrédients clés...";
-            ingInp.value = (b.ingredients && b.ingredients[photoKey]) || "";
-            ingInp.rows = 2;
-            ingInp.style.cssText = "width:100%;padding:8px;border:1px solid #e8d4b0;border-radius:8px;font-size:12px;box-sizing:border-box;resize:none;";
-            ingInp.onclick = function(e) { e.stopPropagation(); };
-            ingInp.oninput = function() {
-              if (!b.ingredients) b.ingredients = {};
-              b.ingredients[photoKey] = ingInp.value;
-            };
-            infoRow.appendChild(ingInp);
-            catContent.appendChild(infoRow);
-          }
+          var ingInp = document.createElement("textarea");
+          ingInp.placeholder = "Ingrédients clés...";
+          ingInp.value = (b.ingredients && b.ingredients[photoKey]) || "";
+          ingInp.rows = 2;
+          ingInp.style.cssText = "width:100%;padding:8px;border:1px solid #e8d4b0;border-radius:8px;font-size:12px;box-sizing:border-box;resize:none;";
+          ingInp.onclick = function(e) { e.stopPropagation(); };
+          ingInp.oninput = function() {
+            if (!b.ingredients) b.ingredients = {};
+            b.ingredients[photoKey] = ingInp.value;
+          };
+          infoRow.appendChild(ingInp);
+          catContent.appendChild(infoRow);
 
           // Ligne photo — toujours visible
           var photoRow = document.createElement("div");
