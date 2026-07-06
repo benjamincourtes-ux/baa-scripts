@@ -14,7 +14,7 @@ var BAA_PRODUITS_MIHI = {
     {ref:"050504",nom:"Baume à lèvres exfoliant Marshmellow (10g)",prix:7.9},
     {ref:"051107",nom:"Baume à lèvres teinté (4g)",prix:6.9},
     {ref:"051108",nom:"Baume lèvres et joues (4g)",prix:10.9},
-    {ref:"050506",nom:"Baume à lèvres Frutti SPF20 (3,6g)",prix:2.5},
+    
     {ref:"050507",nom:"Baume à lèvres vanille (3,6g)",prix:2.5},
     
     {ref:"050710",nom:"Poudre dorée",prix:8.9},
@@ -63,9 +63,9 @@ var BAA_PRODUITS_MIHI = {
     {ref:"010614",nom:"Sérum ultra-hydratant Hyaluron Pro",prix:11.9},
     {ref:"010615",nom:"Masque crémeux visage Hyaluron Pro",prix:9.9},
     
-    {ref:"010801",nom:"Crème jour/nuit Matrix",prix:17.9},
-    {ref:"010804",nom:"Crème contour des yeux Tripeptydes",prix:8.9},
-    {ref:"010805",nom:"Brume visage effet botox Tripeptydes",prix:8.9},
+    {ref:"010801",nom:"Crème jour/nuit Matrix",prix:17.9},{ref:"010802",nom:"Sérum visage Matrix",prix:10.5},{ref:"010806",nom:"Brume revitalisante Matrix",prix:12.9},
+    {ref:"010804",nom:"Crème contour des yeux Matrix",prix:8.9},
+    
     
     {ref:"010702",nom:"Crème de jour parfaite Mucin",prix:14.9},
     {ref:"010703",nom:"Crème de nuit intensive Mucin",prix:14.9},
