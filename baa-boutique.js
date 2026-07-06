@@ -526,7 +526,7 @@ function openGestionBoutique() {
           // Ligne photo — toujours visible
           var photoRow = document.createElement("div");
           photoRow.style.cssText = "padding:4px 14px 10px 52px;background:white;border-bottom:1px solid #f0e6d3;display:flex;gap:8px;align-items:center;";
-          var photoKey = prod.ref === "—" ? prod.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,30) : prod.ref;
+          var photoKey = prod.ref === "—" ? "prod_" + prod.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : prod.ref;
           var photoUrl = (b.photos && b.photos[photoKey]) || "";
           var prevImgEl = null;
           if (photoUrl) {
