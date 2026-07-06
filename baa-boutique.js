@@ -235,7 +235,7 @@ var BAA_PRODUITS_MIHI = {
     {ref:"080109",nom:"Détartrant",prix:4.9},
     {ref:"080110",nom:"Dégraissant",prix:6.9},
     {ref:"080119",nom:"Nettoyant universel bicarbonate",prix:6.5},
-    {ref:"110101",nom:"Nettoyant textile voiture",prix:8.9}
+    
   ]},
   "parfums": { label:"🌸 Parfums", produits:[
     {ref:"040601",nom:"Eau de parfum Tuscany",prix:18.9},
