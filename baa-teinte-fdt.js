@@ -31,7 +31,12 @@ function openTeinteFoundation() {
     var closeBtn = document.createElement("button");
     closeBtn.textContent = "✕";
     closeBtn.style.cssText = "background:none;border:none;font-size:22px;color:#8b735d;cursor:pointer;touch-action:manipulation;";
-    closeBtn.onclick = function() { panel.remove(); if (typeof window.__baaOpenOutilsPanel === "function") window.__baaOpenOutilsPanel(); };
+    closeBtn.onclick = function() {
+      if (state.step === "intro") { panel.remove(); if (typeof window.__baaOpenOutilsPanel === "function") window.__baaOpenOutilsPanel(); }
+      else if (state.step === "photo") { state.step = "intro"; render(); }
+      else if (state.step === "resultat") { state.step = "photo"; render(); }
+      else { panel.remove(); }
+    };
     hdr.appendChild(closeBtn);
     box.appendChild(hdr);
 
@@ -145,7 +150,7 @@ function openTeinteFoundation() {
 
       var teintesList = "Teintes fond de teint léger (acide hyaluronique): 051201 Light Ivory (hex #E8DDD4, très clair, sous-tons froids/neutres), 051202 Medium Beige (hex #D2C4B9, clair à medium, sous-tons neutres), 051203 Honey (hex #CDB29C, medium, sous-tons chauds/dorés), 051211 Sand (hex #C49B7C, medium foncé, sous-tons neutres/chauds). Teintes fond de teint matifiant: 051204 Natural (hex #CFBAAB, clair, sous-tons neutres), 051205 Golden Beige (hex #CBAE9A, medium, sous-tons dorés/chauds), 051206 Caramel (hex #A0693A, medium foncé à foncé, sous-tons chauds), 051207 Mocca (hex #7A4F30, foncé, teints métissés, sous-tons chauds profonds). Compare attentivement la carnation détectée avec ces hex pour trouver la correspondance la plus proche.";
 
-      var prompt = "Tu es une experte en colorimétrie et maquillage professionnel. Analyse cette photo de peau et identifie la couleur HEX exacte de la carnation visible. Compare cette couleur HEX avec les teintes Mihi disponibles et choisis celle dont le HEX est le plus proche mathématiquement. "+teintesList+" IMPORTANT : base ta recommandation UNIQUEMENT sur la proximité des couleurs HEX, pas sur des suppositions. Si la carnation est medium avec sous-tons dorés, Golden Beige (#CBAE9A) sera plus proche que Natural (#CFBAAB). Reponds UNIQUEMENT en JSON: {\"carnation\":\"couleur HEX détectée et description\",\"sousTons\":\"chauds/froids/neutres\",\"profondeur\":\"clair/medium/foncé\",\"hexDetecte\":\"#XXXXXX\",\"teinteRecommandee\":{\"code\":\"code produit\",\"nom\":\"nom teinte\",\"type\":\"léger ou matifiant\",\"raison\":\"explication basée sur proximité HEX\"},\"teinteAlternative\":{\"code\":\"code produit\",\"nom\":\"nom teinte\",\"type\":\"léger ou matifiant\",\"raison\":\"pourquoi cette alternative\"},\"conseilApplication\":[\"conseil1\",\"conseil2\",\"conseil3\"],\"scoreCorrespondance\":0}";
+      var prompt = "Tu es une experte en colorimétrie et maquillage professionnel. Analyse cette photo de peau et identifie la couleur HEX exacte de la carnation. Compare avec les teintes Mihi et choisis pour CHAQUE TYPE (léger ET matifiant) la teinte principale ET une alternative. "+teintesList+" IMPORTANT : base ta recommandation UNIQUEMENT sur la proximité HEX. Reponds UNIQUEMENT en JSON: {\"carnation\":\"description\",\"sousTons\":\"chauds/froids/neutres\",\"profondeur\":\"clair/medium/foncé\",\"hexDetecte\":\"#XXXXXX\",\"leger\":{\"recommandee\":{\"code\":\"code\",\"nom\":\"nom\",\"raison\":\"raison\"},\"alternative\":{\"code\":\"code\",\"nom\":\"nom\",\"raison\":\"raison\"}},\"matifiant\":{\"recommandee\":{\"code\":\"code\",\"nom\":\"nom\",\"raison\":\"raison\"},\"alternative\":{\"code\":\"code\",\"nom\":\"nom\",\"raison\":\"raison\"}},\"conseilApplication\":[\"conseil1\",\"conseil2\",\"conseil3\"],\"scoreCorrespondance\":0}";
 
       fetch("https://api.anthropic.com/v1/messages",{
         method:"POST",headers:headers,
@@ -170,10 +175,16 @@ function openTeinteFoundation() {
 
   function lancerFallback() {
     state.resultat={
-      carnation:"Medium, teint équilibré",sousTons:"neutres",profondeur:"medium",
-      teinteRecommandee:{code:"051202",nom:"Medium Beige",type:"léger",raison:"Correspond à une carnation medium aux sous-tons neutres, fini naturel et lumineux"},
-      teinteAlternative:{code:"051204",nom:"03 Natural",type:"matifiant",raison:"Alternative matifiante si la peau a tendance à briller"},
-      conseilApplication:["Appliquer avec un pinceau fond de teint en mouvements circulaires","Estomper sur le cou pour un rendu naturel","Fixer avec une poudre translucide"],
+      carnation:"Medium, teint équilibré",sousTons:"neutres",profondeur:"medium",hexDetecte:"#D2C4B9",
+      leger:{
+        recommandee:{code:"051202",nom:"Medium Beige",raison:"Carnation medium aux sous-tons neutres"},
+        alternative:{code:"051203",nom:"Honey",raison:"Si vous préférez un fini légèrement plus doré"}
+      },
+      matifiant:{
+        recommandee:{code:"051205",nom:"04 Golden Beige",raison:"Contrôle le brillant sur peau medium"},
+        alternative:{code:"051204",nom:"03 Natural",raison:"Si votre carnation est légèrement plus claire"}
+      },
+      conseilApplication:["Appliquer avec un pinceau en mouvements circulaires","Estomper sur le cou pour un rendu naturel","Fixer avec une poudre translucide"],
       scoreCorrespondance:85
     };
     state.step="resultat";render();
@@ -181,37 +192,48 @@ function openTeinteFoundation() {
 
   function renderResultat() {
     var r=state.resultat;
-    var teintePrincipale=TEINTES.find(function(t){return t.code===r.teinteRecommandee.code;})||{hex:"#E8D0B0"};
-    var teinteAlt=TEINTES.find(function(t){return t.code===r.teinteAlternative.code;})||{hex:"#D4A96A"};
 
     // Badge carnation
     var carDiv=document.createElement("div");
     carDiv.style.cssText="background:linear-gradient(135deg,#c9a86a,#f5d48a);border-radius:14px;padding:16px;text-align:center;margin-bottom:16px;";
-    carDiv.innerHTML="<p style='color:#1a0a00;font-size:11px;font-weight:bold;margin:0 0 4px;letter-spacing:1px;'>TA CARNATION</p><p style='color:#1a0a00;font-size:18px;font-weight:bold;margin:0 0 4px;'>"+r.carnation+"</p><div style='display:flex;justify-content:center;gap:16px;margin-top:8px;'><span style='color:#1a0a00;font-size:12px;'>🌡️ Sous-tons : <strong>"+r.sousTons+"</strong></span><span style='color:#1a0a00;font-size:12px;'>🎨 Profondeur : <strong>"+r.profondeur+"</strong></span></div>";
+    carDiv.innerHTML="<p style='color:#1a0a00;font-size:11px;font-weight:bold;margin:0 0 4px;letter-spacing:1px;'>TA CARNATION</p><p style='color:#1a0a00;font-size:18px;font-weight:bold;margin:0 0 4px;'>"+r.carnation+"</p><div style='display:flex;justify-content:center;gap:16px;margin-top:8px;'><span style='color:#1a0a00;font-size:12px;'>🌡️ Sous-tons : <strong>"+r.sousTons+"</strong></span><span style='color:#1a0a00;font-size:12px;'>🎨 Profondeur : <strong>"+r.profondeur+"</strong></span></div>"+
+    "<div style='background:rgba(0,0,0,0.1);border-radius:8px;padding:6px 12px;display:inline-block;margin-top:8px;'><span style='color:#1a0a00;font-size:12px;'>💯 Score : <strong>"+r.scoreCorrespondance+"%</strong></span></div>";
     box.appendChild(carDiv);
 
-    // Teinte recommandée
-    var recDiv=document.createElement("div");
-    recDiv.style.cssText="background:white;border-radius:14px;padding:16px;margin-bottom:12px;border:2px solid #c9a86a;";
-    recDiv.innerHTML="<p style='color:#8b735d;font-size:11px;font-weight:bold;margin:0 0 10px;letter-spacing:1px;'>⭐ TEINTE RECOMMANDÉE</p>"+
-      "<div style='display:flex;gap:14px;align-items:center;margin-bottom:12px;'>"+
-      "<div style='width:56px;height:56px;border-radius:50%;background:"+teintePrincipale.hex+";border:3px solid #c9a86a;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.15);'></div>"+
-      "<div><p style='color:#3a3a3a;font-size:16px;font-weight:bold;margin:0 0 2px;'>"+r.teinteRecommandee.nom+"</p>"+
-      "<p style='color:#c9a86a;font-size:12px;font-weight:bold;margin:0 0 4px;'>Fond de teint "+r.teinteRecommandee.type+" • Réf: "+r.teinteRecommandee.code+"</p>"+
-      "<p style='color:#666;font-size:12px;margin:0;'>"+r.teinteRecommandee.raison+"</p></div></div>"+
-      "<div style='background:#f8f3ee;border-radius:8px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;'><span style='color:#8b735d;font-size:12px;'>Score de correspondance</span><span style='color:#c9a86a;font-size:18px;font-weight:bold;'>"+r.scoreCorrespondance+"%</span></div>";
-    box.appendChild(recDiv);
+    // Fonction pour afficher un bloc teinte
+    function renderTeinteBloc(label, teinteData, border) {
+      if (!teinteData) return;
+      var t = TEINTES.find(function(t){return t.code===teinteData.code;})||{hex:"#E8D0B0"};
+      var div=document.createElement("div");
+      div.style.cssText="background:white;border-radius:12px;padding:14px;margin-bottom:8px;border:"+(border?"2px solid #c9a86a":"1px solid #e8d4b0")+";";
+      div.innerHTML="<p style='color:#8b735d;font-size:10px;font-weight:bold;margin:0 0 8px;letter-spacing:1px;'>"+label+"</p>"+
+        "<div style='display:flex;gap:12px;align-items:center;'>"+
+        "<div style='width:"+(border?"48px":"38px")+";height:"+(border?"48px":"38px")+";border-radius:50%;background:"+t.hex+";border:"+(border?"3px solid #c9a86a":"2px solid #e8d4b0")+";flex-shrink:0;'></div>"+
+        "<div><p style='color:#3a3a3a;font-size:"+(border?"15px":"13px")+";font-weight:bold;margin:0 0 2px;'>"+teinteData.nom+"</p>"+
+        "<p style='color:#c9a86a;font-size:11px;font-weight:bold;margin:0 0 3px;'>Réf: "+teinteData.code+"</p>"+
+        "<p style='color:#666;font-size:11px;margin:0;'>"+teinteData.raison+"</p></div></div>";
+      box.appendChild(div);
+    }
 
-    // Teinte alternative
-    var altDiv=document.createElement("div");
-    altDiv.style.cssText="background:white;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid #e8d4b0;";
-    altDiv.innerHTML="<p style='color:#8b735d;font-size:11px;font-weight:bold;margin:0 0 10px;letter-spacing:1px;'>💡 TEINTE ALTERNATIVE</p>"+
-      "<div style='display:flex;gap:14px;align-items:center;'>"+
-      "<div style='width:44px;height:44px;border-radius:50%;background:"+teinteAlt.hex+";border:2px solid #e8d4b0;flex-shrink:0;'></div>"+
-      "<div><p style='color:#3a3a3a;font-size:14px;font-weight:bold;margin:0 0 2px;'>"+r.teinteAlternative.nom+"</p>"+
-      "<p style='color:#999;font-size:11px;font-weight:bold;margin:0 0 3px;'>Fond de teint "+r.teinteAlternative.type+" • Réf: "+r.teinteAlternative.code+"</p>"+
-      "<p style='color:#666;font-size:12px;margin:0;'>"+r.teinteAlternative.raison+"</p></div></div>";
-    box.appendChild(altDiv);
+    // Section Fond de teint Léger
+    var legDiv=document.createElement("div");
+    legDiv.style.cssText="background:#f8f3ee;border-radius:12px;padding:12px;margin-bottom:12px;";
+    legDiv.innerHTML="<p style='color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 8px;'>💧 FOND DE TEINT LÉGER (Acide Hyaluronique)</p>";
+    box.appendChild(legDiv);
+    if(r.leger){
+      renderTeinteBloc("⭐ RECOMMANDÉE", r.leger.recommandee, true);
+      renderTeinteBloc("💡 ALTERNATIVE", r.leger.alternative, false);
+    }
+
+    // Section Fond de teint Matifiant
+    var matDiv=document.createElement("div");
+    matDiv.style.cssText="background:#f8f3ee;border-radius:12px;padding:12px;margin-bottom:12px;margin-top:8px;";
+    matDiv.innerHTML="<p style='color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 8px;'>✨ FOND DE TEINT MATIFIANT</p>";
+    box.appendChild(matDiv);
+    if(r.matifiant){
+      renderTeinteBloc("⭐ RECOMMANDÉE", r.matifiant.recommandee, true);
+      renderTeinteBloc("💡 ALTERNATIVE", r.matifiant.alternative, false);
+    }
 
     // Conseils application
     if(r.conseilApplication&&r.conseilApplication.length>0){
@@ -239,16 +261,17 @@ function openTeinteFoundation() {
 
   function partagerResultat() {
     var r=state.resultat;
-    var teintePrincipale=TEINTES.find(function(t){return t.code===r.teinteRecommandee.code;})||{hex:"#E8D0B0"};
+    var tRecLeg=r.leger&&r.leger.recommandee?r.leger.recommandee:{code:"051202",nom:"Medium Beige",raison:""};
+var tRecMat=r.matifiant&&r.matifiant.recommandee?r.matifiant.recommandee:{code:"051205",nom:"Golden Beige",raison:""};
+var teinteLeg=TEINTES.find(function(t){return t.code===tRecLeg.code;})||{hex:"#D2C4B9"};
+var teinteMat=TEINTES.find(function(t){return t.code===tRecMat.code;})||{hex:"#CBAE9A"};
 
     var tempDiv=document.createElement("div");
     tempDiv.style.cssText="position:fixed;left:-9999px;top:0;width:600px;background:#f8f3ee;padding:24px;font-family:Arial,sans-serif;";
     tempDiv.innerHTML=
       "<div style='text-align:center;margin-bottom:20px;'><h1 style='color:#8b735d;font-size:20px;margin:0;'>💄 Ma Teinte Mihi</h1><p style='color:#c9a86a;font-size:13px;margin:4px 0 0;'>Beauty Addict Academy — Analyse IA</p></div>"+
       "<div style='background:linear-gradient(135deg,#c9a86a,#f5d48a);border-radius:14px;padding:20px;text-align:center;margin-bottom:16px;'><p style='color:#1a0a00;font-size:12px;font-weight:bold;margin:0 0 6px;'>MA TEINTE PARFAITE</p>"+
-      "<div style='width:80px;height:80px;border-radius:50%;background:"+teintePrincipale.hex+";border:4px solid white;margin:0 auto 12px;box-shadow:0 4px 12px rgba(0,0,0,0.2);'></div>"+
-      "<p style='color:#1a0a00;font-size:24px;font-weight:bold;margin:0 0 4px;'>"+r.teinteRecommandee.nom+"</p>"+
-      "<p style='color:rgba(0,0,0,0.6);font-size:13px;margin:0;'>Fond de teint "+r.teinteRecommandee.type+" Mihi • Réf: "+r.teinteRecommandee.code+"</p></div>"+
+      "<div style='display:flex;gap:16px;justify-content:center;margin-bottom:8px;'><div style='text-align:center;'><div style='width:56px;height:56px;border-radius:50%;background:"+teinteLeg.hex+";border:3px solid white;margin:0 auto 4px;'></div><p style='color:#1a0a00;font-size:11px;font-weight:bold;margin:0;'>"+tRecLeg.nom+"</p><p style='color:rgba(0,0,0,0.5);font-size:10px;margin:0;'>Léger</p></div><div style='text-align:center;'><div style='width:56px;height:56px;border-radius:50%;background:"+teinteMat.hex+";border:3px solid white;margin:0 auto 4px;'></div><p style='color:#1a0a00;font-size:11px;font-weight:bold;margin:0;'>"+tRecMat.nom+"</p><p style='color:rgba(0,0,0,0.5);font-size:10px;margin:0;'>Matifiant</p></div></div></div>"+
       "<div style='background:white;border-radius:12px;padding:14px;margin-bottom:12px;'><p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 8px;'>Mon profil</p>"+
       "<p style='color:#555;font-size:13px;margin:0 0 4px;'>🎨 Carnation : "+r.carnation+"</p>"+
       "<p style='color:#555;font-size:13px;margin:0 0 4px;'>🌡️ Sous-tons : "+r.sousTons+"</p>"+
