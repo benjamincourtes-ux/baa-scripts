@@ -16,9 +16,9 @@ var BAA_PRODUITS_MIHI = {
     {ref:"051108",nom:"Baume lèvres et joues (4g)",prix:10.9},
     {ref:"050506",nom:"Baume à lèvres Frutti SPF20 (3,6g)",prix:2.5},
     {ref:"050507",nom:"Baume à lèvres vanille (3,6g)",prix:2.5},
-    {ref:"050711",nom:"Poudre bronzante mate multicolore",prix:10.9},
+    
     {ref:"050710",nom:"Poudre dorée",prix:8.9},
-    {ref:"050712",nom:"Blush multicolore",prix:10.9},
+    
     {ref:"050715",nom:"Illuminateur Trio Shine (8g)",prix:12.9},
     {ref:"050707",nom:"Base lissante",prix:10.9},
     {ref:"050708",nom:"Highlighter (30ml)",prix:10.9},
@@ -27,7 +27,7 @@ var BAA_PRODUITS_MIHI = {
     {ref:"—",nom:"Fond de teint mat Naturel",prix:10.8},{ref:"—",nom:"Fond de teint mat Golden Beige",prix:10.8},{ref:"—",nom:"Fond de teint mat Caramel",prix:10.8},{ref:"—",nom:"Fond de teint mat Light Beige",prix:10.8},{ref:"—",nom:"Fond de teint mat Mocca",prix:10.8},
     {ref:"—",nom:"Fond de teint léger Ivoire clair",prix:10.8},{ref:"—",nom:"Fond de teint léger Médium beige",prix:10.8},{ref:"—",nom:"Fond de teint léger Miel",prix:10.8},{ref:"—",nom:"Fond de teint léger Sand",prix:10.8},
     {ref:"051207",nom:"Anti-cernes (10ml)",prix:7.9},
-    {ref:"—",nom:"Poudre compact mate visage (12g)",prix:8.9},
+    
     {ref:"—",nom:"Crayon yeux Black",prix:3.9},{ref:"—",nom:"Crayon yeux Copper",prix:3.9},{ref:"—",nom:"Crayon yeux Chocolate",prix:3.9},{ref:"—",nom:"Crayon yeux Summer gras",prix:3.9},{ref:"—",nom:"Crayon yeux Silver",prix:3.9},{ref:"—",nom:"Crayon yeux White",prix:3.9},{ref:"—",nom:"Crayon yeux Blue",prix:3.9},{ref:"—",nom:"Crayon yeux Turquoise",prix:3.9},
     
     {ref:"—",nom:"Duo fard à paupières mats (2,5g)",prix:6.9},
@@ -40,11 +40,11 @@ var BAA_PRODUITS_MIHI = {
     {ref:"050304",nom:"Gel fixateur des sourcils",prix:8.9},
     {ref:"—",nom:"Crayon à sourcils Ash blonde",prix:5.5},{ref:"—",nom:"Crayon à sourcils Chocolate",prix:5.5},{ref:"—",nom:"Crayon à sourcils Soft brown",prix:5.5},
     {ref:"050305",nom:"Sérum pour cils et sourcils",prix:6.9},
-    {ref:"—",nom:"Glitter liquide (4ml)",prix:9.6},
+    
     {ref:"051304",nom:"Fini mat ongles",prix:5.9},
     {ref:"051305",nom:"Dissolvant pour cuticules",prix:5.9},
-    {ref:"051301",nom:"Green Hardener",prix:5.9},
-    {ref:"051302",nom:"Quick Grow",prix:5.9}
+    
+    
   ]},
   "visage": { label:"✨ Visage", produits:[
     {ref:"012001",nom:"Crème ExoLifting jour et nuit",prix:23.9},
@@ -58,19 +58,19 @@ var BAA_PRODUITS_MIHI = {
     {ref:"010208",nom:"Sérum roll-on pour les yeux",prix:8.9},
     {ref:"011701",nom:"Microdermabrasion & Enzymes Facial Peeling",prix:9.9},
     {ref:"011702",nom:"Crème régénératrice Skin Renew",prix:7.9},
-    {ref:"010611",nom:"Crème de nuit Hyaluron Pro",prix:9.8},
+    {ref:"010611",nom:"Crème de nuit Hyaluron Pro",prix:7.9},
     {ref:"010612",nom:"Crème pour les yeux Hyaluron Pro",prix:8.9},
     {ref:"010614",nom:"Sérum ultra-hydratant Hyaluron Pro",prix:11.9},
     {ref:"010615",nom:"Masque crémeux visage Hyaluron Pro",prix:9.9},
-    {ref:"010801",nom:"Crème de jour relaxante Tripeptydes",prix:14.9},
-    {ref:"010803",nom:"Crème de nuit raffermissante Tripeptydes",prix:14.9},
+    
+    {ref:"010801",nom:"Crème jour/nuit Matrix",prix:17.9},
     {ref:"010804",nom:"Crème contour des yeux Tripeptydes",prix:8.9},
     {ref:"010805",nom:"Brume visage effet botox Tripeptydes",prix:8.9},
-    {ref:"010810",nom:"Booster d'hydratation effet botox",prix:10.9},
+    
     {ref:"010702",nom:"Crème de jour parfaite Mucin",prix:14.9},
     {ref:"010703",nom:"Crème de nuit intensive Mucin",prix:14.9},
     {ref:"010705",nom:"Crème contour yeux anti-rides Mucin",prix:8.9},
-    {ref:"010707",nom:"Brume lissante Mucin",prix:8.9},
+    
     {ref:"010401",nom:"Gel nettoyant hydratant Clean",prix:7.9},
     {ref:"010405",nom:"Tonique apaisant Clean",prix:5.9},
     {ref:"010402",nom:"Eau micellaire hydratante Clean",prix:6.9},
@@ -130,9 +130,9 @@ var BAA_PRODUITS_MIHI = {
     {ref:"020114",nom:"Crème adoucissante pour les pieds",prix:7.9},
     {ref:"020113",nom:"Déodorant naturel aloe vera",prix:9.9},
     {ref:"020112",nom:"Spray rafraîchissant pour les pieds",prix:4.9},
-    {ref:"020302",nom:"Crème pour les mains",prix:4.9},
+    
     {ref:"020304",nom:"Gel douche",prix:7.9},
-    {ref:"020305",nom:"Huile sèche corporelle",prix:11.9},
+    
     {ref:"021102",nom:"Crème-gel intime",prix:5.9},
     {ref:"021104",nom:"Gel intime hydratant à l'arginine",prix:9.9}
   ]},
@@ -146,8 +146,8 @@ var BAA_PRODUITS_MIHI = {
     {ref:"030601",nom:"Shampooing antipelliculaire",prix:9.9},
     {ref:"030606",nom:"Lotion antipelliculaire",prix:9.9},
     {ref:"030609",nom:"Spray pour cheveux gris",prix:11.9},
-    {ref:"030101",nom:"Shampooing restauration Bamboo Charcoal",prix:7.9},
-    {ref:"030102",nom:"Capillaire restauration Bamboo Charcoal",prix:7.9},
+    {ref:"030101",nom:"Shampooing restauration Bamboo Charcoal",prix:6.9},
+    {ref:"030102",nom:"Après-shampooing restauration Bamboo Charcoal",prix:6.9},
     {ref:"030103",nom:"Baume capillaire restauration",prix:7.9},
     {ref:"030104",nom:"Spray capillaire restauration",prix:6.9},
     {ref:"030105",nom:"Huile pour les pointes restauration",prix:11.9},
@@ -160,14 +160,14 @@ var BAA_PRODUITS_MIHI = {
     {ref:"031400",nom:"Shampooing purifiant",prix:6.9},
     {ref:"031401",nom:"Après-shampooing purifiant",prix:6.9},
     {ref:"030901",nom:"Shampooing pour cheveux colorés",prix:10.9},
-    {ref:"030902",nom:"Après-shampooing pour cheveux colorés",prix:10.9},
+    {ref:"030902",nom:"Après-shampooing pour cheveux colorés",prix:9.6},
     {ref:"030801",nom:"Shampooing anti-jaunissement",prix:7.9},
     {ref:"030802",nom:"Masque anti-jaunissement",prix:7.9},
     {ref:"031500",nom:"Shampooing volumateur",prix:10.9},
     {ref:"031501",nom:"Après-shampooing volumateur",prix:10.9},
     {ref:"031502",nom:"Spray volumateur",prix:5.9},
     {ref:"031100",nom:"Shampooing cheveux bouclés Curls Line",prix:11.5},
-    {ref:"031101",nom:"Après-shampooing cheveux bouclés Curls Line",prix:11.5},
+    
     {ref:"031001",nom:"Booster de collagène effet WOW",prix:9.9},
     {ref:"031002",nom:"Sérum capillaire complexe actif",prix:6.9},
     {ref:"031004",nom:"Peeling trichologique du cuir chevelu",prix:10.9},
@@ -185,7 +185,7 @@ var BAA_PRODUITS_MIHI = {
   "hommes": { label:"👨 Hommes", produits:[
     {ref:"070101",nom:"Shampooing et gel douche 2en1 homme",prix:7.9},
     {ref:"070108",nom:"Gel nettoyant pour rasage 2en1",prix:9.9},
-    {ref:"070102",nom:"Après-rasage gel Hyaluron",prix:6.9},
+    {ref:"070102",nom:"Après-rasage gel Hyaluron",prix:6.0},
     {ref:"070109",nom:"Gel douche parfumé M4",prix:9.9},
     {ref:"070104",nom:"Crème visage Hyaluron homme",prix:8.9},
     {ref:"070110",nom:"Protection active anti-transpirante",prix:5.9},
@@ -194,7 +194,7 @@ var BAA_PRODUITS_MIHI = {
   "enfants": { label:"👶 Enfants", produits:[
     {ref:"060402",nom:"Spray pour les cheveux enfants",prix:3.9},
     {ref:"060401",nom:"Dentifrice enfants goût baies (3-7 ans)",prix:4.5},
-    {ref:"060403",nom:"Gel douche corps et cheveux enfants",prix:7.9},
+    {ref:"060403",nom:"Gel douche corps et cheveux enfants",prix:7.0},
     {ref:"060404",nom:"Mousse de bain enfants",prix:8.9}
   ]},
   "home": { label:"🏠 Home", produits:[
@@ -209,7 +209,7 @@ var BAA_PRODUITS_MIHI = {
     {ref:"080127",nom:"Nettoyant tapis et tissus d'ameublement",prix:5.9},
     {ref:"080126",nom:"Nettoyant surfaces et sols en bois",prix:6.5},
     {ref:"080133",nom:"Nettoyant d'écran",prix:7.9},
-    {ref:"080130",nom:"Eau parfumée",prix:5.9},
+    
     {ref:"080134",nom:"Nettoyant réfrigérateur",prix:7.9},
     {ref:"080132",nom:"Lingettes humides toutes surfaces",prix:6.9},
     {ref:"080131",nom:"Lingettes pour les vitres",prix:6.9},
@@ -247,7 +247,7 @@ var BAA_PRODUITS_MIHI = {
     {ref:"040108",nom:"Eau de parfum W8",prix:18.5},
     {ref:"040110",nom:"Eau de parfum W9 Femme",prix:18.5},
     {ref:"040111",nom:"Eau de parfum W10",prix:18.5},
-    {ref:"040113",nom:"Eau de parfum W12",prix:18.5},
+    {ref:"040113",nom:"Eau de parfum W12",prix:18.5},{ref:"—",nom:"Eau de parfum M11",prix:18.5},{ref:"—",nom:"Eau de parfum Karolina",prix:20.9},{ref:"—",nom:"Eau de parfum Wioletta",prix:20.9},{ref:"—",nom:"Eau de parfum Monika",prix:20.9},
     {ref:"040118",nom:"Eau parfumée Oscar",prix:23.9},
     {ref:"040117",nom:"Parfum femme Futuristic",prix:16.9},
     {ref:"040109",nom:"Eau de parfum Just For Her",prix:19.5},
