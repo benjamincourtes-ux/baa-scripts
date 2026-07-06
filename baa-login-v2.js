@@ -1057,3 +1057,11 @@ function initBeautyAddictLogin() {
 }
 if (document.readyState === "complete") { setTimeout(initBeautyAddictLogin, 1500); }
 else { window.addEventListener("load", function() { setTimeout(initBeautyAddictLogin, 2000); }); }
+
+// Charger EmailJS
+(function(){
+  var s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+  s.onload = function() { if(typeof emailjs !== 'undefined') emailjs.init('QSaO_MZ-14PmG4ObRqJiC'); };
+  document.head.appendChild(s);
+})();
