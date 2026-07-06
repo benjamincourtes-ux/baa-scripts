@@ -336,7 +336,10 @@ function openGestionBoutique() {
     var closeBtn = document.createElement("button");
     closeBtn.textContent = "✕";
     closeBtn.style.cssText = "background:none;border:none;font-size:22px;color:#8b735d;cursor:pointer;";
-    closeBtn.onclick = function() { panel.remove(); if (typeof window.__baaOpenOutilsPanel === "function") window.__baaOpenOutilsPanel(); };
+    closeBtn.onclick = function() {
+      if (state.step === "menu") { panel.remove(); if (typeof window.__baaOpenOutilsPanel === "function") window.__baaOpenOutilsPanel(); }
+      else { state.step = "menu"; render(); }
+    };
     hdr.appendChild(closeBtn);
     box.appendChild(hdr);
 
@@ -442,7 +445,7 @@ function openGestionBoutique() {
         };
 
         catData.produits.forEach(function(prod) {
-          var pDiv = document.createElement("div"); pDiv.style.cssText = "display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid #f0e6d3;cursor:pointer;touch-action:manipulation;";
+          var pDiv = document.createElement("div"); pDiv.style.cssText = "display:flex;align-items:center;padding:10px 14px;border-bottom:none;cursor:pointer;touch-action:manipulation;";
           var checked = produitsSel.includes(prod.ref);
           var checkEl = document.createElement("div");
           checkEl.style.cssText = "width:20px;height:20px;border-radius:4px;border:2px solid " + (checked?"#c9a86a":"#ddd") + ";background:" + (checked?"#c9a86a":"white") + ";margin-right:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;";
@@ -450,70 +453,54 @@ function openGestionBoutique() {
           var infoEl = document.createElement("div"); infoEl.style.cssText = "flex:1;";
           infoEl.innerHTML = "<p style='color:#3a3a3a;font-size:13px;margin:0 0 1px;'>" + prod.nom + "</p><p style='color:#c9a86a;font-size:12px;font-weight:bold;margin:0;'>" + prod.prix.toFixed(2) + " €</p>";
           pDiv.appendChild(checkEl); pDiv.appendChild(infoEl);
-          // Upload photo si produit sélectionné
-          if (produitsSel.includes(prod.ref)) {
-            var photoRow = document.createElement("div");
-            photoRow.style.cssText = "padding:6px 14px 10px 52px;background:white;border-bottom:1px solid #f0e6d3;display:flex;gap:8px;align-items:center;";
-            
-            var photoUrl = (b.photos && b.photos[prod.ref]) || "";
-            
-            if (photoUrl) {
-              var prevImg = document.createElement("img");
-              prevImg.src = photoUrl;
-              prevImg.style.cssText = "width:44px;height:44px;object-fit:cover;border-radius:8px;border:1px solid #e8d4b0;flex-shrink:0;";
-              prevImg.onerror = function() { prevImg.style.display="none"; };
-              photoRow.appendChild(prevImg);
-            }
-            
-            var fileInpPhoto = document.createElement("input");
-            fileInpPhoto.type = "file"; fileInpPhoto.accept = "image/*"; fileInpPhoto.style.display = "none";
-            photoRow.appendChild(fileInpPhoto);
-            
-            var uploadBtn = document.createElement("button");
-            uploadBtn.textContent = photoUrl ? "🔄 Changer la photo" : "📷 Ajouter une photo";
-            uploadBtn.style.cssText = "background:#f3e7d3;color:#8a6a35;border:1px solid #c9a86a;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;touch-action:manipulation;";
-            uploadBtn.onclick = function(e) { e.stopPropagation(); fileInpPhoto.click(); };
-            photoRow.appendChild(uploadBtn);
-            
-            var statusTxt = document.createElement("span");
-            statusTxt.style.cssText = "font-size:11px;color:#999;";
-            photoRow.appendChild(statusTxt);
-            
-            fileInpPhoto.onchange = async function() {
-              var file = this.files[0]; if (!file) return;
-              statusTxt.textContent = "Upload...";
-              uploadBtn.disabled = true;
-              try {
-                var fd = new FormData();
-                fd.append("file", file);
-                fd.append("upload_preset", "baa_avatars");
-                fd.append("folder", "boutique_produits");
-                var r = await fetch("https://api.cloudinary.com/v1_1/dxcfq3nyl/image/upload", {method:"POST",body:fd});
-                var data = await r.json();
-                if (data.secure_url) {
-                  if (!b.photos) b.photos = {};
-                  b.photos[prod.ref] = data.secure_url;
-                  statusTxt.textContent = "✅ Photo ajoutée !";
-                  uploadBtn.textContent = "🔄 Changer la photo";
-                  if (!prevImg) {
-                    var newImg = document.createElement("img");
-                    newImg.src = data.secure_url;
-                    newImg.style.cssText = "width:44px;height:44px;object-fit:cover;border-radius:8px;border:1px solid #e8d4b0;flex-shrink:0;";
-                    photoRow.insertBefore(newImg, uploadBtn);
-                  } else {
-                    prevImg.src = data.secure_url;
-                    prevImg.style.display = "block";
-                  }
-                } else { statusTxt.textContent = "❌ Erreur upload"; }
-              } catch(e) { statusTxt.textContent = "❌ Erreur"; }
-              uploadBtn.disabled = false;
-            };
-            
-            catContent.appendChild(pDiv);
-            catContent.appendChild(photoRow);
-          } else {
-            catContent.appendChild(pDiv);
+
+          // Ligne photo — toujours visible
+          var photoRow = document.createElement("div");
+          photoRow.style.cssText = "padding:4px 14px 10px 52px;background:white;border-bottom:1px solid #f0e6d3;display:flex;gap:8px;align-items:center;";
+          var photoUrl = (b.photos && b.photos[prod.ref]) || "";
+          var prevImgEl = null;
+          if (photoUrl) {
+            prevImgEl = document.createElement("img");
+            prevImgEl.src = photoUrl;
+            prevImgEl.style.cssText = "width:44px;height:44px;object-fit:cover;border-radius:8px;border:1px solid #e8d4b0;flex-shrink:0;";
+            prevImgEl.onerror = function() { prevImgEl.style.display="none"; };
+            photoRow.appendChild(prevImgEl);
           }
+          var fileInpPhoto = document.createElement("input");
+          fileInpPhoto.type = "file"; fileInpPhoto.accept = "image/*"; fileInpPhoto.style.display = "none";
+          photoRow.appendChild(fileInpPhoto);
+          var uploadBtn = document.createElement("button");
+          uploadBtn.textContent = photoUrl ? "🔄 Changer" : "📷 Photo";
+          uploadBtn.style.cssText = "background:#f3e7d3;color:#8a6a35;border:1px solid #c9a86a;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:11px;touch-action:manipulation;";
+          uploadBtn.onclick = function(e) { e.stopPropagation(); fileInpPhoto.click(); };
+          photoRow.appendChild(uploadBtn);
+          var statusTxt = document.createElement("span");
+          statusTxt.style.cssText = "font-size:11px;color:#999;";
+          photoRow.appendChild(statusTxt);
+          fileInpPhoto.onchange = async function() {
+            var file = this.files[0]; if (!file) return;
+            statusTxt.textContent = "Upload..."; uploadBtn.disabled = true;
+            try {
+              var fd = new FormData(); fd.append("file",file); fd.append("upload_preset","baa_avatars"); fd.append("folder","boutique_produits");
+              var r = await fetch("https://api.cloudinary.com/v1_1/dxcfq3nyl/image/upload",{method:"POST",body:fd});
+              var data = await r.json();
+              if (data.secure_url) {
+                if (!b.photos) b.photos = {};
+                b.photos[prod.ref] = data.secure_url;
+                statusTxt.textContent = "✅"; uploadBtn.textContent = "🔄 Changer";
+                if (!prevImgEl) {
+                  prevImgEl = document.createElement("img");
+                  prevImgEl.src = data.secure_url;
+                  prevImgEl.style.cssText = "width:44px;height:44px;object-fit:cover;border-radius:8px;border:1px solid #e8d4b0;flex-shrink:0;";
+                  photoRow.insertBefore(prevImgEl, fileInpPhoto);
+                } else { prevImgEl.src = data.secure_url; prevImgEl.style.display = "block"; }
+              } else { statusTxt.textContent = "❌"; }
+            } catch(e) { statusTxt.textContent = "❌"; }
+            uploadBtn.disabled = false;
+          };
+
+          catContent.appendChild(pDiv);
+          catContent.appendChild(photoRow);
 
           var handleSelect = function() {
             var idx = produitsSel.indexOf(prod.ref);
