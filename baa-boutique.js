@@ -2,7 +2,7 @@
 
 var BAA_PRODUITS_MIHI = {
   "make-up": { label:"💄 Make-Up", produits:[
-    {ref:"—",nom:"Rouge à lèvres Impression (3,2g)",prix:10.9},
+    {ref:"—",nom:"Rouge à lèvres Impression Rouge Classic (3,2g)",prix:10.9},{ref:"—",nom:"Rouge à lèvres Impression Brun Nude (3,2g)",prix:10.9},{ref:"—",nom:"Rouge à lèvres Impression Rose Pastel (3,2g)",prix:10.9},
     {ref:"052002",nom:"Palette paupières",prix:18.9},
     {ref:"052001",nom:"Palette contour du visage",prix:14.9},
     {ref:"—",nom:"Rouge à lèvres liquide mat Ultimatte (4g)",prix:8.9},
