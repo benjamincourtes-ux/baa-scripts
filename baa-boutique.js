@@ -464,6 +464,39 @@ function openGestionBoutique() {
       info.innerHTML = "<p style='color:#2980B9;font-size:12px;margin:0;'>💡 Pour créer un lien PayPal.me, va sur <strong>paypal.me</strong> et crée ton lien personnalisé gratuit.</p>";
       box.appendChild(info);
 
+      // Bouton test email
+      var testEmailBtn = document.createElement("button");
+      testEmailBtn.textContent = "📧 Tester l'envoi d'email";
+      testEmailBtn.style.cssText = "width:100%;background:#f0f4ff;color:#2980B9;border:1px solid #2980B9;padding:12px;border-radius:12px;cursor:pointer;font-size:13px;margin-bottom:10px;touch-action:manipulation;";
+      testEmailBtn.onclick = function() {
+        if (!inpEmail.value) { alert("Remplis d'abord ton email !"); return; }
+        testEmailBtn.textContent = "Envoi en cours...";
+        testEmailBtn.disabled = true;
+        if (typeof emailjs !== "undefined") {
+          emailjs.send("service_wr9mlhk", "template_nkfnrnd", {
+            vdi_prenom: inp1.value || "Conseillère",
+            to_email: inpEmail.value,
+            client_nom: "Test",
+            client_prenom: "Cliente",
+            client_adresse: "1 rue de la Beauté, 75000 Paris",
+            client_tel: "06 00 00 00 00",
+            client_email: "cliente@test.fr",
+            commande_detail: "1x Mascara Push Up\n1x Crème ExoLifting jour et nuit",
+            total: "52.70€"
+          }).then(function() {
+            testEmailBtn.textContent = "✅ Email envoyé !";
+            setTimeout(function(){ testEmailBtn.textContent = "📧 Tester l'envoi d'email"; testEmailBtn.disabled = false; }, 3000);
+          }).catch(function(err) {
+            testEmailBtn.textContent = "❌ Erreur : " + (err.text || "vérifiez EmailJS");
+            testEmailBtn.disabled = false;
+          });
+        } else {
+          testEmailBtn.textContent = "❌ EmailJS non chargé";
+          testEmailBtn.disabled = false;
+        }
+      };
+      box.appendChild(testEmailBtn);
+
       var saveBtn = document.createElement("button");
       saveBtn.textContent = "💾 Sauvegarder";
       saveBtn.style.cssText = "width:100%;background:#c9a86a;color:#1a0a00;border:none;padding:14px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:15px;margin-bottom:10px;touch-action:manipulation;";
