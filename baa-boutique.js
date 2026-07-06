@@ -5,7 +5,7 @@ var BAA_PRODUITS_MIHI = {
     {ref:"—",nom:"Rouge à lèvres Impression Rouge Classic (3,2g)",prix:10.9},{ref:"—",nom:"Rouge à lèvres Impression Brun Nude (3,2g)",prix:10.9},{ref:"—",nom:"Rouge à lèvres Impression Rose Pastel (3,2g)",prix:10.9},
     {ref:"052002",nom:"Palette paupières",prix:18.9},
     {ref:"052001",nom:"Palette contour du visage",prix:14.9},
-    {ref:"—",nom:"Rouge à lèvres liquide mat Ultimatte (4g)",prix:8.9},
+    {ref:"—",nom:"Rouge à lèvres liquide mat Ultimatte Cherry Berry",prix:8.9},{ref:"—",nom:"Rouge à lèvres liquide mat Ultimatte Softly Pink",prix:8.9},{ref:"—",nom:"Rouge à lèvres liquide mat Ultimatte True Rose",prix:8.9},{ref:"—",nom:"Rouge à lèvres liquide mat Ultimatte Dark Coral",prix:8.9},{ref:"—",nom:"Rouge à lèvres liquide mat Ultimatte Red Plum",prix:8.9},{ref:"—",nom:"Rouge à lèvres liquide mat Ultimatte Warm Nude",prix:8.9},{ref:"—",nom:"Rouge à lèvres liquide mat Ultimatte Fuschia",prix:8.9},{ref:"—",nom:"Rouge à lèvres liquide mat Ultimatte Raspberry",prix:8.9},{ref:"—",nom:"Rouge à lèvres liquide mat Ultimatte Bright Coral",prix:8.9},
     {ref:"—",nom:"Multistick (2g)",prix:7.9},
     {ref:"—",nom:"Crayon à lèvres (1g)",prix:3.5},
     {ref:"—",nom:"Gloss à lèvres Kiss My Lip (12ml)",prix:7.9},
