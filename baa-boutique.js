@@ -446,12 +446,9 @@ function openGestionBoutique() {
       });
       box.appendChild(banGrid);
 
-      // Section contact
-      var contactLabel = document.createElement("p"); contactLabel.style.cssText = "color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 8px;"; contactLabel.textContent = "📱 Tes coordonnées (onglet Me contacter)"; box.appendChild(contactLabel);
-      var inpTel = document.createElement("input"); inpTel.placeholder = "Ton numéro de téléphone"; inpTel.value = b.tel || ""; inpTel.style.cssText = "width:100%;padding:12px;border:1px solid #e8d4b0;border-radius:10px;font-size:14px;box-sizing:border-box;margin-bottom:8px;"; box.appendChild(inpTel);
-      var inpMail = document.createElement("input"); inpMail.type="email"; inpMail.placeholder = "Ton adresse email"; inpMail.value = b.email || ""; inpMail.style.cssText = "width:100%;padding:12px;border:1px solid #e8d4b0;border-radius:10px;font-size:14px;box-sizing:border-box;margin-bottom:8px;"; box.appendChild(inpMail);
-      var inpFb = document.createElement("input"); inpFb.placeholder = "Lien Facebook (optionnel)"; inpFb.value = b.facebook || ""; inpFb.style.cssText = "width:100%;padding:12px;border:1px solid #e8d4b0;border-radius:10px;font-size:14px;box-sizing:border-box;margin-bottom:8px;"; box.appendChild(inpFb);
-      var inpInsta = document.createElement("input"); inpInsta.placeholder = "Lien Instagram (optionnel)"; inpInsta.value = b.instagram || ""; inpInsta.style.cssText = "width:100%;padding:12px;border:1px solid #e8d4b0;border-radius:10px;font-size:14px;box-sizing:border-box;margin-bottom:16px;"; box.appendChild(inpInsta);
+      // Lien carte de visite
+      var cvLabel = document.createElement("p"); cvLabel.style.cssText = "color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 8px;"; cvLabel.textContent = "💳 Lien de ta carte de visite BAA (onglet Me contacter)"; box.appendChild(cvLabel);
+      var inpCv = document.createElement("input"); inpCv.placeholder = "Colle ici le lien de ta carte de visite BAA"; inpCv.value = b.carteVisite || ""; inpCv.style.cssText = "width:100%;padding:12px;border:1px solid #e8d4b0;border-radius:10px;font-size:14px;box-sizing:border-box;margin-bottom:16px;"; box.appendChild(inpCv);
 
       var inp4 = document.createElement("input"); inp4.placeholder = "Ton lien de parrainage Mihi (optionnel)"; inp4.value = b.lienParrainage || "";
       inp4.style.cssText = "width:100%;padding:12px;border:1px solid #e8d4b0;border-radius:10px;font-size:14px;box-sizing:border-box;margin-bottom:10px;";
@@ -477,10 +474,7 @@ function openGestionBoutique() {
         b.message = inp3.value.trim();
         b.lienParrainage = inp4.value.trim();
         b.texteParrainage = inp4b.value.trim() || "Rejoins mon équipe 🐦‍🔥";
-        b.tel = inpTel.value.trim();
-        b.email = inpMail.value.trim();
-        b.facebook = inpFb.value.trim();
-        b.instagram = inpInsta.value.trim();
+        b.carteVisite = inpCv.value.trim();
         b.actif = true;
         sauvegarderBoutique(b, function() {
           alert("✅ Configuration sauvegardée !");
