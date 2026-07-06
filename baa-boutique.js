@@ -541,7 +541,7 @@ function openGestionBoutique() {
   function renderLien() {
     var user = firebase.auth().currentUser;
     if (!user) return;
-    var lien = "https://benjamincourtes-ux.github.io/baa-vitrine/?uid=" + user.uid;
+    var lien = "https://baa-vitrine.vercel.app/?uid=" + user.uid;
 
     var titre = document.createElement("p"); titre.style.cssText = "color:#8b735d;font-size:15px;font-weight:bold;margin:0 0 16px;"; titre.textContent = "🔗 Mon lien boutique"; box.appendChild(titre);
 
