@@ -643,47 +643,48 @@ function openGestionBoutique() {
       var subEl = document.createElement("p"); subEl.style.cssText = "color:#999;font-size:12px;margin:0 0 8px;"; subEl.id = "produits-count"; subEl.textContent = produitsSel.length + " produit(s) sélectionné(s)"; box.appendChild(subEl);
 
       // Bouton tout sélectionner global
-      var toutSelBtn = document.createElement("button");
-      toutSelBtn.style.cssText = "width:100%;background:#e6f7ec;color:#27AE60;border:1px solid #27AE60;padding:10px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:bold;margin-bottom:16px;touch-action:manipulation;";
-      var tousLesProduits = [];
-      Object.keys(BAA_PRODUITS_MIHI).forEach(function(cat){ BAA_PRODUITS_MIHI[cat].produits.forEach(function(p){ tousLesProduits.push(p); }); });
-      
-      function majToutSelBtn() {
-        var tousOui = tousLesProduits.every(function(p){ return produitsSel.includes(getProdKey(p)); });
-        toutSelBtn.textContent = tousOui ? "❌ Tout désélectionner" : "✅ Tout sélectionner";
-        toutSelBtn.style.background = tousOui ? "#fee" : "#e6f7ec";
-        toutSelBtn.style.color = tousOui ? "#e74c3c" : "#27AE60";
-        toutSelBtn.style.borderColor = tousOui ? "#e74c3c" : "#27AE60";
+      function getProdKey(prod) {
+        if (prod.ref !== "—") return prod.ref;
+        var nom = prod.nom
+          .replace(/[àâä]/g,"a").replace(/[éèêë]/g,"e").replace(/[îï]/g,"i")
+          .replace(/[ôö]/g,"o").replace(/[ùûü]/g,"u").replace(/ç/g,"c")
+          .replace(/[^a-zA-Z0-9]/g,"_").replace(/_+/g,"_").slice(0,40);
+        return "prod_" + nom;
       }
-      majToutSelBtn();
-      
+
+      var toutSelBtn = document.createElement("button");
+      toutSelBtn.textContent = "✅ Tout sélectionner et sauvegarder";
+      toutSelBtn.style.cssText = "width:100%;background:#e6f7ec;color:#27AE60;border:1px solid #27AE60;padding:12px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:bold;margin-bottom:16px;touch-action:manipulation;";
       var doToutSel = function() {
-        var tousOui = tousLesProduits.every(function(p){ return produitsSel.includes(getProdKey(p)); });
-        produitsSel.length = 0;
-        if (!tousOui) {
-          tousLesProduits.forEach(function(p){ produitsSel.push(getProdKey(p)); });
-        }
-        b.produits = produitsSel.slice();
-        majToutSelBtn();
-        majCount();
-        // Sauvegarder immédiatement
+        var toutesLesCles = [];
+        Object.keys(BAA_PRODUITS_MIHI).forEach(function(cat) {
+          BAA_PRODUITS_MIHI[cat].produits.forEach(function(p) {
+            toutesLesCles.push(getProdKey(p));
+          });
+        });
+        b.produits = toutesLesCles;
+        toutSelBtn.textContent = "⏳ Sauvegarde...";
+        toutSelBtn.disabled = true;
         sauvegarderBoutique(b, function() {
-          alert("✅ " + produitsSel.length + " produit(s) sélectionné(s) et sauvegardé(s) !");
+          alert("✅ " + toutesLesCles.length + " produits sélectionnés et sauvegardés !");
+          state.boutique = null; state.step = "menu"; render();
         });
       };
       toutSelBtn.addEventListener("touchend", function(e){e.preventDefault();doToutSel();},{passive:false});
       toutSelBtn.onclick = doToutSel;
       box.appendChild(toutSelBtn);
 
-      function getProdKey(prod) {
-        if (prod.ref !== "—") return prod.ref;
-        var nom = prod.nom
-          .replace(/[àâä]/g,"a").replace(/[éèêë]/g,"e").replace(/[îï]/g,"i")
-          .replace(/[ôö]/g,"o").replace(/[ùûü]/g,"u").replace(/ç/g,"c")
-          .replace(/[ÀÂÄÉÈÊËÎÏÔÖÙÛÜÇ]/g,"")
-          .replace(/[^a-zA-Z0-9]/g,"_").replace(/_+/g,"_").slice(0,40);
-        return "prod_" + nom;
-      }
+      // Table de correspondance globale ref->index
+      var PROD_INDEX = {};
+      var _idx = 0;
+      Object.keys(BAA_PRODUITS_MIHI).forEach(function(cat) {
+        BAA_PRODUITS_MIHI[cat].produits.forEach(function(p) {
+          var k = p.ref !== "—" ? p.ref : "idx_" + _idx;
+          PROD_INDEX[k] = k;
+          p._key = k;
+          _idx++;
+        });
+      });
 
       function majCount() {
         var el = document.getElementById("produits-count");
@@ -805,7 +806,7 @@ function openGestionBoutique() {
               checkEl.style.background="#c9a86a"; checkEl.style.borderColor="#c9a86a"; checkEl.innerHTML="<span style='color:white;font-size:12px;font-weight:bold;'>✓</span>";
             }
             b.produits = produitsSel.slice();
-            majToutSelBtn(); majCatHeader(); majCount();
+            majCatHeader(); majCount();
           };
           pDiv.onclick = handleSelect;
           pDiv.addEventListener('touchend', function(e){e.preventDefault();handleSelect();},{passive:false});
