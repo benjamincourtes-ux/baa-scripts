@@ -347,6 +347,8 @@ function openGestionBoutique() {
     else if (state.step === "produits") renderProduits();
     else if (state.step === "lien") renderLien();
     else if (state.step === "stats") renderStats();
+    else if (state.step === "clientes") renderClientes();
+    else if (state.step === "client-detail") renderClientDetail();
   }
 
   function renderMenu() {
@@ -362,6 +364,7 @@ function openGestionBoutique() {
       var btns = [
         { icon:"⚙️", label:"Configurer ma boutique", sub:"Nom, PayPal, bannière, photo profil", step:"config" },
         { icon:"🛍️", label:"Gérer mes produits", sub:"Choisir quoi afficher", step:"produits" },
+        { icon:"👥", label:"Mes clientes", sub:"Commandes et historique", step:"clientes" },
         { icon:"📊", label:"Mes statistiques", sub:"Visites, paniers, commandes", step:"stats" },
         { icon:"🔗", label:"Mon lien boutique", sub:"Partager avec mes clientes", step:"lien" },
       ];
@@ -836,6 +839,91 @@ function openGestionBoutique() {
       var iosSpace = document.createElement("div"); iosSpace.style.cssText = "height:60px;"; box.appendChild(iosSpace);
   }
 
+
+  function renderClientes() {
+    var user = firebase.auth().currentUser; if (!user) return;
+    var titre = document.createElement("p"); titre.style.cssText = "color:#8b735d;font-size:15px;font-weight:bold;margin:0 0 16px;"; titre.textContent = "👥 Mes clientes"; box.appendChild(titre);
+    var loading = document.createElement("p"); loading.style.cssText = "color:#999;font-size:13px;text-align:center;padding:20px;"; loading.textContent = "Chargement..."; box.appendChild(loading);
+
+    firebase.firestore().collection("commandes_clients")
+      .where("boutiqueUid", "==", user.uid)
+      .orderBy("date", "desc")
+      .get().then(function(snap) {
+        box.removeChild(loading);
+        if (snap.empty) {
+          var empty = document.createElement("div"); empty.style.cssText="text-align:center;padding:40px 0;";
+          empty.innerHTML = "<p style='font-size:40px;margin-bottom:12px;'>👥</p><p style='color:#999;font-size:14px;'>Aucune commande pour l'instant.</p>";
+          box.appendChild(empty);
+        } else {
+          // Grouper par cliente
+          var clientes = {};
+          snap.forEach(function(doc) {
+            var cmd = doc.data(); cmd.id = doc.id;
+            var key = cmd.clientEmail || cmd.clientNom || "Inconnue";
+            if (!clientes[key]) clientes[key] = { nom: cmd.clientNom, email: cmd.clientEmail, tel: cmd.tel, commandes: [] };
+            clientes[key].commandes.push(cmd);
+          });
+
+          var nbClientes = Object.keys(clientes).length;
+          var info = document.createElement("p"); info.style.cssText="color:#999;font-size:12px;margin:0 0 12px;"; info.textContent = nbClientes + " cliente(s) au total"; box.appendChild(info);
+
+          Object.keys(clientes).forEach(function(key) {
+            var cl = clientes[key];
+            var card = document.createElement("button");
+            card.style.cssText = "width:100%;background:white;border:1px solid #e8d4b0;border-radius:12px;padding:14px 16px;cursor:pointer;text-align:left;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;touch-action:manipulation;";
+            card.innerHTML = "<div><p style='color:#3a3a3a;font-size:14px;font-weight:bold;margin:0 0 3px;'>👤 " + (cl.nom||"Inconnue") + "</p><p style='color:#999;font-size:12px;margin:0;'>" + (cl.email||"") + " • " + cl.commandes.length + " commande(s)</p></div><span style='color:#c9a86a;font-size:20px;'>›</span>";
+            card.onclick = function() { state.clienteDetail = cl; state.step = "client-detail"; render(); };
+            box.appendChild(card);
+          });
+        }
+      }).catch(function(err) {
+        loading.textContent = "Erreur : " + err.message;
+      });
+
+    var back = document.createElement("button"); back.textContent = "← Retour"; back.style.cssText = "background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;width:100%;margin-top:12px;";
+    back.onclick = function() { state.step = "menu"; render(); }; box.appendChild(back);
+  }
+
+  function renderClientDetail() {
+    var cl = state.clienteDetail; if (!cl) { state.step="clientes"; render(); return; }
+    
+    var titre = document.createElement("p"); titre.style.cssText = "color:#8b735d;font-size:15px;font-weight:bold;margin:0 0 16px;"; titre.textContent = "👤 " + (cl.nom||"Cliente"); box.appendChild(titre);
+
+    // Infos cliente
+    var infoDiv = document.createElement("div"); infoDiv.style.cssText="background:linear-gradient(135deg,#c9a86a,#f5d48a);border-radius:12px;padding:14px;margin-bottom:16px;";
+    infoDiv.innerHTML = "<p style='color:#1a0a00;font-size:15px;font-weight:bold;margin:0 0 6px;'>👤 " + (cl.nom||"") + "</p>" +
+      (cl.email ? "<p style='color:rgba(0,0,0,0.6);font-size:12px;margin:0 0 3px;'>📧 " + cl.email + "</p>" : "") +
+      (cl.tel ? "<p style='color:rgba(0,0,0,0.6);font-size:12px;margin:0;'>📞 " + cl.tel + "</p>" : "");
+    box.appendChild(infoDiv);
+
+    // Actions rapides
+    var actDiv = document.createElement("div"); actDiv.style.cssText="display:flex;gap:8px;margin-bottom:16px;";
+    if (cl.tel) {
+      var telBtn = document.createElement("a"); telBtn.href="tel:"+cl.tel; telBtn.style.cssText="flex:1;background:white;border:1px solid #e8d4b0;border-radius:10px;padding:10px;text-align:center;text-decoration:none;";
+      telBtn.innerHTML="<p style='color:#8b735d;font-size:20px;margin:0;'>📞</p><p style='color:#8b735d;font-size:11px;margin:0;'>Appeler</p>"; actDiv.appendChild(telBtn);
+    }
+    if (cl.email) {
+      var mailBtn = document.createElement("a"); mailBtn.href="mailto:"+cl.email; mailBtn.style.cssText="flex:1;background:white;border:1px solid #e8d4b0;border-radius:10px;padding:10px;text-align:center;text-decoration:none;";
+      mailBtn.innerHTML="<p style='color:#8b735d;font-size:20px;margin:0;'>📧</p><p style='color:#8b735d;font-size:11px;margin:0;'>Email</p>"; actDiv.appendChild(mailBtn);
+    }
+    if (actDiv.children.length > 0) box.appendChild(actDiv);
+
+    // Commandes
+    var cmdTitle = document.createElement("p"); cmdTitle.style.cssText="color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 10px;letter-spacing:1px;"; cmdTitle.textContent="📦 HISTORIQUE DES COMMANDES"; box.appendChild(cmdTitle);
+
+    cl.commandes.forEach(function(cmd) {
+      var cmdDiv = document.createElement("div"); cmdDiv.style.cssText="background:white;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8d4b0;";
+      var date = cmd.date ? new Date(cmd.date).toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"}) : "Date inconnue";
+      cmdDiv.innerHTML = "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'><p style='color:#8b735d;font-size:11px;font-weight:bold;margin:0;'>📅 " + date + "</p><p style='color:#c9a86a;font-size:15px;font-weight:bold;margin:0;'>" + cmd.total + "</p></div>" +
+        "<p style='color:#555;font-size:12px;margin:0 0 6px;line-height:1.5;'>" + (cmd.detail||"").split(",").map(function(p){return "• "+p.trim();}).join("<br>") + "</p>" +
+        (cmd.adresse ? "<p style='color:#999;font-size:11px;margin:0;'>📍 " + cmd.adresse + "</p>" : "");
+      box.appendChild(cmdDiv);
+    });
+
+    var back = document.createElement("button"); back.textContent = "← Retour aux clientes"; back.style.cssText = "background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;width:100%;margin-top:12px;";
+    back.onclick = function() { state.step = "clientes"; render(); }; box.appendChild(back);
+    var iosSpace = document.createElement("div"); iosSpace.style.cssText="height:40px;"; box.appendChild(iosSpace);
+  }
 
   function renderStats() {
     var user = firebase.auth().currentUser; if (!user) return;
