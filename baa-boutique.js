@@ -844,112 +844,173 @@ function openGestionBoutique() {
 
   function renderPanierPartage() {
     var user = firebase.auth().currentUser; if (!user) return;
-    var titre = document.createElement("p"); titre.style.cssText="color:#8b735d;font-size:15px;font-weight:bold;margin:0 0 6px;"; titre.textContent="🛒 Créer un panier partagé"; box.appendChild(titre);
-    var sub = document.createElement("p"); sub.style.cssText="color:#999;font-size:12px;margin:0 0 16px;line-height:1.5;"; sub.textContent="Sélectionnez les produits et partagez le lien à votre cliente — elle arrivera avec le panier déjà rempli !"; box.appendChild(sub);
 
-    // Charger boutique pour avoir les produits disponibles
+    // Onglets : Créer / Mes paniers sauvegardés
+    var ongletActif = "creer";
+    var titre = document.createElement("p"); titre.style.cssText="color:#8b735d;font-size:15px;font-weight:bold;margin:0 0 12px;"; titre.textContent="🛒 Paniers partagés"; box.appendChild(titre);
+
+    var tabs = document.createElement("div"); tabs.style.cssText="display:flex;gap:8px;margin-bottom:16px;";
+    var tabCreer = document.createElement("button"); tabCreer.textContent="➕ Créer un panier"; tabCreer.style.cssText="flex:1;padding:10px;border:none;border-radius:10px;background:#c9a86a;color:#1a0a00;font-weight:bold;font-size:13px;cursor:pointer;touch-action:manipulation;";
+    var tabSauv = document.createElement("button"); tabSauv.textContent="📋 Mes paniers"; tabSauv.style.cssText="flex:1;padding:10px;border:1px solid #e8d4b0;border-radius:10px;background:white;color:#8b735d;font-size:13px;cursor:pointer;touch-action:manipulation;";
+    tabs.appendChild(tabCreer); tabs.appendChild(tabSauv); box.appendChild(tabs);
+
+    var sectionCreer = document.createElement("div");
+    var sectionSauv = document.createElement("div"); sectionSauv.style.display="none";
+    box.appendChild(sectionCreer); box.appendChild(sectionSauv);
+
+    tabCreer.onclick = function(){ sectionCreer.style.display="block"; sectionSauv.style.display="none"; tabCreer.style.background="#c9a86a"; tabCreer.style.color="#1a0a00"; tabSauv.style.background="white"; tabSauv.style.color="#8b735d"; };
+    tabSauv.onclick = function(){ sectionCreer.style.display="none"; sectionSauv.style.display="block"; tabSauv.style.background="#c9a86a"; tabSauv.style.color="#1a0a00"; tabCreer.style.background="white"; tabCreer.style.color="#8b735d"; chargerPaniersSauv(sectionSauv, user.uid); };
+
     chargerBoutique(function(b) {
       if (!b || !b.produits || b.produits.length === 0) {
-        box.appendChild(Object.assign(document.createElement("p"), {textContent:"Aucun produit dans votre boutique.", style:{color:"#999",textAlign:"center",padding:"20px"}}));
+        sectionCreer.innerHTML = "<p style='color:#999;text-align:center;padding:20px;'>Aucun produit dans votre boutique.</p>";
         return;
       }
 
-      var panierPartage = {}; // ref -> quantité
-
-      // Note personnalisée
-      var noteLabel = document.createElement("p"); noteLabel.style.cssText="color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 6px;"; noteLabel.textContent="💬 Message pour la cliente (optionnel)"; box.appendChild(noteLabel);
-      var noteInp = document.createElement("textarea"); noteInp.placeholder="Ex: Voici la routine que je te recommande suite à ton diagnostic !"; noteInp.rows=2; noteInp.style.cssText="width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:14px;resize:none;"; box.appendChild(noteInp);
-
-      // Liste des produits de la boutique
-      var prodLabel = document.createElement("p"); prodLabel.style.cssText="color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 8px;"; prodLabel.textContent="🛍️ Choisir les produits"; box.appendChild(prodLabel);
+      var panierPartage = {};
 
       function getProdKey(p) {
         return p.ref === "—" ? "prod_" + p.nom.replace(/[àâä]/g,"a").replace(/[éèêë]/g,"e").replace(/[îï]/g,"i").replace(/[ôö]/g,"o").replace(/[ùûü]/g,"u").replace(/ç/g,"c").replace(/[^a-zA-Z0-9]/g,"_").replace(/_+/g,"_").slice(0,40) : p.ref;
       }
 
-      // Afficher tous les produits de la boutique
-      Object.keys(BAA_PRODUITS_MIHI).forEach(function(cat) {
-        var prodsCat = BAA_PRODUITS_MIHI[cat].produits.filter(function(p){
-          var k = getProdKey(p);
-          return b.produits.includes(k) || b.produits.includes(p.ref);
+      // Titre du panier
+      var titreLabel = document.createElement("p"); titreLabel.style.cssText="color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 6px;"; titreLabel.textContent="📝 Titre du panier *"; sectionCreer.appendChild(titreLabel);
+      var titreInp = document.createElement("input"); titreInp.placeholder="Ex: Routine anti-âge, Pack cheveux..."; titreInp.style.cssText="width:100%;padding:11px;border:1px solid #e8d4b0;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:10px;"; sectionCreer.appendChild(titreInp);
+
+      // Message optionnel
+      var noteLabel = document.createElement("p"); noteLabel.style.cssText="color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 6px;"; noteLabel.textContent="💬 Message (optionnel)"; sectionCreer.appendChild(noteLabel);
+      var noteInp = document.createElement("textarea"); noteInp.placeholder="Ex: Voici la routine que je te recommande !"; noteInp.rows=2; noteInp.style.cssText="width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:12px;resize:none;"; sectionCreer.appendChild(noteInp);
+
+      // Barre de recherche
+      var searchLabel = document.createElement("p"); searchLabel.style.cssText="color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 6px;"; searchLabel.textContent="🔍 Rechercher un produit"; sectionCreer.appendChild(searchLabel);
+      var searchInp = document.createElement("input"); searchInp.placeholder="Tapez un nom de produit..."; searchInp.style.cssText="width:100%;padding:11px;border:1px solid #c9a86a;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:12px;"; sectionCreer.appendChild(searchInp);
+
+      // Container produits
+      var prodsContainer = document.createElement("div"); sectionCreer.appendChild(prodsContainer);
+
+      function afficherProdsFiltres(filtre) {
+        prodsContainer.innerHTML = "";
+        var filtreMin = filtre.toLowerCase().trim();
+        var nbAffiche = 0;
+
+        Object.keys(BAA_PRODUITS_MIHI).forEach(function(cat) {
+          var prodsCat = BAA_PRODUITS_MIHI[cat].produits.filter(function(p) {
+            var k = getProdKey(p);
+            var dansBoutique = b.produits.includes(k) || b.produits.includes(p.ref);
+            var matchFiltre = !filtreMin || p.nom.toLowerCase().includes(filtreMin);
+            return dansBoutique && matchFiltre;
+          });
+          if (prodsCat.length === 0) return;
+
+          if (!filtreMin) {
+            var catTitle = document.createElement("p"); catTitle.style.cssText="color:#c9a86a;font-size:11px;font-weight:bold;margin:8px 0 4px;letter-spacing:1px;"; catTitle.textContent=BAA_PRODUITS_MIHI[cat].label; prodsContainer.appendChild(catTitle);
+          }
+
+          prodsCat.forEach(function(prod) {
+            var k = getProdKey(prod); nbAffiche++;
+            var row = document.createElement("div"); row.style.cssText="display:flex;align-items:center;justify-content:space-between;background:white;border-radius:8px;padding:8px 12px;margin-bottom:4px;border:1px solid #e8d4b0;";
+            row.innerHTML="<p style='color:#3a3a3a;font-size:13px;margin:0;flex:1;'>"+prod.nom+"<br><span style='color:#c9a86a;font-size:11px;font-weight:bold;'>"+prod.prix.toFixed(2)+"€</span></p>";
+            var qtyDiv=document.createElement("div"); qtyDiv.style.cssText="display:flex;align-items:center;gap:6px;";
+            var moins=document.createElement("button"); moins.textContent="−"; moins.style.cssText="background:#f3e7d3;color:#8b735d;border:none;border-radius:6px;width:26px;height:26px;font-size:15px;cursor:pointer;touch-action:manipulation;";
+            var qtyEl=document.createElement("span"); qtyEl.style.cssText="font-size:14px;font-weight:bold;min-width:18px;text-align:center;color:#3a3a3a;"; qtyEl.textContent=panierPartage[k]||0;
+            var plus=document.createElement("button"); plus.textContent="+"; plus.style.cssText="background:#c9a86a;color:#1a0a00;border:none;border-radius:6px;width:26px;height:26px;font-size:15px;cursor:pointer;touch-action:manipulation;";
+            plus.onclick=function(){panierPartage[k]=(panierPartage[k]||0)+1;qtyEl.textContent=panierPartage[k];majBtn();};
+            moins.onclick=function(){if(panierPartage[k]>0){panierPartage[k]--;if(panierPartage[k]===0)delete panierPartage[k];qtyEl.textContent=panierPartage[k]||0;}majBtn();};
+            qtyDiv.appendChild(moins);qtyDiv.appendChild(qtyEl);qtyDiv.appendChild(plus);
+            row.appendChild(qtyDiv); prodsContainer.appendChild(row);
+          });
         });
-        if (prodsCat.length === 0) return;
 
-        var catDiv = document.createElement("div"); catDiv.style.cssText="margin-bottom:8px;";
-        var catTitle = document.createElement("p"); catTitle.style.cssText="color:#c9a86a;font-size:11px;font-weight:bold;margin:0 0 4px;letter-spacing:1px;"; catTitle.textContent=BAA_PRODUITS_MIHI[cat].label; catDiv.appendChild(catTitle);
-
-        prodsCat.forEach(function(prod) {
-          var k = getProdKey(prod);
-          var row = document.createElement("div"); row.style.cssText="display:flex;align-items:center;justify-content:space-between;background:white;border-radius:8px;padding:8px 12px;margin-bottom:4px;border:1px solid #e8d4b0;";
-          row.innerHTML = "<p style='color:#3a3a3a;font-size:13px;margin:0;flex:1;'>"+prod.nom+"<br><span style='color:#c9a86a;font-size:11px;font-weight:bold;'>"+prod.prix.toFixed(2)+"€</span></p>";
-
-          var qtyDiv = document.createElement("div"); qtyDiv.style.cssText="display:flex;align-items:center;gap:8px;";
-          var moins = document.createElement("button"); moins.textContent="−"; moins.style.cssText="background:#f3e7d3;color:#8b735d;border:none;border-radius:6px;width:28px;height:28px;font-size:16px;cursor:pointer;touch-action:manipulation;";
-          var qtyEl = document.createElement("span"); qtyEl.style.cssText="font-size:14px;font-weight:bold;min-width:20px;text-align:center;color:#3a3a3a;"; qtyEl.textContent=panierPartage[k]||0;
-          var plus = document.createElement("button"); plus.textContent="+"; plus.style.cssText="background:#c9a86a;color:#1a0a00;border:none;border-radius:6px;width:28px;height:28px;font-size:16px;cursor:pointer;touch-action:manipulation;";
-
-          plus.onclick = function() { panierPartage[k]=(panierPartage[k]||0)+1; qtyEl.textContent=panierPartage[k]; majBtnGenerer(); };
-          moins.onclick = function() { if(panierPartage[k]>0){panierPartage[k]--;if(panierPartage[k]===0)delete panierPartage[k];qtyEl.textContent=panierPartage[k]||0;} majBtnGenerer(); };
-
-          qtyDiv.appendChild(moins); qtyDiv.appendChild(qtyEl); qtyDiv.appendChild(plus);
-          row.appendChild(qtyDiv); catDiv.appendChild(row);
-        });
-        box.appendChild(catDiv);
-      });
-
-      // Bouton générer le lien
-      var genBtn = document.createElement("button");
-      genBtn.textContent = "🔗 Générer le lien panier";
-      genBtn.disabled = true;
-      genBtn.style.cssText="width:100%;background:#ddd;color:#999;border:none;padding:14px;border-radius:12px;cursor:not-allowed;font-weight:bold;font-size:15px;margin-top:12px;touch-action:manipulation;";
-      
-      function majBtnGenerer() {
-        var nb = Object.values(panierPartage).reduce(function(a,b){return a+b;},0);
-        if (nb > 0) {
-          genBtn.disabled=false;
-          genBtn.style.background="linear-gradient(135deg,#c9a86a,#f5d48a)";
-          genBtn.style.color="#1a0a00";
-          genBtn.style.cursor="pointer";
-          genBtn.textContent="🔗 Générer le lien (" + nb + " article(s))";
-        } else {
-          genBtn.disabled=true;
-          genBtn.style.background="#ddd";
-          genBtn.style.color="#999";
-          genBtn.style.cursor="not-allowed";
-          genBtn.textContent="🔗 Générer le lien panier";
+        if (filtreMin && nbAffiche === 0) {
+          var noRes=document.createElement("p"); noRes.style.cssText="color:#999;font-size:13px;text-align:center;padding:16px;"; noRes.textContent='Aucun produit trouvé pour "'+filtre+'"'; prodsContainer.appendChild(noRes);
         }
       }
 
-      genBtn.onclick = async function() {
-        genBtn.textContent="⏳ Génération..."; genBtn.disabled=true;
+      searchInp.oninput = function() { afficherProdsFiltres(this.value); };
+      afficherProdsFiltres("");
+
+      // Boutons générer et sauvegarder
+      var btnsDiv = document.createElement("div"); btnsDiv.style.cssText="display:flex;flex-direction:column;gap:8px;margin-top:12px;";
+
+      var genBtn = document.createElement("button"); genBtn.textContent="🔗 Générer et partager le lien"; genBtn.disabled=true;
+      genBtn.style.cssText="width:100%;background:#ddd;color:#999;border:none;padding:13px;border-radius:12px;cursor:not-allowed;font-weight:bold;font-size:14px;touch-action:manipulation;";
+
+      var savBtn = document.createElement("button"); savBtn.textContent="💾 Sauvegarder ce panier"; savBtn.disabled=true;
+      savBtn.style.cssText="width:100%;background:#ddd;color:#999;border:none;padding:13px;border-radius:12px;cursor:not-allowed;font-weight:bold;font-size:14px;touch-action:manipulation;";
+
+      function majBtn() {
+        var nb = Object.values(panierPartage).reduce(function(a,v){return a+v;},0);
+        var actif = nb > 0;
+        [genBtn, savBtn].forEach(function(btn) {
+          btn.disabled = !actif;
+          btn.style.background = actif ? (btn===genBtn?"linear-gradient(135deg,#c9a86a,#f5d48a)":"white") : "#ddd";
+          btn.style.color = actif ? (btn===genBtn?"#1a0a00":"#8b735d") : "#999";
+          btn.style.border = actif && btn===savBtn ? "1px solid #c9a86a" : "none";
+          btn.style.cursor = actif ? "pointer" : "not-allowed";
+        });
+        if (actif) { genBtn.textContent="🔗 Générer et partager ("+nb+" article(s))"; savBtn.textContent="💾 Sauvegarder ce panier ("+nb+" article(s))"; }
+        else { genBtn.textContent="🔗 Générer et partager le lien"; savBtn.textContent="💾 Sauvegarder ce panier"; }
+      }
+
+      async function creerPanier(sauvegarder) {
+        var titre_val = titreInp.value.trim();
+        if (!titre_val) { alert("Merci de donner un titre à votre panier !"); return; }
+        genBtn.disabled=true; savBtn.disabled=true; genBtn.textContent="⏳...";
         try {
-          var panierData = { produits: panierPartage, note: noteInp.value.trim(), boutiqueUid: user.uid, createdAt: new Date().toISOString() };
+          var panierData = {
+            titre: titre_val, produits: panierPartage, note: noteInp.value.trim(),
+            boutiqueUid: user.uid, createdAt: new Date().toISOString(), sauvegarde: sauvegarder
+          };
           var ref = await firebase.firestore().collection("paniers_partages").add(panierData);
           var lien = "https://baa-vitrine.vercel.app/?uid=" + user.uid + "&panier=" + ref.id;
-          
+
+          if (sauvegarder) { alert("✅ Panier sauvegarde : " + titre_val); majBtn(); genBtn.disabled=false; savBtn.disabled=false; return; }
+
           // Afficher le lien
-          genBtn.style.display="none";
-          var lienBox = document.createElement("div"); lienBox.style.cssText="background:white;border:2px solid #c9a86a;border-radius:12px;padding:14px;margin-top:12px;";
-          lienBox.innerHTML="<p style='color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 8px;'>✅ TON LIEN PANIER EST PRÊT !</p><p style='color:#3a3a3a;font-size:12px;word-break:break-all;margin:0 0 10px;'>"+lien+"</p>";
-          
-          var copyBtn = document.createElement("button"); copyBtn.textContent="📋 Copier le lien"; copyBtn.style.cssText="width:100%;background:#c9a86a;color:#1a0a00;border:none;padding:12px;border-radius:10px;font-weight:bold;font-size:14px;cursor:pointer;margin-bottom:8px;touch-action:manipulation;";
-          copyBtn.onclick = function() { navigator.clipboard && navigator.clipboard.writeText(lien).then(function(){copyBtn.textContent="✅ Copié !";setTimeout(function(){copyBtn.textContent="📋 Copier le lien";},2000);}); };
+          sectionCreer.innerHTML = "";
+          var lienBox = document.createElement("div"); lienBox.style.cssText="background:white;border:2px solid #c9a86a;border-radius:12px;padding:16px;";
+          lienBox.innerHTML="<p style='color:#27AE60;font-size:14px;font-weight:bold;margin:0 0 6px;'>✅ Panier " + titre_val + " pret !</p><p style='color:#3a3a3a;font-size:12px;word-break:break-all;margin:0 0 12px;background:#f8f3ee;padding:8px;border-radius:8px;'>"+lien+"</p>";
+          var copyBtn=document.createElement("button"); copyBtn.textContent="📋 Copier le lien"; copyBtn.style.cssText="width:100%;background:#c9a86a;color:#1a0a00;border:none;padding:12px;border-radius:10px;font-weight:bold;font-size:14px;cursor:pointer;margin-bottom:8px;touch-action:manipulation;";
+          copyBtn.onclick=function(){navigator.clipboard&&navigator.clipboard.writeText(lien).then(function(){copyBtn.textContent="✅ Copié !";setTimeout(function(){copyBtn.textContent="📋 Copier le lien";},2000);});};
           lienBox.appendChild(copyBtn);
+          if(navigator.share){var shareBtn=document.createElement("button");shareBtn.textContent="📤 Partager directement";shareBtn.style.cssText="width:100%;background:white;color:#8b735d;border:1px solid #e8d4b0;padding:12px;border-radius:10px;font-weight:bold;font-size:14px;cursor:pointer;touch-action:manipulation;";shareBtn.onclick=function(){navigator.share({title:titre_val,text:noteInp.value||"Voici ma sélection de produits Mihi !",url:lien});};lienBox.appendChild(shareBtn);}
+          var newBtn=document.createElement("button");newBtn.textContent="➕ Créer un autre panier";newBtn.style.cssText="width:100%;background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;margin-top:8px;";newBtn.onclick=function(){state.step="panier-partage";render();};
+          lienBox.appendChild(newBtn); sectionCreer.appendChild(lienBox);
+        } catch(e) { alert("Erreur : " + e.message); majBtn(); }
+      }
 
-          if (navigator.share) {
-            var shareBtn = document.createElement("button"); shareBtn.textContent="📤 Partager"; shareBtn.style.cssText="width:100%;background:white;color:#8b735d;border:1px solid #e8d4b0;padding:12px;border-radius:10px;font-weight:bold;font-size:14px;cursor:pointer;touch-action:manipulation;";
-            shareBtn.onclick = function() { navigator.share({title:"Mon panier Mihi",text:noteInp.value||"Voici ma sélection de produits Mihi !",url:lien}); };
-            lienBox.appendChild(shareBtn);
-          }
-          box.appendChild(lienBox);
-        } catch(e) { genBtn.textContent="❌ Erreur"; genBtn.disabled=false; }
-      };
-      box.appendChild(genBtn);
-
-      var back = document.createElement("button"); back.textContent="← Retour"; back.style.cssText="background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;width:100%;margin-top:8px;padding-bottom:40px;";
-      back.onclick=function(){state.step="menu";render();}; box.appendChild(back);
+      genBtn.onclick = function() { creerPanier(false); };
+      savBtn.onclick = function() { creerPanier(true); };
+      btnsDiv.appendChild(genBtn); btnsDiv.appendChild(savBtn); sectionCreer.appendChild(btnsDiv);
     });
+
+    var back = document.createElement("button"); back.textContent="← Retour"; back.style.cssText="background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;width:100%;margin-top:8px;padding-bottom:40px;";
+    back.onclick=function(){state.step="menu";render();}; box.appendChild(back);
   }
+
+  function chargerPaniersSauv(container, uid) {
+    container.innerHTML = "<p style='color:#999;font-size:13px;text-align:center;padding:20px;'>Chargement...</p>";
+    firebase.firestore().collection("paniers_partages").where("boutiqueUid","==",uid).where("sauvegarde","==",true).orderBy("createdAt","desc").get().then(function(snap) {
+      container.innerHTML = "";
+      if (snap.empty) { container.innerHTML="<p style='color:#999;font-size:13px;text-align:center;padding:20px;'>Aucun panier sauvegardé.<br>Créez-en un et cliquez sur 💾 Sauvegarder !</p>"; return; }
+      snap.forEach(function(doc) {
+        var d = doc.data();
+        var lien = "https://baa-vitrine.vercel.app/?uid=" + uid + "&panier=" + doc.id;
+        var nb = Object.values(d.produits||{}).reduce(function(a,v){return a+v;},0);
+        var card = document.createElement("div"); card.style.cssText="background:white;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8d4b0;";
+        card.innerHTML="<p style='color:#3a3a3a;font-size:14px;font-weight:bold;margin:0 0 4px;'>🛒 "+(d.titre||"Panier")+"</p><p style='color:#999;font-size:12px;margin:0 0 10px;'>"+nb+" article(s)" + (d.note?" • "+d.note:"") + "</p>";
+        var rowBtns=document.createElement("div");rowBtns.style.cssText="display:flex;gap:8px;";
+        var copyBtn=document.createElement("button");copyBtn.textContent="📋 Copier";copyBtn.style.cssText="flex:1;background:#c9a86a;color:#1a0a00;border:none;padding:9px;border-radius:8px;font-size:13px;font-weight:bold;cursor:pointer;touch-action:manipulation;";
+        copyBtn.onclick=function(){navigator.clipboard&&navigator.clipboard.writeText(lien).then(function(){copyBtn.textContent="✅ Copié!";setTimeout(function(){copyBtn.textContent="📋 Copier";},2000);});};
+        var shareBtn=document.createElement("button");shareBtn.textContent="📤 Partager";shareBtn.style.cssText="flex:1;background:white;color:#8b735d;border:1px solid #e8d4b0;padding:9px;border-radius:8px;font-size:13px;font-weight:bold;cursor:pointer;touch-action:manipulation;";
+        shareBtn.onclick=function(){navigator.share&&navigator.share({title:d.titre||"Mon panier Mihi",text:d.note||"Voici ma sélection !",url:lien});};
+        var delBtn=document.createElement("button");delBtn.textContent="🗑️";delBtn.style.cssText="background:#fee;color:#e74c3c;border:1px solid #e74c3c;padding:9px 12px;border-radius:8px;font-size:13px;cursor:pointer;touch-action:manipulation;";
+        delBtn.onclick=function(){if(confirm("Supprimer ce panier ?")){firebase.firestore().collection("paniers_partages").doc(doc.id).delete().then(function(){card.remove();});}};
+        rowBtns.appendChild(copyBtn);rowBtns.appendChild(shareBtn);rowBtns.appendChild(delBtn);card.appendChild(rowBtns);container.appendChild(card);
+      });
+    }).catch(function(e){container.innerHTML="<p style='color:#e74c3c;font-size:13px;padding:20px;'>Erreur: "+e.message+"</p>";});
+  }
+
 
   function renderClientes() {
     var user = firebase.auth().currentUser; if (!user) return;
