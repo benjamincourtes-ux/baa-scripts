@@ -640,7 +640,40 @@ function openGestionBoutique() {
       }
 
       var titre = document.createElement("p"); titre.style.cssText = "color:#8b735d;font-size:15px;font-weight:bold;margin:0 0 6px;"; titre.textContent = "🛍️ Choisir mes produits"; box.appendChild(titre);
-      var subEl = document.createElement("p"); subEl.style.cssText = "color:#999;font-size:12px;margin:0 0 16px;"; subEl.id = "produits-count"; subEl.textContent = produitsSel.length + " produit(s) sélectionné(s)"; box.appendChild(subEl);
+      var subEl = document.createElement("p"); subEl.style.cssText = "color:#999;font-size:12px;margin:0 0 8px;"; subEl.id = "produits-count"; subEl.textContent = produitsSel.length + " produit(s) sélectionné(s)"; box.appendChild(subEl);
+
+      // Bouton tout sélectionner global
+      var toutSelBtn = document.createElement("button");
+      toutSelBtn.style.cssText = "width:100%;background:#e6f7ec;color:#27AE60;border:1px solid #27AE60;padding:10px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:bold;margin-bottom:16px;touch-action:manipulation;";
+      var tousLesProduits = [];
+      Object.keys(BAA_PRODUITS_MIHI).forEach(function(cat){ BAA_PRODUITS_MIHI[cat].produits.forEach(function(p){ tousLesProduits.push(p); }); });
+      
+      function majToutSelBtn() {
+        var tousOui = tousLesProduits.every(function(p){ return produitsSel.includes(getProdKey(p)); });
+        toutSelBtn.textContent = tousOui ? "❌ Tout désélectionner" : "✅ Tout sélectionner";
+        toutSelBtn.style.background = tousOui ? "#fee" : "#e6f7ec";
+        toutSelBtn.style.color = tousOui ? "#e74c3c" : "#27AE60";
+        toutSelBtn.style.borderColor = tousOui ? "#e74c3c" : "#27AE60";
+      }
+      majToutSelBtn();
+      
+      var doToutSel = function() {
+        var tousOui = tousLesProduits.every(function(p){ return produitsSel.includes(getProdKey(p)); });
+        produitsSel.length = 0;
+        if (!tousOui) {
+          tousLesProduits.forEach(function(p){ produitsSel.push(getProdKey(p)); });
+        }
+        b.produits = produitsSel.slice();
+        majToutSelBtn();
+        majCount();
+        // Sauvegarder immédiatement
+        sauvegarderBoutique(b, function() {
+          alert("✅ " + produitsSel.length + " produit(s) sélectionné(s) et sauvegardé(s) !");
+        });
+      };
+      toutSelBtn.addEventListener("touchend", function(e){e.preventDefault();doToutSel();},{passive:false});
+      toutSelBtn.onclick = doToutSel;
+      box.appendChild(toutSelBtn);
 
       function getProdKey(prod) {
         return prod.ref === "—" ? "prod_" + prod.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : prod.ref;
@@ -666,48 +699,10 @@ function openGestionBoutique() {
           catHeader.innerHTML = "";
           var span1 = document.createElement("span"); span1.style.cssText="color:#8b735d;font-size:13px;font-weight:bold;"; span1.textContent = catData.label; catHeader.appendChild(span1);
           var span2 = document.createElement("span"); span2.style.cssText="color:#c9a86a;font-size:12px;"; span2.textContent = nb+"/"+catData.produits.length; catHeader.appendChild(span2);
-          catHeader.appendChild(toutBtn);
+
         }
 
-        var toutBtn = document.createElement("button");
-        toutBtn.style.cssText = "background:#e6f7ec;color:#27AE60;border:1px solid #27AE60;padding:4px 8px;border-radius:6px;cursor:pointer;font-size:10px;font-weight:bold;margin-left:8px;touch-action:manipulation;flex-shrink:0;";
-        toutBtn.textContent = "✓ Tout sélectionner";
 
-        toutBtn.addEventListener("touchend", function(e) {
-          e.preventDefault(); e.stopPropagation();
-          executerTout();
-        }, {passive:false});
-        toutBtn.onclick = function(e) { e.stopPropagation(); executerTout(); };
-
-        function executerTout() {
-          var tousOui = catData.produits.every(function(p){ return produitsSel.includes(getProdKey(p)); });
-          catData.produits.forEach(function(p) {
-            var k = getProdKey(p);
-            var idx = produitsSel.indexOf(k);
-            if (tousOui) { if (idx >= 0) produitsSel.splice(idx, 1); }
-            else { if (idx < 0) produitsSel.push(k); }
-          });
-          b.produits = produitsSel.slice();
-          toutBtn.textContent = tousOui ? "✓ Tout sélectionner" : "✓ Tout désélectionner";
-          toutBtn.style.background = tousOui ? "#e6f7ec" : "#fee";
-          toutBtn.style.color = tousOui ? "#27AE60" : "#e74c3c";
-          toutBtn.style.borderColor = tousOui ? "#27AE60" : "#e74c3c";
-          // Rouvrir catégorie et mettre à jour cases
-          catContent.style.display = "block";
-          catHeader.style.borderRadius = "10px 10px 0 0";
-          catContent.querySelectorAll("[data-prodkey]").forEach(function(el) {
-            var k = el.getAttribute("data-prodkey");
-            var sel = produitsSel.includes(k);
-            var checkEl = el.querySelector(".check-el");
-            if (checkEl) {
-              checkEl.style.background = sel ? "#c9a86a" : "white";
-              checkEl.style.borderColor = sel ? "#c9a86a" : "#ddd";
-              checkEl.innerHTML = sel ? "<span style='color:white;font-size:12px;font-weight:bold;'>✓</span>" : "";
-            }
-          });
-          majCatHeader();
-          majCount();
-        }
 
         catHeader.onclick = function() {
           var open = catContent.style.display !== "none";
@@ -804,7 +799,7 @@ function openGestionBoutique() {
               checkEl.style.background="#c9a86a"; checkEl.style.borderColor="#c9a86a"; checkEl.innerHTML="<span style='color:white;font-size:12px;font-weight:bold;'>✓</span>";
             }
             b.produits = produitsSel.slice();
-            majCatHeader(); majCount();
+            majToutSelBtn(); majCatHeader(); majCount();
           };
           pDiv.onclick = handleSelect;
           pDiv.addEventListener('touchend', function(e){e.preventDefault();handleSelect();},{passive:false});
