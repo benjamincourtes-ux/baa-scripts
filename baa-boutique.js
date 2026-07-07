@@ -626,8 +626,18 @@ function openGestionBoutique() {
   }
 
   function renderProduits() {
-    chargerBoutique(function(b) {
-      state.boutique = b;
+    // Utiliser state.boutique si déjà chargé pour ne pas écraser les modifications en cours
+    if (state.boutique) {
+      afficherProduits(state.boutique);
+    } else {
+      chargerBoutique(function(b) {
+        state.boutique = b;
+        afficherProduits(b);
+      });
+    }
+  }
+
+  function afficherProduits(b) {
       // Ne pas pré-cocher si boutique jamais configurée
       var produitsSel = (b && b.actif && b.produits) ? b.produits.slice() : [];
 
@@ -646,6 +656,10 @@ function openGestionBoutique() {
         var tousSelectionnes = catData.produits.every(function(p){ var k = p.ref === "—" ? "prod_" + p.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : p.ref; return produitsSel.includes(k); });
         toutBtn.textContent = tousSelectionnes ? "✓ Tout désélectionner" : "✓ Tout sélectionner";
         toutBtn.style.cssText = "background:" + (tousSelectionnes?"#fee":"#e6f7ec") + ";color:" + (tousSelectionnes?"#e74c3c":"#27AE60") + ";border:1px solid " + (tousSelectionnes?"#e74c3c":"#27AE60") + ";padding:4px 8px;border-radius:6px;cursor:pointer;font-size:10px;font-weight:bold;margin-left:8px;touch-action:manipulation;";
+
+        var catContent = document.createElement("div");
+        catContent.style.cssText = "display:none;background:white;border:1px solid #e8d4b0;border-top:none;border-radius:0 0 10px 10px;";
+
         toutBtn.onclick = function(e) {
           e.stopPropagation();
           var tousOui = catData.produits.every(function(p){ var k = p.ref === "—" ? "prod_" + p.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : p.ref; return produitsSel.includes(k); });
@@ -660,18 +674,20 @@ function openGestionBoutique() {
           toutBtn.style.background = tousOui ? "#e6f7ec" : "#fee";
           toutBtn.style.color = tousOui ? "#27AE60" : "#e74c3c";
           toutBtn.style.borderColor = tousOui ? "#27AE60" : "#e74c3c";
-          // Mettre à jour les cases à cocher
+          // Ouvrir la catégorie et mettre à jour les cases
+          catContent.style.display = "block";
+          catHeader.style.borderRadius = "10px 10px 0 0";
           catContent.querySelectorAll(".check-el").forEach(function(el, i) {
-            var sel = produitsSel.includes(catData.produits[i] ? (catData.produits[i].ref === "—" ? "prod_" + catData.produits[i].nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : catData.produits[i].ref) : "");
+            var prod = catData.produits[i];
+            if (!prod) return;
+            var k = prod.ref === "—" ? "prod_" + prod.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : prod.ref;
+            var sel = produitsSel.includes(k);
             el.style.background = sel ? "#c9a86a" : "white";
             el.style.borderColor = sel ? "#c9a86a" : "#ddd";
             el.innerHTML = sel ? "<span style='color:white;font-size:12px;font-weight:bold;'>✓</span>" : "";
           });
         };
         catHeader.appendChild(toutBtn);
-
-        var catContent = document.createElement("div");
-        catContent.style.cssText = "display:none;background:white;border:1px solid #e8d4b0;border-top:none;border-radius:0 0 10px 10px;";
 
         catHeader.onclick = function() {
           catContent.style.display = catContent.style.display === "none" ? "block" : "none";
@@ -828,8 +844,7 @@ function openGestionBoutique() {
       };
       box.appendChild(saveAllBtn);
       var back = document.createElement("button"); back.textContent = "← Retour sans sauvegarder"; back.style.cssText = "background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;width:100%;margin-top:8px;";
-      back.onclick = function() { state.step = "menu"; render(); }; box.appendChild(back);
-    });
+      back.onclick = function() { state.boutique = null; state.step = "menu"; render(); }; box.appendChild(back);
   }
 
   function renderStats() {
