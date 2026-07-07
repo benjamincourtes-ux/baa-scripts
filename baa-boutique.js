@@ -177,7 +177,6 @@ var BAA_PRODUITS_MIHI = {
   "poids": { label:"⚖️ Contrôle du poids", produits:[
     {ref:"100208",nom:"Formule Détox",prix:14.9},
     {ref:"100218",nom:"Formule antiparasitaire",prix:12.9},
-    {ref:"100221",nom:"Formule peau, cheveux et ongles",prix:14.9},
     {ref:"100219",nom:"Booster d’énergie",prix:19.9},
     {ref:"100230",nom:"Fat Burner",prix:19.9},
     {ref:"—",nom:"Spiruline 500mg (30pcs)",prix:9.9}
@@ -626,15 +625,11 @@ function openGestionBoutique() {
   }
 
   function renderProduits() {
-    // Utiliser state.boutique si déjà chargé pour ne pas écraser les modifications en cours
-    if (state.boutique) {
-      afficherProduits(state.boutique);
-    } else {
-      chargerBoutique(function(b) {
-        state.boutique = b;
-        afficherProduits(b);
-      });
-    }
+    // Toujours recharger depuis Firebase pour avoir les données à jour
+    chargerBoutique(function(b) {
+      state.boutique = b;
+      afficherProduits(b);
+    });
   }
 
   function afficherProduits(b) {
