@@ -676,7 +676,13 @@ function openGestionBoutique() {
       box.appendChild(toutSelBtn);
 
       function getProdKey(prod) {
-        return prod.ref === "—" ? "prod_" + prod.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : prod.ref;
+        if (prod.ref !== "—") return prod.ref;
+        var nom = prod.nom
+          .replace(/[àâä]/g,"a").replace(/[éèêë]/g,"e").replace(/[îï]/g,"i")
+          .replace(/[ôö]/g,"o").replace(/[ùûü]/g,"u").replace(/ç/g,"c")
+          .replace(/[ÀÂÄÉÈÊËÎÏÔÖÙÛÜÇ]/g,"")
+          .replace(/[^a-zA-Z0-9]/g,"_").replace(/_+/g,"_").slice(0,40);
+        return "prod_" + nom;
       }
 
       function majCount() {
