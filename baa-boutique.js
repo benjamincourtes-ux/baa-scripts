@@ -822,6 +822,36 @@ function openGestionBoutique() {
         box.appendChild(catDiv);
       });
 
+      // Afficher produits custom de la VDI
+      var customProds = b.produitsCustom || [];
+      if (customProds.length > 0) {
+        var customCatDiv = document.createElement("div"); customCatDiv.style.cssText="margin-bottom:12px;";
+        var customHeader = document.createElement("div"); customHeader.style.cssText="background:#f0f4ff;border:1px solid #2980B9;border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;";
+        customHeader.innerHTML="<span style='color:#2980B9;font-size:13px;font-weight:bold;'>✨ Mes produits personnalisés</span><span style='color:#2980B9;font-size:12px;'>"+customProds.length+" produit(s)</span>";
+        customCatDiv.appendChild(customHeader);
+        customProds.forEach(function(prod, i) {
+          var k = "custom_" + i + "_" + (prod.nom||"").replace(/[^a-zA-Z0-9]/g,"_").slice(0,20);
+          var checked = produitsSel.includes(k);
+          var pDiv = document.createElement("div"); pDiv.setAttribute("data-prodkey",k); pDiv.style.cssText="display:flex;align-items:center;padding:10px 14px;background:white;border-bottom:1px solid #f0e6d3;cursor:pointer;";
+          var checkEl=document.createElement("div"); checkEl.className="check-el"; checkEl.style.cssText="width:20px;height:20px;border-radius:4px;border:2px solid "+(checked?"#c9a86a":"#ddd")+";background:"+(checked?"#c9a86a":"white")+";margin-right:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;"; checkEl.innerHTML=checked?"<span style='color:white;font-size:12px;font-weight:bold;'>✓</span>":"";
+          var infoEl=document.createElement("div"); infoEl.style.cssText="flex:1;"; infoEl.innerHTML="<p style='color:#3a3a3a;font-size:13px;margin:0 0 1px;'>"+prod.nom+"</p><p style='color:#c9a86a;font-size:12px;font-weight:bold;margin:0;'>"+parseFloat(prod.prix||0).toFixed(2)+" €</p>";
+          var delBtn=document.createElement("button"); delBtn.textContent="🗑️"; delBtn.style.cssText="background:#fee;color:#e74c3c;border:1px solid #e74c3c;padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;touch-action:manipulation;";
+          delBtn.onclick=function(e){e.stopPropagation();if(confirm("Supprimer ce produit ?")){b.produitsCustom.splice(i,1);var idx2=produitsSel.indexOf(k);if(idx2>=0)produitsSel.splice(idx2,1);sauvegarderBoutique(b,function(){state.boutique=null;afficherProduits(b);});}};
+          pDiv.appendChild(checkEl);pDiv.appendChild(infoEl);pDiv.appendChild(delBtn);
+          var handleSel=function(){var idx2=produitsSel.indexOf(k);if(idx2>=0){produitsSel.splice(idx2,1);checkEl.style.background="white";checkEl.style.borderColor="#ddd";checkEl.innerHTML="";}else{produitsSel.push(k);checkEl.style.background="#c9a86a";checkEl.style.borderColor="#c9a86a";checkEl.innerHTML="<span style='color:white;font-size:12px;font-weight:bold;'>✓</span>";}b.produits=produitsSel.slice();};
+          pDiv.onclick=handleSel; pDiv.addEventListener("touchend",function(e){e.preventDefault();handleSel();},{passive:false});
+          customCatDiv.appendChild(pDiv);
+        });
+        box.appendChild(customCatDiv);
+      }
+
+      // Bouton ajouter produit personnalisé
+      var addProdBtn = document.createElement("button");
+      addProdBtn.textContent = "➕ Ajouter un produit personnalisé";
+      addProdBtn.style.cssText="width:100%;background:#f0f4ff;color:#2980B9;border:1px solid #2980B9;padding:12px;border-radius:12px;cursor:pointer;font-size:13px;font-weight:bold;margin-top:8px;touch-action:manipulation;";
+      addProdBtn.onclick = function() { state.boutique = b; state.step = "ajouter-produit"; render(); };
+      box.appendChild(addProdBtn);
+
       var saveAllBtn = document.createElement("button");
       saveAllBtn.textContent = "💾 Sauvegarder ma sélection";
       saveAllBtn.style.cssText = "width:100%;background:#c9a86a;color:#1a0a00;border:none;padding:16px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:15px;margin-top:16px;touch-action:manipulation;";
@@ -841,6 +871,75 @@ function openGestionBoutique() {
       var iosSpace = document.createElement("div"); iosSpace.style.cssText = "height:60px;"; box.appendChild(iosSpace);
   }
 
+
+  function renderAjouterProduit() {
+    var user = firebase.auth().currentUser; if (!user) return;
+    var b = state.boutique; if (!b) { state.step="produits"; render(); return; }
+    if (!b.produitsCustom) b.produitsCustom = [];
+
+    var titre = document.createElement("p"); titre.style.cssText="color:#8b735d;font-size:15px;font-weight:bold;margin:0 0 16px;"; titre.textContent="➕ Ajouter un produit"; box.appendChild(titre);
+
+    // Catégorie
+    var catLabel = document.createElement("p"); catLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 4px;"; catLabel.textContent="Catégorie *"; box.appendChild(catLabel);
+    var catSel = document.createElement("select"); catSel.style.cssText="width:100%;padding:11px;border:1px solid #e8d4b0;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:10px;background:white;";
+    Object.keys(BAA_PRODUITS_MIHI).forEach(function(cat){ var opt=document.createElement("option");opt.value=cat;opt.textContent=BAA_PRODUITS_MIHI[cat].label;catSel.appendChild(opt); });
+    var optCustom=document.createElement("option");optCustom.value="custom";optCustom.textContent="✨ Produit personnalisé";catSel.appendChild(optCustom);
+    box.appendChild(catSel);
+
+    // Nom
+    var nomLabel = document.createElement("p"); nomLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 4px;"; nomLabel.textContent="Nom du produit *"; box.appendChild(nomLabel);
+    var nomInp = document.createElement("input"); nomInp.placeholder="Ex: Sérum anti-taches maison"; nomInp.style.cssText="width:100%;padding:11px;border:1px solid #e8d4b0;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:10px;"; box.appendChild(nomInp);
+
+    // Prix
+    var prixLabel = document.createElement("p"); prixLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 4px;"; prixLabel.textContent="Prix (€) *"; box.appendChild(prixLabel);
+    var prixInp = document.createElement("input"); prixInp.type="number"; prixInp.placeholder="Ex: 24.90"; prixInp.step="0.01"; prixInp.style.cssText="width:100%;padding:11px;border:1px solid #e8d4b0;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:10px;"; box.appendChild(prixInp);
+
+    // Description
+    var descLabel = document.createElement("p"); descLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 4px;"; descLabel.textContent="Description"; box.appendChild(descLabel);
+    var descInp = document.createElement("textarea"); descInp.placeholder="Description du produit..."; descInp.rows=3; descInp.style.cssText="width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:10px;resize:none;"; box.appendChild(descInp);
+
+    // Ingrédients
+    var ingLabel = document.createElement("p"); ingLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 4px;"; ingLabel.textContent="Ingrédients clés"; box.appendChild(ingLabel);
+    var ingInp = document.createElement("textarea"); ingInp.placeholder="Ingrédients principaux..."; ingInp.rows=2; ingInp.style.cssText="width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:10px;resize:none;"; box.appendChild(ingInp);
+
+    // Photo
+    var photoLabel = document.createElement("p"); photoLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 4px;"; photoLabel.textContent="Photo"; box.appendChild(photoLabel);
+    var fileInpP = document.createElement("input"); fileInpP.type="file"; fileInpP.accept="image/*"; fileInpP.style.display="none"; box.appendChild(fileInpP);
+    var photoRow = document.createElement("div"); photoRow.style.cssText="display:flex;gap:8px;align-items:center;margin-bottom:16px;";
+    var photoUrl = "";
+    var photoBtn = document.createElement("button"); photoBtn.textContent="📷 Ajouter une photo"; photoBtn.style.cssText="background:#f3e7d3;color:#8a6a35;border:1px solid #c9a86a;padding:10px 14px;border-radius:10px;cursor:pointer;font-size:13px;touch-action:manipulation;";
+    photoBtn.onclick=function(){fileInpP.click();};
+    var photoStatus=document.createElement("span"); photoStatus.style.cssText="font-size:11px;color:#999;";
+    photoRow.appendChild(photoBtn); photoRow.appendChild(photoStatus); box.appendChild(photoRow);
+    fileInpP.onchange=async function(){
+      var file=this.files[0];if(!file)return;
+      photoStatus.textContent="Upload...";photoBtn.disabled=true;
+      try{var fd=new FormData();fd.append("file",file);fd.append("upload_preset","baa_avatars");fd.append("folder","boutique_custom");
+      var r=await fetch("https://api.cloudinary.com/v1_1/dxcfq3nyl/image/upload",{method:"POST",body:fd});
+      var data=await r.json();
+      if(data.secure_url){photoUrl=data.secure_url;photoStatus.textContent="✅ Photo ajoutée !";photoBtn.textContent="🔄 Changer";}
+      else{photoStatus.textContent="❌";}
+      }catch(e){photoStatus.textContent="❌";}
+      photoBtn.disabled=false;
+    };
+
+    var saveBtn = document.createElement("button"); saveBtn.textContent="✅ Ajouter ce produit"; saveBtn.style.cssText="width:100%;background:linear-gradient(135deg,#c9a86a,#f5d48a);color:#1a0a00;border:none;padding:14px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:15px;margin-bottom:10px;touch-action:manipulation;";
+    saveBtn.onclick = function() {
+      if (!nomInp.value.trim() || !prixInp.value) { alert("Merci de remplir le nom et le prix."); return; }
+      var newProd = { nom: nomInp.value.trim(), prix: parseFloat(prixInp.value), categorie: catSel.value, description: descInp.value.trim(), ingredients: ingInp.value.trim(), photo: photoUrl };
+      b.produitsCustom.push(newProd);
+      // Ajouter automatiquement à la sélection
+      var k = "custom_" + (b.produitsCustom.length-1) + "_" + newProd.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,20);
+      if (!b.produits) b.produits = [];
+      b.produits.push(k);
+      sauvegarderBoutique(b, function() { alert("✅ Produit ajouté !"); state.boutique=null; state.step="produits"; render(); });
+    };
+    box.appendChild(saveBtn);
+
+    var back=document.createElement("button");back.textContent="← Retour";back.style.cssText="background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;width:100%;";
+    back.onclick=function(){state.boutique=b;state.step="produits";render();};box.appendChild(back);
+    var ios=document.createElement("div");ios.style.height="60px";box.appendChild(ios);
+  }
 
   function renderPanierPartage() {
     var user = firebase.auth().currentUser; if (!user) return;
