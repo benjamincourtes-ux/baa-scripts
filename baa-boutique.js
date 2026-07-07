@@ -669,7 +669,7 @@ function openGestionBoutique() {
             if (tousOui && idx >= 0) produitsSel.splice(idx, 1);
             else if (!tousOui && idx < 0) produitsSel.push(k);
           });
-          b.produits = produitsSel;
+          b.produits = produitsSel.slice();
           toutBtn.textContent = tousOui ? "✓ Tout sélectionner" : "✓ Tout désélectionner";
           toutBtn.style.background = tousOui ? "#e6f7ec" : "#fee";
           toutBtn.style.color = tousOui ? "#27AE60" : "#e74c3c";
@@ -715,11 +715,11 @@ function openGestionBoutique() {
           descInp.value = (b.descriptions && b.descriptions[photoKey]) || "";
           descInp.rows = 2;
           descInp.style.cssText = "width:100%;padding:8px;border:1px solid #e8d4b0;border-radius:8px;font-size:12px;box-sizing:border-box;margin-bottom:6px;resize:none;";
-          descInp.onclick = function(e) { e.stopPropagation(); };
           descInp.oninput = function() {
             if (!b.descriptions) b.descriptions = {};
             b.descriptions[photoKey] = descInp.value;
           };
+          descInp.addEventListener("touchstart", function(e){ e.stopPropagation(); }, {passive:true});
           infoRow.appendChild(descInp);
 
           var ingInp = document.createElement("textarea");
@@ -727,11 +727,11 @@ function openGestionBoutique() {
           ingInp.value = (b.ingredients && b.ingredients[photoKey]) || "";
           ingInp.rows = 2;
           ingInp.style.cssText = "width:100%;padding:8px;border:1px solid #e8d4b0;border-radius:8px;font-size:12px;box-sizing:border-box;resize:none;";
-          ingInp.onclick = function(e) { e.stopPropagation(); };
           ingInp.oninput = function() {
             if (!b.ingredients) b.ingredients = {};
             b.ingredients[photoKey] = ingInp.value;
           };
+          ingInp.addEventListener("touchstart", function(e){ e.stopPropagation(); }, {passive:true});
           infoRow.appendChild(ingInp);
           catContent.appendChild(infoRow);
 
@@ -835,16 +835,25 @@ function openGestionBoutique() {
 
       var saveAllBtn = document.createElement("button");
       saveAllBtn.textContent = "💾 Sauvegarder ma sélection";
-      saveAllBtn.style.cssText = "width:100%;background:#c9a86a;color:#1a0a00;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;margin-top:12px;touch-action:manipulation;";
+      saveAllBtn.style.cssText = "width:100%;background:#c9a86a;color:#1a0a00;border:none;padding:16px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:15px;margin-top:16px;touch-action:manipulation;";
+      saveAllBtn.addEventListener("touchend", function(e) {
+        e.preventDefault();
+        sauvegarderBoutique(b, function() {
+          alert("✅ " + b.produits.length + " produit(s) sauvegardé(s) !");
+          state.boutique = null; state.step = "menu"; render();
+        });
+      });
       saveAllBtn.onclick = function() {
         sauvegarderBoutique(b, function() {
           alert("✅ " + b.produits.length + " produit(s) sauvegardé(s) !");
-          state.step = "menu"; render();
+          state.boutique = null; state.step = "menu"; render();
         });
       };
       box.appendChild(saveAllBtn);
-      var back = document.createElement("button"); back.textContent = "← Retour sans sauvegarder"; back.style.cssText = "background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;width:100%;margin-top:8px;";
+      var back = document.createElement("button"); back.textContent = "← Retour sans sauvegarder"; back.style.cssText = "background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;width:100%;margin-top:8px;padding-bottom:40px;";
       back.onclick = function() { state.boutique = null; state.step = "menu"; render(); }; box.appendChild(back);
+      // Espace pour la barre iOS
+      var iosSpace = document.createElement("div"); iosSpace.style.cssText = "height:60px;"; box.appendChild(iosSpace);
   }
 
   function renderStats() {
