@@ -719,7 +719,6 @@ function openGestionBoutique() {
             if (!b.descriptions) b.descriptions = {};
             b.descriptions[photoKey] = descInp.value;
           };
-          descInp.addEventListener("touchstart", function(e){ e.stopPropagation(); }, {passive:true});
           infoRow.appendChild(descInp);
 
           var ingInp = document.createElement("textarea");
@@ -731,7 +730,6 @@ function openGestionBoutique() {
             if (!b.ingredients) b.ingredients = {};
             b.ingredients[photoKey] = ingInp.value;
           };
-          ingInp.addEventListener("touchstart", function(e){ e.stopPropagation(); }, {passive:true});
           infoRow.appendChild(ingInp);
           catContent.appendChild(infoRow);
 
