@@ -446,6 +446,102 @@ function openGestionBoutique() {
       });
       box.appendChild(banGrid);
 
+      // ---- PAGE ACCUEIL ----
+      var accLabel = document.createElement("p"); accLabel.style.cssText = "color:#8b735d;font-size:14px;font-weight:bold;margin:0 0 10px;border-top:1px solid #e8d4b0;padding-top:14px;"; accLabel.textContent = "🏠 Page d'accueil"; box.appendChild(accLabel);
+
+      // Photo accueil
+      var fileInpAcc = document.createElement("input"); fileInpAcc.type="file"; fileInpAcc.accept="image/*"; fileInpAcc.style.display="none"; box.appendChild(fileInpAcc);
+      var accPhotoRow = document.createElement("div"); accPhotoRow.style.cssText = "display:flex;gap:10px;align-items:center;margin-bottom:10px;";
+      if (b.photoAccueil) { var accImg = document.createElement("img"); accImg.src=b.photoAccueil; accImg.style.cssText="width:60px;height:60px;border-radius:8px;object-fit:cover;border:1px solid #e8d4b0;flex-shrink:0;"; accPhotoRow.appendChild(accImg); }
+      var accPhotoBtn = document.createElement("button"); accPhotoBtn.textContent = b.photoAccueil ? "🔄 Changer la photo" : "📷 Photo page accueil";
+      accPhotoBtn.style.cssText = "background:#f3e7d3;color:#8a6a35;border:1px solid #c9a86a;padding:10px 14px;border-radius:10px;cursor:pointer;font-size:13px;touch-action:manipulation;";
+      accPhotoBtn.onclick = function() { fileInpAcc.click(); };
+      accPhotoRow.appendChild(accPhotoBtn);
+      var accPhotoStatus = document.createElement("span"); accPhotoStatus.style.cssText="font-size:11px;color:#999;"; accPhotoRow.appendChild(accPhotoStatus);
+      fileInpAcc.onchange = async function() {
+        var file = this.files[0]; if (!file) return;
+        accPhotoStatus.textContent = "Upload..."; accPhotoBtn.disabled = true;
+        try {
+          var fd = new FormData(); fd.append("file",file); fd.append("upload_preset","baa_avatars"); fd.append("folder","boutique_accueil");
+          var r = await fetch("https://api.cloudinary.com/v1_1/dxcfq3nyl/image/upload",{method:"POST",body:fd});
+          var data = await r.json();
+          if (data.secure_url) { b.photoAccueil = data.secure_url; accPhotoStatus.textContent = "✅"; accPhotoBtn.textContent = "🔄 Changer la photo"; }
+          else { accPhotoStatus.textContent = "❌"; }
+        } catch(e) { accPhotoStatus.textContent = "❌"; }
+        accPhotoBtn.disabled = false;
+      };
+      box.appendChild(accPhotoRow);
+
+      // Mon histoire
+      var histLabel = document.createElement("p"); histLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;"; histLabel.textContent="✨ Mon histoire"; box.appendChild(histLabel);
+      var histInp = document.createElement("textarea"); histInp.placeholder = "Parlez de vous à vos clientes... (passion, parcours, pourquoi Mihi...)"; histInp.value = b.histoire || ""; histInp.rows = 4;
+      histInp.style.cssText = "width:100%;padding:12px;border:1px solid #e8d4b0;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:14px;resize:none;"; box.appendChild(histInp);
+
+      // Produits favoris
+      var favLabel = document.createElement("p"); favLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;"; favLabel.textContent="💄 Mes 5 produits favoris"; box.appendChild(favLabel);
+      var favNote = document.createElement("p"); favNote.style.cssText="color:#999;font-size:11px;margin:0 0 10px;"; favNote.textContent="Ces produits seront mis en avant sur votre page d'accueil."; box.appendChild(favNote);
+
+      var favProduits = b.produitsFavoris || [{},{},{},{},{}];
+      while (favProduits.length < 5) favProduits.push({});
+
+      favProduits.forEach(function(fav, i) {
+        var favBlock = document.createElement("div"); favBlock.style.cssText="background:#f8f3ee;border-radius:12px;padding:12px;margin-bottom:10px;border:1px solid #e8d4b0;";
+        favBlock.innerHTML = "<p style='color:#c9a86a;font-size:12px;font-weight:bold;margin:0 0 8px;'>Produit favori " + (i+1) + "</p>";
+
+        // Sélecteur produit
+        var select = document.createElement("select"); select.style.cssText = "width:100%;padding:8px;border:1px solid #e8d4b0;border-radius:8px;font-size:12px;box-sizing:border-box;margin-bottom:6px;background:white;";
+        var optVide = document.createElement("option"); optVide.value=""; optVide.textContent="-- Choisir un produit --"; select.appendChild(optVide);
+        Object.keys(BAA_PRODUITS_MIHI).forEach(function(cat) {
+          var optGroup = document.createElement("optgroup"); optGroup.label = BAA_PRODUITS_MIHI[cat].label;
+          BAA_PRODUITS_MIHI[cat].produits.forEach(function(p) {
+            var opt = document.createElement("option"); opt.value = p.nom; opt.textContent = p.nom + " — " + p.prix.toFixed(2) + "€";
+            if (fav.nom === p.nom) opt.selected = true;
+            optGroup.appendChild(opt);
+          });
+          select.appendChild(optGroup);
+        });
+        select.onchange = function() { favProduits[i].nom = select.value; b.produitsFavoris = favProduits; };
+        favBlock.appendChild(select);
+
+        // Description
+        var descInp = document.createElement("textarea"); descInp.placeholder = "Description..."; descInp.value = fav.description || ""; descInp.rows = 2;
+        descInp.style.cssText = "width:100%;padding:8px;border:1px solid #e8d4b0;border-radius:8px;font-size:12px;box-sizing:border-box;margin-bottom:6px;resize:none;";
+        descInp.oninput = function() { favProduits[i].description = descInp.value; b.produitsFavoris = favProduits; }; favBlock.appendChild(descInp);
+
+        // Ingrédients
+        var ingInp = document.createElement("textarea"); ingInp.placeholder = "Ingrédients clés..."; ingInp.value = fav.ingredients || ""; ingInp.rows = 2;
+        ingInp.style.cssText = "width:100%;padding:8px;border:1px solid #e8d4b0;border-radius:8px;font-size:12px;box-sizing:border-box;margin-bottom:6px;resize:none;";
+        ingInp.oninput = function() { favProduits[i].ingredients = ingInp.value; b.produitsFavoris = favProduits; }; favBlock.appendChild(ingInp);
+
+        // Photo produit favori
+        var fileInpFav = document.createElement("input"); fileInpFav.type="file"; fileInpFav.accept="image/*"; fileInpFav.style.display="none"; favBlock.appendChild(fileInpFav);
+        var favPhotoRow = document.createElement("div"); favPhotoRow.style.cssText="display:flex;gap:8px;align-items:center;";
+        if (fav.photo) { var favImg = document.createElement("img"); favImg.src=fav.photo; favImg.style.cssText="width:44px;height:44px;border-radius:6px;object-fit:cover;border:1px solid #e8d4b0;flex-shrink:0;"; favPhotoRow.appendChild(favImg); }
+        var favPhotoBtn = document.createElement("button"); favPhotoBtn.textContent = fav.photo ? "🔄 Photo" : "📷 Photo";
+        favPhotoBtn.style.cssText = "background:#f3e7d3;color:#8a6a35;border:1px solid #c9a86a;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:11px;touch-action:manipulation;";
+        favPhotoBtn.onclick = function() { fileInpFav.click(); };
+        favPhotoRow.appendChild(favPhotoBtn);
+        var favStatus = document.createElement("span"); favStatus.style.cssText="font-size:11px;color:#999;"; favPhotoRow.appendChild(favStatus);
+        fileInpFav.onchange = (function(idx){ return async function() {
+          var file = this.files[0]; if(!file) return;
+          favStatus.textContent="Upload..."; favPhotoBtn.disabled=true;
+          try {
+            var fd=new FormData(); fd.append("file",file); fd.append("upload_preset","baa_avatars"); fd.append("folder","boutique_favoris");
+            var r=await fetch("https://api.cloudinary.com/v1_1/dxcfq3nyl/image/upload",{method:"POST",body:fd});
+            var data=await r.json();
+            if(data.secure_url){favProduits[idx].photo=data.secure_url;b.produitsFavoris=favProduits;favStatus.textContent="✅";favPhotoBtn.textContent="🔄 Photo";}
+            else{favStatus.textContent="❌";}
+          }catch(e){favStatus.textContent="❌";}
+          favPhotoBtn.disabled=false;
+        };})(i);
+        favBlock.appendChild(favPhotoRow);
+        box.appendChild(favBlock);
+      });
+
+      // Sauvegarder histoire et favoris
+      var saveHistoire = function() { b.histoire = histInp.value.trim(); };
+      histInp.oninput = saveHistoire;
+
       // Lien carte de visite
       var cvLabel = document.createElement("p"); cvLabel.style.cssText = "color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 8px;"; cvLabel.textContent = "💳 Lien de ta carte de visite BAA (onglet Me contacter)"; box.appendChild(cvLabel);
       var inpCv = document.createElement("input"); inpCv.placeholder = "Colle ici le lien de ta carte de visite BAA"; inpCv.value = b.carteVisite || ""; inpCv.style.cssText = "width:100%;padding:12px;border:1px solid #e8d4b0;border-radius:10px;font-size:14px;box-sizing:border-box;margin-bottom:16px;"; box.appendChild(inpCv);
@@ -511,6 +607,8 @@ function openGestionBoutique() {
         b.lienParrainage = inp4.value.trim();
         b.texteParrainage = inp4b.value.trim() || "Rejoins mon équipe 🐦‍🔥";
         b.carteVisite = inpCv.value.trim();
+        b.histoire = histInp.value.trim();
+        b.produitsFavoris = favProduits;
         b.actif = true;
         sauvegarderBoutique(b, function() {
           alert("✅ Configuration sauvegardée !");
