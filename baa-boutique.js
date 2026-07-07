@@ -348,6 +348,7 @@ function openGestionBoutique() {
     else if (state.step === "lien") renderLien();
     else if (state.step === "stats") renderStats();
     else if (state.step === "clientes") renderClientes();
+    else if (state.step === "panier-partage") renderPanierPartage();
     else if (state.step === "client-detail") renderClientDetail();
   }
 
@@ -366,6 +367,7 @@ function openGestionBoutique() {
         { icon:"🛍️", label:"Gérer mes produits", sub:"Choisir quoi afficher", step:"produits" },
         { icon:"👥", label:"Mes clientes", sub:"Commandes et historique", step:"clientes" },
         { icon:"📊", label:"Mes statistiques", sub:"Visites, paniers, commandes", step:"stats" },
+        { icon:"🛒", label:"Créer un panier partagé", sub:"Envoyer un panier prêt à commander", step:"panier-partage" },
         { icon:"🔗", label:"Mon lien boutique", sub:"Partager avec mes clientes", step:"lien" },
       ];
 
@@ -839,6 +841,115 @@ function openGestionBoutique() {
       var iosSpace = document.createElement("div"); iosSpace.style.cssText = "height:60px;"; box.appendChild(iosSpace);
   }
 
+
+  function renderPanierPartage() {
+    var user = firebase.auth().currentUser; if (!user) return;
+    var titre = document.createElement("p"); titre.style.cssText="color:#8b735d;font-size:15px;font-weight:bold;margin:0 0 6px;"; titre.textContent="🛒 Créer un panier partagé"; box.appendChild(titre);
+    var sub = document.createElement("p"); sub.style.cssText="color:#999;font-size:12px;margin:0 0 16px;line-height:1.5;"; sub.textContent="Sélectionnez les produits et partagez le lien à votre cliente — elle arrivera avec le panier déjà rempli !"; box.appendChild(sub);
+
+    // Charger boutique pour avoir les produits disponibles
+    chargerBoutique(function(b) {
+      if (!b || !b.produits || b.produits.length === 0) {
+        box.appendChild(Object.assign(document.createElement("p"), {textContent:"Aucun produit dans votre boutique.", style:{color:"#999",textAlign:"center",padding:"20px"}}));
+        return;
+      }
+
+      var panierPartage = {}; // ref -> quantité
+
+      // Note personnalisée
+      var noteLabel = document.createElement("p"); noteLabel.style.cssText="color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 6px;"; noteLabel.textContent="💬 Message pour la cliente (optionnel)"; box.appendChild(noteLabel);
+      var noteInp = document.createElement("textarea"); noteInp.placeholder="Ex: Voici la routine que je te recommande suite à ton diagnostic !"; noteInp.rows=2; noteInp.style.cssText="width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:14px;resize:none;"; box.appendChild(noteInp);
+
+      // Liste des produits de la boutique
+      var prodLabel = document.createElement("p"); prodLabel.style.cssText="color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 8px;"; prodLabel.textContent="🛍️ Choisir les produits"; box.appendChild(prodLabel);
+
+      function getProdKey(p) {
+        return p.ref === "—" ? "prod_" + p.nom.replace(/[àâä]/g,"a").replace(/[éèêë]/g,"e").replace(/[îï]/g,"i").replace(/[ôö]/g,"o").replace(/[ùûü]/g,"u").replace(/ç/g,"c").replace(/[^a-zA-Z0-9]/g,"_").replace(/_+/g,"_").slice(0,40) : p.ref;
+      }
+
+      // Afficher tous les produits de la boutique
+      Object.keys(BAA_PRODUITS_MIHI).forEach(function(cat) {
+        var prodsCat = BAA_PRODUITS_MIHI[cat].produits.filter(function(p){
+          var k = getProdKey(p);
+          return b.produits.includes(k) || b.produits.includes(p.ref);
+        });
+        if (prodsCat.length === 0) return;
+
+        var catDiv = document.createElement("div"); catDiv.style.cssText="margin-bottom:8px;";
+        var catTitle = document.createElement("p"); catTitle.style.cssText="color:#c9a86a;font-size:11px;font-weight:bold;margin:0 0 4px;letter-spacing:1px;"; catTitle.textContent=BAA_PRODUITS_MIHI[cat].label; catDiv.appendChild(catTitle);
+
+        prodsCat.forEach(function(prod) {
+          var k = getProdKey(prod);
+          var row = document.createElement("div"); row.style.cssText="display:flex;align-items:center;justify-content:space-between;background:white;border-radius:8px;padding:8px 12px;margin-bottom:4px;border:1px solid #e8d4b0;";
+          row.innerHTML = "<p style='color:#3a3a3a;font-size:13px;margin:0;flex:1;'>"+prod.nom+"<br><span style='color:#c9a86a;font-size:11px;font-weight:bold;'>"+prod.prix.toFixed(2)+"€</span></p>";
+
+          var qtyDiv = document.createElement("div"); qtyDiv.style.cssText="display:flex;align-items:center;gap:8px;";
+          var moins = document.createElement("button"); moins.textContent="−"; moins.style.cssText="background:#f3e7d3;color:#8b735d;border:none;border-radius:6px;width:28px;height:28px;font-size:16px;cursor:pointer;touch-action:manipulation;";
+          var qtyEl = document.createElement("span"); qtyEl.style.cssText="font-size:14px;font-weight:bold;min-width:20px;text-align:center;color:#3a3a3a;"; qtyEl.textContent=panierPartage[k]||0;
+          var plus = document.createElement("button"); plus.textContent="+"; plus.style.cssText="background:#c9a86a;color:#1a0a00;border:none;border-radius:6px;width:28px;height:28px;font-size:16px;cursor:pointer;touch-action:manipulation;";
+
+          plus.onclick = function() { panierPartage[k]=(panierPartage[k]||0)+1; qtyEl.textContent=panierPartage[k]; majBtnGenerer(); };
+          moins.onclick = function() { if(panierPartage[k]>0){panierPartage[k]--;if(panierPartage[k]===0)delete panierPartage[k];qtyEl.textContent=panierPartage[k]||0;} majBtnGenerer(); };
+
+          qtyDiv.appendChild(moins); qtyDiv.appendChild(qtyEl); qtyDiv.appendChild(plus);
+          row.appendChild(qtyDiv); catDiv.appendChild(row);
+        });
+        box.appendChild(catDiv);
+      });
+
+      // Bouton générer le lien
+      var genBtn = document.createElement("button");
+      genBtn.textContent = "🔗 Générer le lien panier";
+      genBtn.disabled = true;
+      genBtn.style.cssText="width:100%;background:#ddd;color:#999;border:none;padding:14px;border-radius:12px;cursor:not-allowed;font-weight:bold;font-size:15px;margin-top:12px;touch-action:manipulation;";
+      
+      function majBtnGenerer() {
+        var nb = Object.values(panierPartage).reduce(function(a,b){return a+b;},0);
+        if (nb > 0) {
+          genBtn.disabled=false;
+          genBtn.style.background="linear-gradient(135deg,#c9a86a,#f5d48a)";
+          genBtn.style.color="#1a0a00";
+          genBtn.style.cursor="pointer";
+          genBtn.textContent="🔗 Générer le lien (" + nb + " article(s))";
+        } else {
+          genBtn.disabled=true;
+          genBtn.style.background="#ddd";
+          genBtn.style.color="#999";
+          genBtn.style.cursor="not-allowed";
+          genBtn.textContent="🔗 Générer le lien panier";
+        }
+      }
+
+      genBtn.onclick = async function() {
+        genBtn.textContent="⏳ Génération..."; genBtn.disabled=true;
+        try {
+          var panierData = { produits: panierPartage, note: noteInp.value.trim(), boutiqueUid: user.uid, createdAt: new Date().toISOString() };
+          var ref = await firebase.firestore().collection("paniers_partages").add(panierData);
+          var lien = "https://baa-vitrine.vercel.app/?uid=" + user.uid + "&panier=" + ref.id;
+          
+          // Afficher le lien
+          genBtn.style.display="none";
+          var lienBox = document.createElement("div"); lienBox.style.cssText="background:white;border:2px solid #c9a86a;border-radius:12px;padding:14px;margin-top:12px;";
+          lienBox.innerHTML="<p style='color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 8px;'>✅ TON LIEN PANIER EST PRÊT !</p><p style='color:#3a3a3a;font-size:12px;word-break:break-all;margin:0 0 10px;'>"+lien+"</p>";
+          
+          var copyBtn = document.createElement("button"); copyBtn.textContent="📋 Copier le lien"; copyBtn.style.cssText="width:100%;background:#c9a86a;color:#1a0a00;border:none;padding:12px;border-radius:10px;font-weight:bold;font-size:14px;cursor:pointer;margin-bottom:8px;touch-action:manipulation;";
+          copyBtn.onclick = function() { navigator.clipboard && navigator.clipboard.writeText(lien).then(function(){copyBtn.textContent="✅ Copié !";setTimeout(function(){copyBtn.textContent="📋 Copier le lien";},2000);}); };
+          lienBox.appendChild(copyBtn);
+
+          if (navigator.share) {
+            var shareBtn = document.createElement("button"); shareBtn.textContent="📤 Partager"; shareBtn.style.cssText="width:100%;background:white;color:#8b735d;border:1px solid #e8d4b0;padding:12px;border-radius:10px;font-weight:bold;font-size:14px;cursor:pointer;touch-action:manipulation;";
+            shareBtn.onclick = function() { navigator.share({title:"Mon panier Mihi",text:noteInp.value||"Voici ma sélection de produits Mihi !",url:lien}); };
+            lienBox.appendChild(shareBtn);
+          }
+          box.appendChild(lienBox);
+        } catch(e) { genBtn.textContent="❌ Erreur"; genBtn.disabled=false; }
+      };
+      box.appendChild(genBtn);
+
+      var back = document.createElement("button"); back.textContent="← Retour"; back.style.cssText="background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;width:100%;margin-top:8px;padding-bottom:40px;";
+      back.onclick=function(){state.step="menu";render();}; box.appendChild(back);
+    });
+  }
 
   function renderClientes() {
     var user = firebase.auth().currentUser; if (!user) return;
