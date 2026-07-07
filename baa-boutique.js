@@ -633,192 +633,181 @@ function openGestionBoutique() {
   }
 
   function afficherProduits(b) {
-      // Ne pas pré-cocher si boutique jamais configurée
-      var produitsSel = (b && b.actif && b.produits) ? b.produits.slice() : [];
+      // Reconstruire produitsSel avec les clés actuelles
+      var produitsSel = [];
+      if (b && b.produits && b.produits.length > 0) {
+        produitsSel = b.produits.slice();
+      }
 
       var titre = document.createElement("p"); titre.style.cssText = "color:#8b735d;font-size:15px;font-weight:bold;margin:0 0 6px;"; titre.textContent = "🛍️ Choisir mes produits"; box.appendChild(titre);
-      var sub = document.createElement("p"); sub.style.cssText = "color:#999;font-size:12px;margin:0 0 16px;"; sub.textContent = produitsSel.length + " produit(s) sélectionné(s)"; box.appendChild(sub);
+      var subEl = document.createElement("p"); subEl.style.cssText = "color:#999;font-size:12px;margin:0 0 16px;"; subEl.id = "produits-count"; subEl.textContent = produitsSel.length + " produit(s) sélectionné(s)"; box.appendChild(subEl);
+
+      function getProdKey(prod) {
+        return prod.ref === "—" ? "prod_" + prod.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : prod.ref;
+      }
+
+      function majCount() {
+        var el = document.getElementById("produits-count");
+        if (el) el.textContent = produitsSel.length + " produit(s) sélectionné(s)";
+      }
 
       Object.keys(BAA_PRODUITS_MIHI).forEach(function(cat) {
         var catData = BAA_PRODUITS_MIHI[cat];
         var catDiv = document.createElement("div"); catDiv.style.cssText = "margin-bottom:12px;";
 
-        var catHeader = document.createElement("button");
-        catHeader.style.cssText = "width:100%;background:#f3e7d3;border:1px solid #e8d4b0;border-radius:10px;padding:10px 14px;cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center;touch-action:manipulation;";
-        catHeader.innerHTML = "<span style='color:#8b735d;font-size:13px;font-weight:bold;'>" + catData.label + "</span><span style='color:#c9a86a;font-size:12px;'>" + catData.produits.filter(function(p){ var k = p.ref === "—" ? "prod_" + p.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : p.ref; return produitsSel.includes(k); }).length + "/" + catData.produits.length + "</span>";
-
-        var toutBtn = document.createElement("button");
-        var tousSelectionnes = catData.produits.every(function(p){ var k = p.ref === "—" ? "prod_" + p.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : p.ref; return produitsSel.includes(k); });
-        toutBtn.textContent = tousSelectionnes ? "✓ Tout désélectionner" : "✓ Tout sélectionner";
-        toutBtn.style.cssText = "background:" + (tousSelectionnes?"#fee":"#e6f7ec") + ";color:" + (tousSelectionnes?"#e74c3c":"#27AE60") + ";border:1px solid " + (tousSelectionnes?"#e74c3c":"#27AE60") + ";padding:4px 8px;border-radius:6px;cursor:pointer;font-size:10px;font-weight:bold;margin-left:8px;touch-action:manipulation;";
-
         var catContent = document.createElement("div");
         catContent.style.cssText = "display:none;background:white;border:1px solid #e8d4b0;border-top:none;border-radius:0 0 10px 10px;";
 
-        toutBtn.onclick = function(e) {
-          e.stopPropagation();
-          var tousOui = catData.produits.every(function(p){ var k = p.ref === "—" ? "prod_" + p.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : p.ref; return produitsSel.includes(k); });
+        var catHeader = document.createElement("button");
+        catHeader.style.cssText = "width:100%;background:#f3e7d3;border:1px solid #e8d4b0;border-radius:10px;padding:10px 14px;cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center;touch-action:manipulation;";
+
+        function majCatHeader() {
+          var nb = catData.produits.filter(function(p){ return produitsSel.includes(getProdKey(p)); }).length;
+          catHeader.innerHTML = "";
+          var span1 = document.createElement("span"); span1.style.cssText="color:#8b735d;font-size:13px;font-weight:bold;"; span1.textContent = catData.label; catHeader.appendChild(span1);
+          var span2 = document.createElement("span"); span2.style.cssText="color:#c9a86a;font-size:12px;"; span2.textContent = nb+"/"+catData.produits.length; catHeader.appendChild(span2);
+          catHeader.appendChild(toutBtn);
+        }
+
+        var toutBtn = document.createElement("button");
+        toutBtn.style.cssText = "background:#e6f7ec;color:#27AE60;border:1px solid #27AE60;padding:4px 8px;border-radius:6px;cursor:pointer;font-size:10px;font-weight:bold;margin-left:8px;touch-action:manipulation;flex-shrink:0;";
+        toutBtn.textContent = "✓ Tout sélectionner";
+
+        toutBtn.addEventListener("touchend", function(e) {
+          e.preventDefault(); e.stopPropagation();
+          executerTout();
+        }, {passive:false});
+        toutBtn.onclick = function(e) { e.stopPropagation(); executerTout(); };
+
+        function executerTout() {
+          var tousOui = catData.produits.every(function(p){ return produitsSel.includes(getProdKey(p)); });
           catData.produits.forEach(function(p) {
-            var k = p.ref === "—" ? "prod_" + p.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : p.ref;
+            var k = getProdKey(p);
             var idx = produitsSel.indexOf(k);
-            if (tousOui && idx >= 0) produitsSel.splice(idx, 1);
-            else if (!tousOui && idx < 0) produitsSel.push(k);
+            if (tousOui) { if (idx >= 0) produitsSel.splice(idx, 1); }
+            else { if (idx < 0) produitsSel.push(k); }
           });
           b.produits = produitsSel.slice();
           toutBtn.textContent = tousOui ? "✓ Tout sélectionner" : "✓ Tout désélectionner";
           toutBtn.style.background = tousOui ? "#e6f7ec" : "#fee";
           toutBtn.style.color = tousOui ? "#27AE60" : "#e74c3c";
           toutBtn.style.borderColor = tousOui ? "#27AE60" : "#e74c3c";
-          // Ouvrir la catégorie et mettre à jour les cases
+          // Rouvrir catégorie et mettre à jour cases
           catContent.style.display = "block";
           catHeader.style.borderRadius = "10px 10px 0 0";
-          catContent.querySelectorAll(".check-el").forEach(function(el, i) {
-            var prod = catData.produits[i];
-            if (!prod) return;
-            var k = prod.ref === "—" ? "prod_" + prod.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : prod.ref;
+          catContent.querySelectorAll("[data-prodkey]").forEach(function(el) {
+            var k = el.getAttribute("data-prodkey");
             var sel = produitsSel.includes(k);
-            el.style.background = sel ? "#c9a86a" : "white";
-            el.style.borderColor = sel ? "#c9a86a" : "#ddd";
-            el.innerHTML = sel ? "<span style='color:white;font-size:12px;font-weight:bold;'>✓</span>" : "";
+            var checkEl = el.querySelector(".check-el");
+            if (checkEl) {
+              checkEl.style.background = sel ? "#c9a86a" : "white";
+              checkEl.style.borderColor = sel ? "#c9a86a" : "#ddd";
+              checkEl.innerHTML = sel ? "<span style='color:white;font-size:12px;font-weight:bold;'>✓</span>" : "";
+            }
           });
-        };
-        catHeader.appendChild(toutBtn);
+          majCatHeader();
+          majCount();
+        }
 
         catHeader.onclick = function() {
-          catContent.style.display = catContent.style.display === "none" ? "block" : "none";
-          catHeader.style.borderRadius = catContent.style.display === "none" ? "10px" : "10px 10px 0 0";
+          var open = catContent.style.display !== "none";
+          catContent.style.display = open ? "none" : "block";
+          catHeader.style.borderRadius = open ? "10px" : "10px 10px 0 0";
         };
 
+        majCatHeader();
+
         catData.produits.forEach(function(prod) {
-          var photoKey = prod.ref === "—" ? "prod_" + prod.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : prod.ref;
-          var pDiv = document.createElement("div"); pDiv.style.cssText = "display:flex;align-items:center;padding:10px 14px;border-bottom:none;cursor:pointer;touch-action:manipulation;";
+          var photoKey = getProdKey(prod);
           var checked = produitsSel.includes(photoKey);
+
+          var pDiv = document.createElement("div");
+          pDiv.setAttribute("data-prodkey", photoKey);
+          pDiv.style.cssText = "display:flex;align-items:center;padding:10px 14px;border-bottom:none;cursor:pointer;touch-action:manipulation;";
+
           var checkEl = document.createElement("div");
           checkEl.className = "check-el";
           checkEl.style.cssText = "width:20px;height:20px;border-radius:4px;border:2px solid " + (checked?"#c9a86a":"#ddd") + ";background:" + (checked?"#c9a86a":"white") + ";margin-right:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;";
           checkEl.innerHTML = checked ? "<span style='color:white;font-size:12px;font-weight:bold;'>✓</span>" : "";
+
           var infoEl = document.createElement("div"); infoEl.style.cssText = "flex:1;";
           infoEl.innerHTML = "<p style='color:#3a3a3a;font-size:13px;margin:0 0 1px;'>" + prod.nom + "</p><p style='color:#c9a86a;font-size:12px;font-weight:bold;margin:0;'>" + prod.prix.toFixed(2) + " €</p>";
           pDiv.appendChild(checkEl); pDiv.appendChild(infoEl);
 
-          // Champs description et ingrédients — toujours visibles
+          // Champs description et ingrédients
           var infoRow = document.createElement("div");
           infoRow.style.cssText = "padding:6px 14px 8px 52px;background:white;border-bottom:none;";
-          
           var descInp = document.createElement("textarea");
-          descInp.placeholder = "Description du produit...";
-          descInp.value = (b.descriptions && b.descriptions[photoKey]) || "";
-          descInp.rows = 2;
+          descInp.placeholder = "Description..."; descInp.value = (b.descriptions && b.descriptions[photoKey]) || ""; descInp.rows = 2;
           descInp.style.cssText = "width:100%;padding:8px;border:1px solid #e8d4b0;border-radius:8px;font-size:12px;box-sizing:border-box;margin-bottom:6px;resize:none;";
-          descInp.oninput = function() {
-            if (!b.descriptions) b.descriptions = {};
-            b.descriptions[photoKey] = descInp.value;
-          };
+          descInp.oninput = function() { if(!b.descriptions)b.descriptions={}; b.descriptions[photoKey]=descInp.value; };
           infoRow.appendChild(descInp);
-
           var ingInp = document.createElement("textarea");
-          ingInp.placeholder = "Ingrédients clés...";
-          ingInp.value = (b.ingredients && b.ingredients[photoKey]) || "";
-          ingInp.rows = 2;
+          ingInp.placeholder = "Ingrédients..."; ingInp.value = (b.ingredients && b.ingredients[photoKey]) || ""; ingInp.rows = 2;
           ingInp.style.cssText = "width:100%;padding:8px;border:1px solid #e8d4b0;border-radius:8px;font-size:12px;box-sizing:border-box;resize:none;";
-          ingInp.oninput = function() {
-            if (!b.ingredients) b.ingredients = {};
-            b.ingredients[photoKey] = ingInp.value;
-          };
+          ingInp.oninput = function() { if(!b.ingredients)b.ingredients={}; b.ingredients[photoKey]=ingInp.value; };
           infoRow.appendChild(ingInp);
+          catContent.appendChild(pDiv);
           catContent.appendChild(infoRow);
 
-          // Ligne photo — toujours visible
+          // Photo
           var photoRow = document.createElement("div");
           photoRow.style.cssText = "padding:4px 14px 10px 52px;background:white;border-bottom:1px solid #f0e6d3;display:flex;gap:8px;align-items:center;";
           var photoUrl = (b.photos && b.photos[photoKey]) || "";
           var prevImgEl = null;
           if (photoUrl) {
-            prevImgEl = document.createElement("img");
-            prevImgEl.src = photoUrl;
-            prevImgEl.style.cssText = "width:44px;height:44px;object-fit:cover;border-radius:8px;border:1px solid #e8d4b0;flex-shrink:0;";
-            prevImgEl.onerror = function() { prevImgEl.style.display="none"; };
+            prevImgEl = document.createElement("img"); prevImgEl.src=photoUrl;
+            prevImgEl.style.cssText="width:44px;height:44px;object-fit:cover;border-radius:8px;border:1px solid #e8d4b0;flex-shrink:0;";
             photoRow.appendChild(prevImgEl);
           }
-          var fileInpPhoto = document.createElement("input");
-          fileInpPhoto.type = "file"; fileInpPhoto.accept = "image/*"; fileInpPhoto.style.display = "none";
-          photoRow.appendChild(fileInpPhoto);
-          var uploadBtn = document.createElement("button");
-          uploadBtn.textContent = photoUrl ? "🔄 Changer" : "📷 Photo";
-          uploadBtn.style.cssText = "background:#f3e7d3;color:#8a6a35;border:1px solid #c9a86a;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:11px;touch-action:manipulation;";
-          uploadBtn.onclick = function(e) { e.stopPropagation(); fileInpPhoto.click(); };
+          var fileInpPhoto = document.createElement("input"); fileInpPhoto.type="file"; fileInpPhoto.accept="image/*"; fileInpPhoto.style.display="none"; photoRow.appendChild(fileInpPhoto);
+          var uploadBtn = document.createElement("button"); uploadBtn.textContent = photoUrl?"🔄 Changer":"📷 Photo";
+          uploadBtn.style.cssText="background:#f3e7d3;color:#8a6a35;border:1px solid #c9a86a;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:11px;touch-action:manipulation;";
+          uploadBtn.onclick=function(e){e.stopPropagation();fileInpPhoto.click();};
           photoRow.appendChild(uploadBtn);
-          if (photoUrl) {
-            var delPhotoBtn = document.createElement("button");
-            delPhotoBtn.textContent = "🗑️";
-            delPhotoBtn.style.cssText = "background:#fee;color:#e74c3c;border:1px solid #e74c3c;padding:5px 8px;border-radius:8px;cursor:pointer;font-size:11px;touch-action:manipulation;";
-            delPhotoBtn.onclick = function(e) {
-              e.stopPropagation();
-              if (!b.photos) b.photos = {};
-              delete b.photos[photoKey];
-              if (prevImgEl) prevImgEl.remove();
-              delPhotoBtn.remove();
-              uploadBtn.textContent = "📷 Photo";
-            };
-            photoRow.appendChild(delPhotoBtn);
+          if(photoUrl){
+            var delBtn=document.createElement("button");delBtn.textContent="🗑️";
+            delBtn.style.cssText="background:#fee;color:#e74c3c;border:1px solid #e74c3c;padding:5px 8px;border-radius:8px;cursor:pointer;font-size:11px;touch-action:manipulation;";
+            delBtn.onclick=function(e){e.stopPropagation();if(!b.photos)b.photos={};delete b.photos[photoKey];if(prevImgEl)prevImgEl.remove();delBtn.remove();uploadBtn.textContent="📷 Photo";};
+            photoRow.appendChild(delBtn);
           }
-          var statusTxt = document.createElement("span");
-          statusTxt.style.cssText = "font-size:11px;color:#999;";
-          photoRow.appendChild(statusTxt);
-          fileInpPhoto.onchange = async function() {
-            var file = this.files[0]; if (!file) return;
-            statusTxt.textContent = "Upload..."; uploadBtn.disabled = true;
-            try {
-              var fd = new FormData(); fd.append("file",file); fd.append("upload_preset","baa_avatars"); fd.append("folder","boutique_produits");
-              var r = await fetch("https://api.cloudinary.com/v1_1/dxcfq3nyl/image/upload",{method:"POST",body:fd});
-              var data = await r.json();
-              if (data.secure_url) {
-                if (!b.photos) b.photos = {};
-                b.photos[photoKey] = data.secure_url;
-                statusTxt.textContent = "✅"; uploadBtn.textContent = "🔄 Changer";
-                if (!prevImgEl) {
-                  prevImgEl = document.createElement("img");
-                  prevImgEl.src = data.secure_url;
-                  prevImgEl.style.cssText = "width:44px;height:44px;object-fit:cover;border-radius:8px;border:1px solid #e8d4b0;flex-shrink:0;";
-                  photoRow.insertBefore(prevImgEl, fileInpPhoto);
-                } else { prevImgEl.src = data.secure_url; prevImgEl.style.display = "block"; }
-              } else { statusTxt.textContent = "❌"; }
-            } catch(e) { statusTxt.textContent = "❌"; }
-            uploadBtn.disabled = false;
+          var statusTxt=document.createElement("span");statusTxt.style.cssText="font-size:11px;color:#999;";photoRow.appendChild(statusTxt);
+          fileInpPhoto.onchange=async function(){
+            var file=this.files[0];if(!file)return;
+            statusTxt.textContent="Upload...";uploadBtn.disabled=true;
+            try{var fd=new FormData();fd.append("file",file);fd.append("upload_preset","baa_avatars");fd.append("folder","boutique_produits");
+            var r=await fetch("https://api.cloudinary.com/v1_1/dxcfq3nyl/image/upload",{method:"POST",body:fd});
+            var data=await r.json();
+            if(data.secure_url){if(!b.photos)b.photos={};b.photos[photoKey]=data.secure_url;statusTxt.textContent="✅";uploadBtn.textContent="🔄 Changer";
+            if(!prevImgEl){prevImgEl=document.createElement("img");prevImgEl.src=data.secure_url;prevImgEl.style.cssText="width:44px;height:44px;object-fit:cover;border-radius:8px;border:1px solid #e8d4b0;flex-shrink:0;";photoRow.insertBefore(prevImgEl,fileInpPhoto);}
+            else{prevImgEl.src=data.secure_url;prevImgEl.style.display="block";}}
+            else{statusTxt.textContent="❌";}}catch(e){statusTxt.textContent="❌";}
+            uploadBtn.disabled=false;
           };
-
-          catContent.appendChild(pDiv);
           catContent.appendChild(photoRow);
+
+          // Rupture de stock
+          var rupture = b.ruptures && b.ruptures[photoKey];
+          var ruptureBtn = document.createElement("button");
+          ruptureBtn.textContent = rupture ? "🔴 Rupture" : "✅ Dispo";
+          ruptureBtn.style.cssText = "background:"+(rupture?"#fee":"#e6f7ec")+";color:"+(rupture?"#e74c3c":"#27AE60")+";border:1px solid "+(rupture?"#e74c3c":"#27AE60")+";padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px;font-weight:bold;flex-shrink:0;touch-action:manipulation;";
+          ruptureBtn.onclick=function(e){e.stopPropagation();if(!b.ruptures)b.ruptures={};b.ruptures[photoKey]=!b.ruptures[photoKey];ruptureBtn.textContent=b.ruptures[photoKey]?"🔴 Rupture":"✅ Dispo";ruptureBtn.style.background=b.ruptures[photoKey]?"#fee":"#e6f7ec";ruptureBtn.style.color=b.ruptures[photoKey]?"#e74c3c":"#27AE60";ruptureBtn.style.borderColor=b.ruptures[photoKey]?"#e74c3c":"#27AE60";};
+          infoEl.appendChild(ruptureBtn);
 
           var handleSelect = function() {
             var idx = produitsSel.indexOf(photoKey);
             if (idx >= 0) {
               produitsSel.splice(idx, 1);
-              checkEl.style.background = "white"; checkEl.style.borderColor = "#ddd"; checkEl.innerHTML = "";
+              checkEl.style.background="white"; checkEl.style.borderColor="#ddd"; checkEl.innerHTML="";
             } else {
               produitsSel.push(photoKey);
-              checkEl.style.background = "#c9a86a"; checkEl.style.borderColor = "#c9a86a"; checkEl.innerHTML = "<span style='color:white;font-size:12px;font-weight:bold;'>✓</span>";
+              checkEl.style.background="#c9a86a"; checkEl.style.borderColor="#c9a86a"; checkEl.innerHTML="<span style='color:white;font-size:12px;font-weight:bold;'>✓</span>";
             }
-            b.produits = produitsSel;
+            b.produits = produitsSel.slice();
+            majCatHeader(); majCount();
           };
           pDiv.onclick = handleSelect;
-          pDiv.addEventListener('touchend', function(e) { e.preventDefault(); handleSelect(); }, {passive:false});
-          
-          // Bouton rupture de stock
-          var rupture = b.ruptures && b.ruptures[photoKey];
-          var ruptureBtn = document.createElement("button");
-          ruptureBtn.textContent = rupture ? "🔴 Rupture" : "✅ Dispo";
-          ruptureBtn.style.cssText = "background:"+(rupture?"#fee":"#e6f7ec")+";color:"+(rupture?"#e74c3c":"#27AE60")+";border:1px solid "+(rupture?"#e74c3c":"#27AE60")+";padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px;font-weight:bold;flex-shrink:0;touch-action:manipulation;";
-          ruptureBtn.onclick = function(e) {
-            e.stopPropagation();
-            if (!b.ruptures) b.ruptures = {};
-            b.ruptures[photoKey] = !b.ruptures[photoKey];
-            ruptureBtn.textContent = b.ruptures[photoKey] ? "🔴 Rupture" : "✅ Dispo";
-            ruptureBtn.style.background = b.ruptures[photoKey] ? "#fee" : "#e6f7ec";
-            ruptureBtn.style.color = b.ruptures[photoKey] ? "#e74c3c" : "#27AE60";
-            ruptureBtn.style.borderColor = b.ruptures[photoKey] ? "#e74c3c" : "#27AE60";
-          };
-          infoEl.appendChild(ruptureBtn);
+          pDiv.addEventListener('touchend', function(e){e.preventDefault();handleSelect();},{passive:false});
         });
 
         catDiv.appendChild(catHeader);
@@ -829,25 +818,20 @@ function openGestionBoutique() {
       var saveAllBtn = document.createElement("button");
       saveAllBtn.textContent = "💾 Sauvegarder ma sélection";
       saveAllBtn.style.cssText = "width:100%;background:#c9a86a;color:#1a0a00;border:none;padding:16px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:15px;margin-top:16px;touch-action:manipulation;";
-      saveAllBtn.addEventListener("touchend", function(e) {
-        e.preventDefault();
-        sauvegarderBoutique(b, function() {
-          alert("✅ " + b.produits.length + " produit(s) sauvegardé(s) !");
-          state.boutique = null; state.step = "menu"; render();
-        });
-      });
-      saveAllBtn.onclick = function() {
+      var doSave = function() {
         sauvegarderBoutique(b, function() {
           alert("✅ " + b.produits.length + " produit(s) sauvegardé(s) !");
           state.boutique = null; state.step = "menu"; render();
         });
       };
+      saveAllBtn.addEventListener("touchend", function(e){e.preventDefault();doSave();},{passive:false});
+      saveAllBtn.onclick = doSave;
       box.appendChild(saveAllBtn);
-      var back = document.createElement("button"); back.textContent = "← Retour sans sauvegarder"; back.style.cssText = "background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;width:100%;margin-top:8px;padding-bottom:40px;";
+      var back = document.createElement("button"); back.textContent = "← Retour sans sauvegarder"; back.style.cssText = "background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;width:100%;margin-top:8px;padding-bottom:20px;";
       back.onclick = function() { state.boutique = null; state.step = "menu"; render(); }; box.appendChild(back);
-      // Espace pour la barre iOS
       var iosSpace = document.createElement("div"); iosSpace.style.cssText = "height:60px;"; box.appendChild(iosSpace);
   }
+
 
   function renderStats() {
     var user = firebase.auth().currentUser; if (!user) return;
