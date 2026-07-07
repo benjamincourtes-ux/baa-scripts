@@ -636,7 +636,7 @@ function openGestionBoutique() {
       // Reconstruire produitsSel avec les clés actuelles
       var produitsSel = [];
       if (b && b.produits && b.produits.length > 0) {
-        produitsSel = b.produits.slice();
+        produitsSel = b.produits.filter(function(x){ return typeof x === "string"; });
       }
 
       var titre = document.createElement("p"); titre.style.cssText = "color:#8b735d;font-size:15px;font-weight:bold;margin:0 0 6px;"; titre.textContent = "🛍️ Choisir mes produits"; box.appendChild(titre);
@@ -821,6 +821,8 @@ function openGestionBoutique() {
       saveAllBtn.textContent = "💾 Sauvegarder ma sélection";
       saveAllBtn.style.cssText = "width:100%;background:#c9a86a;color:#1a0a00;border:none;padding:16px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:15px;margin-top:16px;touch-action:manipulation;";
       var doSave = function() {
+        // S'assurer que produits ne contient que des strings
+        b.produits = produitsSel.filter(function(x){ return typeof x === "string"; });
         sauvegarderBoutique(b, function() {
           alert("✅ " + b.produits.length + " produit(s) sauvegardé(s) !");
           state.boutique = null; state.step = "menu"; render();
