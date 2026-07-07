@@ -541,6 +541,34 @@ function openGestionBoutique() {
         catHeader.style.cssText = "width:100%;background:#f3e7d3;border:1px solid #e8d4b0;border-radius:10px;padding:10px 14px;cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center;touch-action:manipulation;";
         catHeader.innerHTML = "<span style='color:#8b735d;font-size:13px;font-weight:bold;'>" + catData.label + "</span><span style='color:#c9a86a;font-size:12px;'>" + catData.produits.filter(function(p){ var k = p.ref === "—" ? "prod_" + p.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : p.ref; return produitsSel.includes(k); }).length + "/" + catData.produits.length + "</span>";
 
+        var toutBtn = document.createElement("button");
+        var tousSelectionnes = catData.produits.every(function(p){ var k = p.ref === "—" ? "prod_" + p.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : p.ref; return produitsSel.includes(k); });
+        toutBtn.textContent = tousSelectionnes ? "✓ Tout désélectionner" : "✓ Tout sélectionner";
+        toutBtn.style.cssText = "background:" + (tousSelectionnes?"#fee":"#e6f7ec") + ";color:" + (tousSelectionnes?"#e74c3c":"#27AE60") + ";border:1px solid " + (tousSelectionnes?"#e74c3c":"#27AE60") + ";padding:4px 8px;border-radius:6px;cursor:pointer;font-size:10px;font-weight:bold;margin-left:8px;touch-action:manipulation;";
+        toutBtn.onclick = function(e) {
+          e.stopPropagation();
+          var tousOui = catData.produits.every(function(p){ var k = p.ref === "—" ? "prod_" + p.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : p.ref; return produitsSel.includes(k); });
+          catData.produits.forEach(function(p) {
+            var k = p.ref === "—" ? "prod_" + p.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : p.ref;
+            var idx = produitsSel.indexOf(k);
+            if (tousOui && idx >= 0) produitsSel.splice(idx, 1);
+            else if (!tousOui && idx < 0) produitsSel.push(k);
+          });
+          b.produits = produitsSel;
+          toutBtn.textContent = tousOui ? "✓ Tout sélectionner" : "✓ Tout désélectionner";
+          toutBtn.style.background = tousOui ? "#e6f7ec" : "#fee";
+          toutBtn.style.color = tousOui ? "#27AE60" : "#e74c3c";
+          toutBtn.style.borderColor = tousOui ? "#27AE60" : "#e74c3c";
+          // Mettre à jour les cases à cocher
+          catContent.querySelectorAll(".check-el").forEach(function(el, i) {
+            var sel = produitsSel.includes(catData.produits[i] ? (catData.produits[i].ref === "—" ? "prod_" + catData.produits[i].nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,40) : catData.produits[i].ref) : "");
+            el.style.background = sel ? "#c9a86a" : "white";
+            el.style.borderColor = sel ? "#c9a86a" : "#ddd";
+            el.innerHTML = sel ? "<span style='color:white;font-size:12px;font-weight:bold;'>✓</span>" : "";
+          });
+        };
+        catHeader.appendChild(toutBtn);
+
         var catContent = document.createElement("div");
         catContent.style.cssText = "display:none;background:white;border:1px solid #e8d4b0;border-top:none;border-radius:0 0 10px 10px;";
 
@@ -554,6 +582,7 @@ function openGestionBoutique() {
           var pDiv = document.createElement("div"); pDiv.style.cssText = "display:flex;align-items:center;padding:10px 14px;border-bottom:none;cursor:pointer;touch-action:manipulation;";
           var checked = produitsSel.includes(photoKey);
           var checkEl = document.createElement("div");
+          checkEl.className = "check-el";
           checkEl.style.cssText = "width:20px;height:20px;border-radius:4px;border:2px solid " + (checked?"#c9a86a":"#ddd") + ";background:" + (checked?"#c9a86a":"white") + ";margin-right:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;";
           checkEl.innerHTML = checked ? "<span style='color:white;font-size:12px;font-weight:bold;'>✓</span>" : "";
           var infoEl = document.createElement("div"); infoEl.style.cssText = "flex:1;";
