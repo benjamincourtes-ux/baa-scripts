@@ -560,8 +560,10 @@ function openGestionBoutique() {
       info.innerHTML = "<p style='color:#2980B9;font-size:12px;margin:0;'>💡 Pour créer un lien PayPal.me, va sur <strong>paypal.me</strong> et crée ton lien personnalisé gratuit.</p>";
       box.appendChild(info);
 
-      // Bouton test email
-      var testEmailBtn = document.createElement("button");
+      // Bouton test email — admin seulement
+      var user = firebase.auth().currentUser;
+      if (user && user.uid === "HW5yBMrCSfZvRJpJNBYJbY1hzen2") {
+        var testEmailBtn = document.createElement("button");
       testEmailBtn.textContent = "📧 Tester l'envoi d'email";
       testEmailBtn.style.cssText = "width:100%;background:#f0f4ff;color:#2980B9;border:1px solid #2980B9;padding:12px;border-radius:12px;cursor:pointer;font-size:13px;margin-bottom:10px;touch-action:manipulation;";
       testEmailBtn.onclick = function() {
@@ -592,6 +594,7 @@ function openGestionBoutique() {
         }
       };
       box.appendChild(testEmailBtn);
+      } // fin if admin
 
       var saveBtn = document.createElement("button");
       saveBtn.textContent = "💾 Sauvegarder";
