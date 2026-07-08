@@ -1001,12 +1001,31 @@ function openGestionBoutique() {
       });
       box.appendChild(configDiv);
 
-      var saveConfigBtn = document.createElement("button"); saveConfigBtn.textContent="💾 Sauvegarder la configuration"; saveConfigBtn.style.cssText="width:100%;background:#c9a86a;color:#1a0a00;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;margin-bottom:16px;touch-action:manipulation;";
+      var saveConfigBtn = document.createElement("button"); saveConfigBtn.textContent="💾 Sauvegarder la configuration"; saveConfigBtn.style.cssText="width:100%;background:#c9a86a;color:#1a0a00;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;margin-bottom:8px;touch-action:manipulation;";
       saveConfigBtn.onclick=function(){
         fields.forEach(function(f){fid[f.key]=f.type==="number"?parseInt(inputs[f.key].value)||10:inputs[f.key].value.trim();});
         b.fidelite=fid; sauvegarderBoutique(b,function(){alert("✅ Configuration sauvegardée !");state.boutique=null;});
       };
       box.appendChild(saveConfigBtn);
+
+      // Bouton aperçu
+      var apercuBtn = document.createElement("button"); apercuBtn.textContent="👁️ Voir l'aperçu de la carte"; apercuBtn.style.cssText="width:100%;background:white;color:#8b735d;border:1px solid #e8d4b0;padding:12px;border-radius:12px;cursor:pointer;font-size:13px;margin-bottom:16px;touch-action:manipulation;";
+      apercuBtn.onclick = function() {
+        fields.forEach(function(f){fid[f.key]=f.type==="number"?parseInt(inputs[f.key].value)||10:inputs[f.key].value.trim();});
+        var max = fid.tamponsMax||10;
+        var apercuDiv = document.createElement("div"); apercuDiv.style.cssText="background:linear-gradient(135deg,#c9a86a,#f5d48a);border-radius:16px;padding:20px;margin-bottom:16px;text-align:center;";
+        apercuDiv.innerHTML="<p style='color:rgba(0,0,0,0.5);font-size:10px;margin:0 0 8px;letter-spacing:1px;'>APERÇU CARTE CLIENTE</p><p style='color:#1a0a00;font-size:15px;font-weight:bold;margin:0 0 4px;'>"+(fid.titre||"Carte fidélité")+"</p><p style='color:rgba(0,0,0,0.6);font-size:12px;margin:0 0 14px;'>"+(fid.description||"")+"</p>";
+        var grid=document.createElement("div");grid.style.cssText="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:12px;";
+        for(var t=0;t<max;t++){var s=document.createElement("div");s.style.cssText="width:36px;height:36px;border-radius:50%;background:"+(t<3?"#1a0a00":"rgba(0,0,0,0.2)")+";display:flex;align-items:center;justify-content:center;font-size:16px;";s.textContent=t<3?"🌿":"";grid.appendChild(s);}
+        apercuDiv.appendChild(grid);
+        apercuDiv.innerHTML+="<p style='color:#1a0a00;font-size:12px;margin:0;'>3/"+max+" tampons • Récompense : "+(fid.recompense||"")+"</p>";
+        // Insérer avant clientesTitle
+        var existing=document.getElementById("apercu-carte");
+        if(existing)existing.remove();
+        apercuDiv.id="apercu-carte";
+        saveConfigBtn.parentNode.insertBefore(apercuDiv, saveConfigBtn);
+      };
+      box.appendChild(apercuBtn);
 
       // Liste clientes avec leurs cartes
       var clientesTitle = document.createElement("p"); clientesTitle.style.cssText="color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 10px;letter-spacing:1px;"; clientesTitle.textContent="👥 CARTES DE MES CLIENTES"; box.appendChild(clientesTitle);
