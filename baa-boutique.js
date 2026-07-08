@@ -742,6 +742,25 @@ function openGestionBoutique() {
           infoEl.innerHTML = "<p style='color:#3a3a3a;font-size:13px;margin:0 0 1px;'>" + prod.nom + "</p><p style='color:#c9a86a;font-size:12px;font-weight:bold;margin:0;'>" + prod.prix.toFixed(2) + " €</p>";
           pDiv.appendChild(checkEl); pDiv.appendChild(infoEl);
 
+          // Champs modifiables nom et prix
+          var editRow = document.createElement("div");
+          editRow.style.cssText = "padding:4px 14px 8px 52px;background:white;display:flex;gap:6px;align-items:center;";
+          var nomEdit = document.createElement("input"); nomEdit.value = (b.nomsCustom && b.nomsCustom[photoKey]) || prod.nom; nomEdit.placeholder = "Nom"; nomEdit.style.cssText = "flex:1;padding:6px 8px;border:1px solid #e8d4b0;border-radius:6px;font-size:12px;";
+          var prixEdit = document.createElement("input"); prixEdit.type="number"; prixEdit.step="0.01"; prixEdit.value = (b.prixCustom && b.prixCustom[photoKey]) || prod.prix.toFixed(2); prixEdit.placeholder="Prix"; prixEdit.style.cssText="width:70px;padding:6px 8px;border:1px solid #e8d4b0;border-radius:6px;font-size:12px;";
+          var saveEditBtn = document.createElement("button"); saveEditBtn.textContent="✓"; saveEditBtn.style.cssText="background:#c9a86a;color:#1a0a00;border:none;padding:6px 10px;border-radius:6px;font-size:13px;font-weight:bold;cursor:pointer;touch-action:manipulation;";
+          saveEditBtn.addEventListener("touchend",function(e){e.preventDefault();e.stopPropagation();doSaveEdit();},{passive:false});
+          saveEditBtn.onclick=function(e){e.stopPropagation();doSaveEdit();};
+          function doSaveEdit(){
+            if(!b.nomsCustom)b.nomsCustom={};
+            if(!b.prixCustom)b.prixCustom={};
+            b.nomsCustom[photoKey]=nomEdit.value.trim()||prod.nom;
+            b.prixCustom[photoKey]=parseFloat(prixEdit.value)||prod.prix;
+            infoEl.innerHTML="<p style='color:#3a3a3a;font-size:13px;margin:0 0 1px;'>"+b.nomsCustom[photoKey]+"</p><p style='color:#c9a86a;font-size:12px;font-weight:bold;margin:0;'>"+b.prixCustom[photoKey].toFixed(2)+" €</p>";
+            saveEditBtn.textContent="✅"; setTimeout(function(){saveEditBtn.textContent="✓";},1500);
+          }
+          nomEdit.addEventListener("touchstart",function(e){e.stopPropagation();},{passive:true});
+          prixEdit.addEventListener("touchstart",function(e){e.stopPropagation();},{passive:true});
+          editRow.appendChild(nomEdit); editRow.appendChild(prixEdit); editRow.appendChild(saveEditBtn);
           // Champs description et ingrédients
           var infoRow = document.createElement("div");
           infoRow.style.cssText = "padding:6px 14px 8px 52px;background:white;border-bottom:none;";
@@ -1103,7 +1122,9 @@ function openGestionBoutique() {
         var copyBtn=document.createElement("button");copyBtn.textContent="📋 Copier";copyBtn.style.cssText="flex:1;background:#c9a86a;color:#1a0a00;border:none;padding:9px;border-radius:8px;font-size:13px;font-weight:bold;cursor:pointer;touch-action:manipulation;";
         copyBtn.onclick=function(){navigator.clipboard&&navigator.clipboard.writeText(lien).then(function(){copyBtn.textContent="✅ Copié!";setTimeout(function(){copyBtn.textContent="📋 Copier";},2000);});};
         var shareBtn=document.createElement("button");shareBtn.textContent="📤 Partager";shareBtn.style.cssText="flex:1;background:white;color:#8b735d;border:1px solid #e8d4b0;padding:9px;border-radius:8px;font-size:13px;font-weight:bold;cursor:pointer;touch-action:manipulation;";
-        shareBtn.onclick=function(){navigator.share&&navigator.share({title:d.titre||"Mon panier Mihi",text:d.note||"Voici ma sélection !",url:lien});};
+        var doShare=function(){if(navigator.share){navigator.share({title:d.titre||"Mon panier Mihi",text:d.note||"Voici ma selection !",url:lien});}else{navigator.clipboard&&navigator.clipboard.writeText(lien).then(function(){shareBtn.textContent="✅ Copie!";setTimeout(function(){shareBtn.textContent="📤 Partager";},2000);});}};
+        shareBtn.addEventListener("touchend",function(e){e.preventDefault();doShare();},{passive:false});
+        shareBtn.onclick=doShare;
         var delBtn=document.createElement("button");delBtn.textContent="🗑️";delBtn.style.cssText="background:#fee;color:#e74c3c;border:1px solid #e74c3c;padding:9px 12px;border-radius:8px;font-size:13px;cursor:pointer;touch-action:manipulation;";
         delBtn.onclick=function(){if(confirm("Supprimer ce panier ?")){firebase.firestore().collection("paniers_partages").doc(doc.id).delete().then(function(){card.remove();});}};
         rowBtns.appendChild(copyBtn);rowBtns.appendChild(shareBtn);rowBtns.appendChild(delBtn);card.appendChild(rowBtns);container.appendChild(card);
