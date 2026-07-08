@@ -350,6 +350,7 @@ function openGestionBoutique() {
     else if (state.step === "clientes") renderClientes();
     else if (state.step === "panier-partage") renderPanierPartage();
     else if (state.step === "client-detail") renderClientDetail();
+    else if (state.step === "ajouter-produit") renderAjouterProduit();
   }
 
   function renderMenu() {
