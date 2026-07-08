@@ -352,6 +352,8 @@ function openGestionBoutique() {
     else if (state.step === "client-detail") renderClientDetail();
     else if (state.step === "fidelite") renderFidelite();
     else if (state.step === "fidelite-cliente") renderFideliteCliente();
+    else if (state.step === "recrutement") renderRecrutement();
+    else if (state.step === "prospects") renderProspects();
     else if (state.step === "ajouter-produit") renderAjouterProduit();
   }
 
@@ -373,6 +375,8 @@ function openGestionBoutique() {
         { icon:"🛒", label:"Créer un panier partagé", sub:"Envoyer un panier prêt à commander", step:"panier-partage" },
         { icon:"🎁", label:"Carte de fidélité", sub:"Tampons et récompenses clientes", step:"fidelite" },
         { icon:"🔗", label:"Mon lien boutique", sub:"Partager avec mes clientes", step:"lien" },
+        { icon:"🎯", label:"Mon tunnel recrutement", sub:"Attirer et convertir des prospects", step:"recrutement" },
+        { icon:"👥", label:"Mes prospects", sub:"Gérer les demandes reçues", step:"prospects" },
       ];
 
       btns.forEach(function(btn) {
@@ -964,6 +968,91 @@ function openGestionBoutique() {
     var back=document.createElement("button");back.textContent="← Retour";back.style.cssText="background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;width:100%;";
     back.onclick=function(){state.boutique=b;state.step="produits";render();};box.appendChild(back);
     var ios=document.createElement("div");ios.style.height="60px";box.appendChild(ios);
+  }
+
+  function renderRecrutement() {
+    var user = firebase.auth().currentUser; if (!user) return;
+    chargerBoutique(function(b) {
+      var lien = "https://baa-recrutement.vercel.app/?uid=" + user.uid;
+
+      var titre=document.createElement("p");titre.style.cssText="color:#8b735d;font-size:15px;font-weight:bold;margin:0 0 6px;";titre.textContent="🎯 Mon tunnel recrutement";box.appendChild(titre);
+      var sub=document.createElement("p");sub.style.cssText="color:#999;font-size:12px;margin:0 0 16px;line-height:1.5;";sub.textContent="Une page personnalisée qui présente l'opportunité Mihi avec ta boutique en démo, le simulateur de revenus et un formulaire de contact.";box.appendChild(sub);
+
+      // Aperçu lien
+      var lienBox=document.createElement("div");lienBox.style.cssText="background:white;border:2px solid #c9a86a;border-radius:12px;padding:16px;margin-bottom:12px;";
+      lienBox.innerHTML="<p style='color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;'>🔗 TON LIEN RECRUTEMENT</p><p style='color:#3a3a3a;font-size:12px;word-break:break-all;background:#f8f3ee;padding:8px;border-radius:8px;margin-bottom:10px;'>"+lien+"</p>";
+
+      var copyBtn=document.createElement("button");copyBtn.textContent="📋 Copier le lien";copyBtn.style.cssText="width:100%;background:#c9a86a;color:#1a0a00;border:none;padding:12px;border-radius:10px;font-weight:bold;font-size:14px;cursor:pointer;margin-bottom:8px;touch-action:manipulation;";
+      var doCopy=function(){navigator.clipboard&&navigator.clipboard.writeText(lien).then(function(){copyBtn.textContent="✅ Copié !";setTimeout(function(){copyBtn.textContent="📋 Copier le lien";},2000);});};
+      copyBtn.addEventListener("touchend",function(e){e.preventDefault();doCopy();},{passive:false});copyBtn.onclick=doCopy;
+      lienBox.appendChild(copyBtn);
+
+      if(navigator.share){
+        var shareBtn=document.createElement("button");shareBtn.textContent="📤 Partager directement";shareBtn.style.cssText="width:100%;background:white;color:#8b735d;border:1px solid #e8d4b0;padding:12px;border-radius:10px;font-weight:bold;font-size:13px;cursor:pointer;touch-action:manipulation;";
+        var doShare=function(){navigator.share({title:"Rejoins mon équipe Mihi !",text:"Découvre comment créer ta boutique beauté en ligne gratuitement !",url:lien});};
+        shareBtn.addEventListener("touchend",function(e){e.preventDefault();doShare();},{passive:false});shareBtn.onclick=doShare;
+        lienBox.appendChild(shareBtn);
+      }
+      box.appendChild(lienBox);
+
+      // Ce que contient la page
+      var contenuCard=document.createElement("div");contenuCard.style.cssText="background:white;border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid #e8d4b0;";
+      contenuCard.innerHTML="<p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 10px;'>📄 Ce que verra ta prospect</p>";
+      var items=["👀 Ta boutique en démo cliquable","✨ Tous les avantages Mihi","💰 Simulateur de revenus interactif","🏆 Les paliers et commissions réels","💬 Témoignages de l'équipe","📝 Formulaire de contact → tu reçois un email"];
+      items.forEach(function(item){var p=document.createElement("p");p.style.cssText="color:#555;font-size:13px;margin-bottom:6px;";p.textContent=item;contenuCard.appendChild(p);});
+      box.appendChild(contenuCard);
+
+      // Conseil utilisation
+      var conseilCard=document.createElement("div");conseilCard.style.cssText="background:#f0f4ff;border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid #2980B9;";
+      conseilCard.innerHTML="<p style='color:#2980B9;font-size:13px;font-weight:bold;margin:0 0 8px;'>💡 Comment l'utiliser</p><p style='color:#555;font-size:12px;line-height:1.6;'>• Partage ce lien en story Facebook/Instagram<br>• Envoie-le en message privé à des prospects<br>• Ajoute-le dans ta bio Instagram<br>• Utilise-le après un live pour les intéressées<br>• Envoie-le quand quelqu'un te demande comment ça marche</p>";
+      box.appendChild(conseilCard);
+
+      var back=document.createElement("button");back.textContent="← Retour";back.style.cssText="background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;width:100%;margin-top:8px;padding-bottom:40px;";
+      back.onclick=function(){state.step="menu";render();};box.appendChild(back);
+    });
+  }
+
+  function renderProspects() {
+    var user = firebase.auth().currentUser; if (!user) return;
+    var titre=document.createElement("p");titre.style.cssText="color:#8b735d;font-size:15px;font-weight:bold;margin:0 0 16px;";titre.textContent="👥 Mes prospects recrutement";box.appendChild(titre);
+
+    var loading=document.createElement("p");loading.style.cssText="color:#999;font-size:13px;text-align:center;padding:20px;";loading.textContent="Chargement...";box.appendChild(loading);
+
+    firebase.firestore().collection("prospects_recrutement").where("boutiqueUid","==",user.uid).orderBy("date","desc").get().then(function(snap) {
+      box.removeChild(loading);
+      if(snap.empty){
+        var empty=document.createElement("div");empty.style.cssText="text-align:center;padding:40px 0;";
+        empty.innerHTML="<p style='font-size:40px;margin-bottom:12px;'>🎯</p><p style='color:#999;font-size:14px;'>Aucun prospect pour l'instant.<br>Partage ton lien recrutement pour en recevoir !</p>";
+        box.appendChild(empty);return;
+      }
+
+      var nb=document.createElement("p");nb.style.cssText="color:#999;font-size:12px;margin-bottom:12px;";nb.textContent=snap.size+" prospect(s) au total";box.appendChild(nb);
+
+      snap.forEach(function(doc){
+        var p=doc.data(); p.id=doc.id;
+        var card=document.createElement("div");card.style.cssText="background:white;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8d4b0;";
+        var date=p.date?new Date(p.date).toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"}):"";
+        var statutColor=p.statut==="converti"?"#27AE60":p.statut==="en_cours"?"#f39c12":"#2980B9";
+        var statutLabel=p.statut==="converti"?"✅ Converti":p.statut==="en_cours"?"⏳ En cours":"🆕 Nouveau";
+        card.innerHTML="<div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;'><div><p style='color:#3a3a3a;font-size:14px;font-weight:bold;margin:0 0 2px;'>👤 "+p.prenom+" "+p.nom+"</p><p style='color:#999;font-size:11px;margin:0;'>"+date+"</p></div><span style='background:"+statutColor+"20;color:"+statutColor+";border:1px solid "+statutColor+";padding:3px 8px;border-radius:6px;font-size:11px;font-weight:bold;'>"+statutLabel+"</span></div>";
+        if(p.motiv){card.innerHTML+="<p style='color:#666;font-size:12px;font-style:italic;margin:0 0 10px;line-height:1.5;'>"+p.motiv+"</p>";}
+        
+        var btnRow=document.createElement("div");btnRow.style.cssText="display:flex;gap:8px;flex-wrap:wrap;";
+        if(p.tel){var telBtn=document.createElement("a");telBtn.href="tel:"+p.tel;telBtn.style.cssText="flex:1;background:#e6f7ec;color:#27AE60;border:1px solid #27AE60;padding:8px;border-radius:8px;text-align:center;text-decoration:none;font-size:12px;font-weight:bold;";telBtn.textContent="📞 Appeler";btnRow.appendChild(telBtn);}
+        if(p.email){var mailBtn=document.createElement("a");mailBtn.href="mailto:"+p.email;mailBtn.style.cssText="flex:1;background:#f0f4ff;color:#2980B9;border:1px solid #2980B9;padding:8px;border-radius:8px;text-align:center;text-decoration:none;font-size:12px;font-weight:bold;";mailBtn.textContent="📧 Email";btnRow.appendChild(mailBtn);}
+
+        // Changer statut
+        var statutSel=document.createElement("select");statutSel.style.cssText="flex:1;padding:8px;border:1px solid #e8d4b0;border-radius:8px;font-size:12px;background:white;";
+        [["nouveau","🆕 Nouveau"],["en_cours","⏳ En cours"],["converti","✅ Converti"]].forEach(function(s){var opt=document.createElement("option");opt.value=s[0];opt.textContent=s[1];if(p.statut===s[0])opt.selected=true;statutSel.appendChild(opt);});
+        statutSel.onchange=function(){firebase.firestore().collection("prospects_recrutement").doc(p.id).update({statut:statutSel.value});};
+        btnRow.appendChild(statutSel);
+        card.appendChild(btnRow);
+        box.appendChild(card);
+      });
+    }).catch(function(e){loading.textContent="Erreur: "+e.message;});
+
+    var back=document.createElement("button");back.textContent="← Retour";back.style.cssText="background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;width:100%;margin-top:8px;padding-bottom:40px;";
+    back.onclick=function(){state.step="menu";render();};box.appendChild(back);
   }
 
   function renderFidelite() {
