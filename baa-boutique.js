@@ -324,7 +324,7 @@ function openGestionBoutique() {
     if (!user) return;
     data.uid = user.uid;
     data.updatedAt = new Date().toISOString();
-    firebase.firestore().collection("boutiques").doc(user.uid).set(data).then(cb).catch(cb);
+    firebase.firestore().collection("boutiques").doc(user.uid).set(data, {merge:true}).then(cb).catch(cb);
   }
 
   function render() {
