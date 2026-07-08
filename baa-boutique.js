@@ -350,6 +350,8 @@ function openGestionBoutique() {
     else if (state.step === "clientes") renderClientes();
     else if (state.step === "panier-partage") renderPanierPartage();
     else if (state.step === "client-detail") renderClientDetail();
+    else if (state.step === "fidelite") renderFidelite();
+    else if (state.step === "fidelite-cliente") renderFideliteCliente();
     else if (state.step === "ajouter-produit") renderAjouterProduit();
   }
 
@@ -369,6 +371,7 @@ function openGestionBoutique() {
         { icon:"👥", label:"Mes clientes", sub:"Commandes et historique", step:"clientes" },
         { icon:"📊", label:"Mes statistiques", sub:"Visites, paniers, commandes", step:"stats" },
         { icon:"🛒", label:"Créer un panier partagé", sub:"Envoyer un panier prêt à commander", step:"panier-partage" },
+        { icon:"🎁", label:"Carte de fidélité", sub:"Tampons et récompenses clientes", step:"fidelite" },
         { icon:"🔗", label:"Mon lien boutique", sub:"Partager avec mes clientes", step:"lien" },
       ];
 
@@ -961,6 +964,121 @@ function openGestionBoutique() {
     var back=document.createElement("button");back.textContent="← Retour";back.style.cssText="background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;width:100%;";
     back.onclick=function(){state.boutique=b;state.step="produits";render();};box.appendChild(back);
     var ios=document.createElement("div");ios.style.height="60px";box.appendChild(ios);
+  }
+
+  function renderFidelite() {
+    var user = firebase.auth().currentUser; if (!user) return;
+    var titre = document.createElement("p"); titre.style.cssText="color:#8b735d;font-size:15px;font-weight:bold;margin:0 0 6px;"; titre.textContent="🎁 Carte de fidélité"; box.appendChild(titre);
+    var sub = document.createElement("p"); sub.style.cssText="color:#999;font-size:12px;margin:0 0 16px;line-height:1.5;"; sub.textContent="Configurez votre programme de fidélité et gérez les cartes de vos clientes."; box.appendChild(sub);
+
+    chargerBoutique(function(b) {
+      var fid = b.fidelite || { actif:false, tamponsMax:10, recompense:"Un produit offert au choix", titre:"Ma carte fidélité", description:"Cumulez des tampons à chaque commande !" };
+
+      // Toggle activer/désactiver
+      var toggleDiv = document.createElement("div"); toggleDiv.style.cssText="display:flex;align-items:center;justify-content:space-between;background:white;border:1px solid #e8d4b0;border-radius:12px;padding:14px;margin-bottom:12px;";
+      toggleDiv.innerHTML="<div><p style='color:#3a3a3a;font-size:14px;font-weight:bold;margin:0 0 2px;'>Programme de fidélité</p><p style='color:#999;font-size:12px;margin:0;'>"+(fid.actif?"Activé pour votre boutique":"Désactivé")+"</p></div>";
+      var toggleBtn = document.createElement("button"); toggleBtn.textContent = fid.actif ? "✅ Actif" : "⭕ Inactif";
+      toggleBtn.style.cssText="background:"+(fid.actif?"#e6f7ec":"#fee")+";color:"+(fid.actif?"#27AE60":"#e74c3c")+";border:1px solid "+(fid.actif?"#27AE60":"#e74c3c")+";padding:8px 14px;border-radius:8px;font-size:13px;font-weight:bold;cursor:pointer;touch-action:manipulation;";
+      toggleBtn.onclick=function(){fid.actif=!fid.actif;b.fidelite=fid;sauvegarderBoutique(b,function(){state.boutique=null;state.step="fidelite";render();});};
+      toggleDiv.appendChild(toggleBtn); box.appendChild(toggleDiv);
+
+      // Config
+      var configDiv = document.createElement("div"); configDiv.style.cssText="background:#f8f3ee;border-radius:12px;padding:14px;margin-bottom:14px;border:1px solid #e8d4b0;";
+      configDiv.innerHTML="<p style='color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 10px;letter-spacing:1px;'>⚙️ CONFIGURATION</p>";
+
+      var fields = [
+        {label:"Titre de la carte", key:"titre", placeholder:"Ex: Ma carte fidélité Beauty", type:"text"},
+        {label:"Description", key:"description", placeholder:"Ex: Cumulez des tampons à chaque commande !", type:"text"},
+        {label:"Nombre de tampons pour la récompense", key:"tamponsMax", placeholder:"Ex: 10", type:"number"},
+        {label:"Récompense", key:"recompense", placeholder:"Ex: Un produit offert au choix", type:"text"},
+      ];
+      var inputs = {};
+      fields.forEach(function(f) {
+        var lbl=document.createElement("p");lbl.style.cssText="color:#8b735d;font-size:11px;font-weight:bold;margin:0 0 3px;";lbl.textContent=f.label;configDiv.appendChild(lbl);
+        var inp=document.createElement("input");inp.type=f.type;inp.value=fid[f.key]||"";inp.placeholder=f.placeholder;inp.style.cssText="width:100%;padding:9px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:8px;";
+        inp.addEventListener("touchstart",function(e){e.stopPropagation();},{passive:true});
+        inputs[f.key]=inp;configDiv.appendChild(inp);
+      });
+      box.appendChild(configDiv);
+
+      var saveConfigBtn = document.createElement("button"); saveConfigBtn.textContent="💾 Sauvegarder la configuration"; saveConfigBtn.style.cssText="width:100%;background:#c9a86a;color:#1a0a00;border:none;padding:13px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:14px;margin-bottom:16px;touch-action:manipulation;";
+      saveConfigBtn.onclick=function(){
+        fields.forEach(function(f){fid[f.key]=f.type==="number"?parseInt(inputs[f.key].value)||10:inputs[f.key].value.trim();});
+        b.fidelite=fid; sauvegarderBoutique(b,function(){alert("✅ Configuration sauvegardée !");state.boutique=null;});
+      };
+      box.appendChild(saveConfigBtn);
+
+      // Liste clientes avec leurs cartes
+      var clientesTitle = document.createElement("p"); clientesTitle.style.cssText="color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 10px;letter-spacing:1px;"; clientesTitle.textContent="👥 CARTES DE MES CLIENTES"; box.appendChild(clientesTitle);
+      var clientesDiv = document.createElement("div"); clientesDiv.innerHTML="<p style='color:#999;font-size:13px;text-align:center;padding:16px;'>Chargement...</p>"; box.appendChild(clientesDiv);
+
+      firebase.firestore().collection("fidelite_cartes").where("boutiqueUid","==",user.uid).orderBy("updatedAt","desc").get().then(function(snap) {
+        clientesDiv.innerHTML="";
+        if(snap.empty){clientesDiv.innerHTML="<p style='color:#999;font-size:13px;text-align:center;padding:16px;'>Aucune carte créée pour l'instant.<br>Les cartes se créent automatiquement après la première commande.</p>";return;}
+        snap.forEach(function(doc){
+          var carte=doc.data(); carte.id=doc.id;
+          var nb=carte.tampons||0; var max=fid.tamponsMax||10;
+          var card=document.createElement("button");card.style.cssText="width:100%;background:white;border:1px solid #e8d4b0;border-radius:12px;padding:12px 14px;cursor:pointer;text-align:left;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;touch-action:manipulation;";
+          var pct=Math.min(Math.round(nb/max*100),100);
+          card.innerHTML="<div style='flex:1;'><p style='color:#3a3a3a;font-size:13px;font-weight:bold;margin:0 0 4px;'>👤 "+carte.clientNom+"</p><div style='background:#f0e6d3;border-radius:4px;height:6px;margin-bottom:4px;'><div style='background:#c9a86a;width:"+pct+"%;height:6px;border-radius:4px;'></div></div><p style='color:#999;font-size:11px;margin:0;'>"+nb+"/"+max+" tampons"+(nb>=max?" 🎉 Récompense gagnée !":"")+"</p></div><span style='color:#c9a86a;font-size:20px;margin-left:10px;'>›</span>";
+          card.onclick=function(){state.carteDetail=carte;state.boutique=b;state.step="fidelite-cliente";render();};
+          clientesDiv.appendChild(card);
+        });
+      }).catch(function(){clientesDiv.innerHTML="<p style='color:#999;font-size:13px;text-align:center;padding:10px;'>Créez d'abord un index Firebase si demandé.</p>";});
+    });
+
+    var back=document.createElement("button");back.textContent="← Retour";back.style.cssText="background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;width:100%;margin-top:8px;padding-bottom:40px;";
+    back.onclick=function(){state.step="menu";render();};box.appendChild(back);
+  }
+
+  function renderFideliteCliente() {
+    var carte = state.carteDetail; if(!carte){state.step="fidelite";render();return;}
+    var b = state.boutique; if(!b){state.step="fidelite";render();return;}
+    var fid = b.fidelite||{tamponsMax:10,recompense:"Un produit offert"};
+
+    var titre=document.createElement("p");titre.style.cssText="color:#8b735d;font-size:15px;font-weight:bold;margin:0 0 16px;";titre.textContent="🎁 Carte de "+carte.clientNom;box.appendChild(titre);
+
+    // Visuel carte
+    var carteDiv=document.createElement("div");carteDiv.style.cssText="background:linear-gradient(135deg,#c9a86a,#f5d48a);border-radius:16px;padding:20px;margin-bottom:16px;text-align:center;";
+    var nb=carte.tampons||0;var max=fid.tamponsMax||10;
+    carteDiv.innerHTML="<p style='color:#1a0a00;font-size:14px;font-weight:bold;margin:0 0 4px;'>"+(fid.titre||"Carte fidélité")+"</p><p style='color:rgba(0,0,0,0.6);font-size:12px;margin:0 0 14px;'>"+carte.clientNom+" • "+carte.clientEmail+"</p>";
+    var tamponsGrid=document.createElement("div");tamponsGrid.style.cssText="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:12px;";
+    for(var t=0;t<max;t++){var stamp=document.createElement("div");stamp.style.cssText="width:36px;height:36px;border-radius:50%;background:"+(t<nb?"#1a0a00":"rgba(0,0,0,0.2)")+";display:flex;align-items:center;justify-content:center;font-size:16px;";stamp.textContent=t<nb?"🌿":"";tamponsGrid.appendChild(stamp);}
+    carteDiv.appendChild(tamponsGrid);
+    carteDiv.innerHTML+="<p style='color:#1a0a00;font-size:13px;font-weight:bold;margin:0;'>"+nb+"/"+max+" tampons</p>";
+    if(nb>=max)carteDiv.innerHTML+="<p style='color:#1a0a00;font-size:14px;font-weight:bold;margin:8px 0 0;'>🎉 "+fid.recompense+" !</p>";
+    box.appendChild(carteDiv);
+
+    // Actions
+    var actionsDiv=document.createElement("div");actionsDiv.style.cssText="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;";
+
+    var addBtn=document.createElement("button");addBtn.textContent="➕ Ajouter un tampon";addBtn.style.cssText="width:100%;background:#e6f7ec;color:#27AE60;border:1px solid #27AE60;padding:12px;border-radius:12px;font-weight:bold;font-size:14px;cursor:pointer;touch-action:manipulation;";
+    addBtn.onclick=function(){
+      firebase.firestore().collection("fidelite_cartes").doc(carte.id).update({tampons:firebase.firestore.FieldValue.increment(1),updatedAt:new Date().toISOString()}).then(function(){carte.tampons=(carte.tampons||0)+1;state.carteDetail=carte;render();});
+    };
+
+    var removeBtn=document.createElement("button");removeBtn.textContent="➖ Retirer un tampon";removeBtn.style.cssText="width:100%;background:#fee;color:#e74c3c;border:1px solid #e74c3c;padding:12px;border-radius:12px;font-weight:bold;font-size:14px;cursor:pointer;touch-action:manipulation;";
+    removeBtn.onclick=function(){
+      if((carte.tampons||0)<=0)return;
+      firebase.firestore().collection("fidelite_cartes").doc(carte.id).update({tampons:firebase.firestore.FieldValue.increment(-1),updatedAt:new Date().toISOString()}).then(function(){carte.tampons=(carte.tampons||1)-1;state.carteDetail=carte;render();});
+    };
+
+    var resetBtn=document.createElement("button");resetBtn.textContent="🔄 Remettre à zéro (récompense utilisée)";resetBtn.style.cssText="width:100%;background:white;color:#8b735d;border:1px solid #e8d4b0;padding:12px;border-radius:12px;font-size:13px;cursor:pointer;touch-action:manipulation;";
+    resetBtn.onclick=function(){
+      if(confirm("Remettre la carte à zéro ?")){firebase.firestore().collection("fidelite_cartes").doc(carte.id).update({tampons:0,updatedAt:new Date().toISOString()}).then(function(){carte.tampons=0;state.carteDetail=carte;render();});}
+    };
+
+    var toggleBtn=document.createElement("button");toggleBtn.textContent=carte.actif===false?"🔓 Réactiver la carte":"🔒 Désactiver cette carte";toggleBtn.style.cssText="width:100%;background:white;color:#8b735d;border:1px solid #e8d4b0;padding:12px;border-radius:12px;font-size:13px;cursor:pointer;touch-action:manipulation;";
+    toggleBtn.onclick=function(){
+      var newActif=carte.actif===false?true:false;
+      firebase.firestore().collection("fidelite_cartes").doc(carte.id).update({actif:newActif,updatedAt:new Date().toISOString()}).then(function(){carte.actif=newActif;state.carteDetail=carte;render();});
+    };
+
+    actionsDiv.appendChild(addBtn);actionsDiv.appendChild(removeBtn);actionsDiv.appendChild(resetBtn);actionsDiv.appendChild(toggleBtn);
+    box.appendChild(actionsDiv);
+
+    var back=document.createElement("button");back.textContent="← Retour aux cartes";back.style.cssText="background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;width:100%;margin-top:4px;padding-bottom:40px;";
+    back.onclick=function(){state.step="fidelite";render();};box.appendChild(back);
   }
 
   function renderPanierPartage() {
