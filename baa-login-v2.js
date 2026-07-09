@@ -604,8 +604,36 @@ function initBeautyAddictLogin() {
                 
                 // Voir preuves
                 var voirBtn=document.createElement("button");voirBtn.textContent="👁️ Voir les preuves";voirBtn.style.cssText="flex:1;background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;touch-action:manipulation;";
-                voirBtn.onclick=function(){window.ouvrirChallengeAdmin&&window.ouvrirChallengeAdmin(docSnap.id,ch);};
+                voirBtn.onclick=(function(id,data){return function(){
+                  if(window.ouvrirChallengeAdmin){window.ouvrirChallengeAdmin(id,data);}
+                  else{alert("Rechargez la page pour voir les preuves.");}
+                };})(docSnap.id,ch);
                 btnRow.appendChild(voirBtn);
+
+                // Bouton rappel email
+                var rappelBtn=document.createElement("button");rappelBtn.textContent="📧 Rappel email";rappelBtn.style.cssText="flex:1;background:#f0f4ff;color:#2980B9;border:1px solid #2980B9;padding:8px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;touch-action:manipulation;";
+                rappelBtn.onclick=(function(data){return async function(){
+                  if(!confirm("Envoyer un email de rappel à toutes les membres actives ?")) return;
+                  rappelBtn.disabled=true;rappelBtn.textContent="⏳ Envoi...";
+                  try{
+                    var uSnap=await db.collection("users").where("actif","==",true).get();
+                    uSnap.forEach(function(uDoc){
+                      var u=uDoc.data();
+                      if(u.email){
+                        emailjs.send("service_wr9mlhk","template_nkfnrnd",{
+                          vdi_prenom:u.prenom||"",to_email:u.email,
+                          client_nom:"",client_prenom:u.prenom||"",
+                          client_adresse:"",client_tel:"",client_email:u.email,
+                          commande_detail:"🏆 RAPPEL CHALLENGE ÉQUIPE\n\n"+data.titre+"\n\n"+(data.description||"")+"\n\nN'oublie pas de déposer tes preuves dans l'académie !",
+                          total:"Challenge Équipe"
+                        });
+                      }
+                    });
+                    rappelBtn.textContent="✅ Envoyé !";rappelBtn.style.background="#27AE60";rappelBtn.style.color="white";
+                    setTimeout(function(){rappelBtn.textContent="📧 Rappel email";rappelBtn.style.background="#f0f4ff";rappelBtn.style.color="#2980B9";rappelBtn.disabled=false;},3000);
+                  }catch(e){rappelBtn.textContent="❌ Erreur";rappelBtn.disabled=false;}
+                };})(ch);
+                btnRow.appendChild(rappelBtn);
 
                 if(ch.actif){
                   // Arrêter
