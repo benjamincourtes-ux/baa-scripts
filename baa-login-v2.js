@@ -617,21 +617,38 @@ function initBeautyAddictLogin() {
                   rappelBtn.disabled=true;rappelBtn.textContent="⏳ Envoi...";
                   try{
                     var uSnap=await db.collection("users").where("actif","==",true).get();
+                    var count=0;
+                    var promises=[];
                     uSnap.forEach(function(uDoc){
                       var u=uDoc.data();
                       if(u.email){
-                        emailjs.send("service_wr9mlhk","template_nkfnrnd",{
-                          vdi_prenom:u.prenom||"",to_email:u.email,
-                          client_nom:"",client_prenom:u.prenom||"",
-                          client_adresse:"",client_tel:"",client_email:u.email,
-                          commande_detail:"🏆 RAPPEL CHALLENGE ÉQUIPE\n\n"+data.titre+"\n\n"+(data.description||"")+"\n\nN'oublie pas de déposer tes preuves dans l'académie !",
-                          total:"Challenge Équipe"
-                        });
+                        count++;
+                        promises.push(fetch("https://api.emailjs.com/api/v1.0/email/send",{
+                          method:"POST",
+                          headers:{"Content-Type":"application/json"},
+                          body:JSON.stringify({
+                            service_id:"service_wr9mlhk",
+                            template_id:"template_nkfnrnd",
+                            user_id:"D_JtKhPDgOQWi_ECO",
+                            template_params:{
+                              vdi_prenom:u.prenom||"",
+                              to_email:u.email,
+                              client_nom:"",
+                              client_prenom:u.prenom||"",
+                              client_adresse:"",
+                              client_tel:"",
+                              client_email:u.email,
+                              commande_detail:"🏆 CHALLENGE EQUIPE\n\n"+data.titre+"\n\n"+(data.description||"")+"\n\nN'oublie pas de deposer tes preuves dans l'academie !",
+                              total:"Challenge Equipe"
+                            }
+                          })
+                        }));
                       }
                     });
-                    rappelBtn.textContent="✅ Envoyé !";rappelBtn.style.background="#27AE60";rappelBtn.style.color="white";
-                    setTimeout(function(){rappelBtn.textContent="📧 Rappel email";rappelBtn.style.background="#f0f4ff";rappelBtn.style.color="#2980B9";rappelBtn.disabled=false;},3000);
-                  }catch(e){rappelBtn.textContent="❌ Erreur";rappelBtn.disabled=false;}
+                    await Promise.all(promises);
+                    rappelBtn.textContent="✅ "+count+" email(s) envoyé(s) !";rappelBtn.style.background="#27AE60";rappelBtn.style.color="white";rappelBtn.style.borderColor="#27AE60";
+                    setTimeout(function(){rappelBtn.textContent="📧 Rappel email";rappelBtn.style.background="#f0f4ff";rappelBtn.style.color="#2980B9";rappelBtn.style.borderColor="#2980B9";rappelBtn.disabled=false;},3000);
+                  }catch(e){console.log("Erreur rappel:",e);rappelBtn.textContent="❌ Erreur";rappelBtn.disabled=false;}
                 };})(ch);
                 btnRow.appendChild(rappelBtn);
 
