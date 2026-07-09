@@ -557,6 +557,34 @@ function initBeautyAddictLogin() {
                 actif:true,dateFin:dateFin,
                 createdAt:new Date().toISOString(),gagnantes:[]
               });
+
+              // Notification Telegram
+              try {
+                var msg = "🏆 <b>NOUVEAU CHALLENGE ÉQUIPE !</b>\n\n<b>"+titreInp.value.trim()+"</b>\n\n"+descInp.value.trim()+"\n\n⏳ Durée : "+duree+" "+unit+"\n\n📱 Connectez-vous à l'académie pour participer !";
+                fetch("https://api.telegram.org/bot8890784714:AAH4ngpfizl2OhHZTeim1aOldC_mGRBMSso/sendMessage",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chat_id:"-1003902168054",text:msg,parse_mode:"HTML"})});
+              } catch(e) {}
+
+              // Email à tous les membres actifs
+              try {
+                var usersSnap = await db.collection("users").where("actif","==",true).get();
+                usersSnap.forEach(function(uDoc) {
+                  var u = uDoc.data();
+                  if (u.email) {
+                    emailjs.send("service_wr9mlhk","template_nkfnrnd",{
+                      vdi_prenom: u.prenom||"",
+                      to_email: u.email,
+                      client_nom: "",
+                      client_prenom: u.prenom||"",
+                      client_adresse: "",
+                      client_tel: "",
+                      client_email: u.email,
+                      commande_detail: "🏆 NOUVEAU CHALLENGE ÉQUIPE\n\n"+titreInp.value.trim()+"\n\n"+descInp.value.trim()+"\n\nDurée : "+duree+" "+unit+"\n\nConnecte-toi à l'académie pour participer !",
+                      total: "Challenge Équipe"
+                    });
+                  }
+                });
+              } catch(e) {}
+
               lancerBtn.textContent="✅ Publié !";lancerBtn.style.background="#27AE60";
               setTimeout(function(){loadChallenge();},1500);
             };
