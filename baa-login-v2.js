@@ -566,7 +566,7 @@ function initBeautyAddictLogin() {
 
               // Email à tous les membres actifs
               try {
-                var usersSnap = await db.collection("users").where("actif","==",true).get();
+                var usersSnap = await db.collection("users").where("accountStatus","==","active").get();
                 usersSnap.forEach(function(uDoc) {
                   var u = uDoc.data();
                   if (u.email) {
@@ -616,7 +616,7 @@ function initBeautyAddictLogin() {
                   if(!confirm("Envoyer un email de rappel à toutes les membres actives ?")) return;
                   rappelBtn.disabled=true;rappelBtn.textContent="⏳ Envoi...";
                   try{
-                    var uSnap=await db.collection("users").where("actif","==",true).get();
+                    var uSnap=await db.collection("users").where("accountStatus","==","active").get();
                     var count=0;
                     var promises=[];
                     uSnap.forEach(function(uDoc){
