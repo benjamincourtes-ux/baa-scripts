@@ -228,7 +228,7 @@ function initBeautyAddictLogin() {
         panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;justify-content:center;align-items:flex-start;padding-top:60px;";
         const box = document.createElement("div");
         box.style.cssText = "background:#f8f3ee;width:90%;max-width:700px;border-radius:20px;padding:30px;max-height:80vh;overflow-y:auto;font-family:Arial,sans-serif;";
-        box.innerHTML = "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;'><h2 style='color:#8b735d;margin:0;'>Panneau Admin</h2><span id='close-admin' style='cursor:pointer;font-size:28px;color:#8b735d;'>X</span></div><div style='display:flex;gap:10px;margin-bottom:20px;border-bottom:1px solid #e8d4b0;padding-bottom:12px;flex-wrap:wrap;'><button id='tab-pending' style='background:#c9a86a;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>En attente</button><button id='tab-all' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>Tous les membres</button><button id='tab-dashboard' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>Tableau de bord</button><button id='tab-quiz' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>Quiz</button><button id='tab-annonces' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>Annonces</button><button id='tab-defi' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>&#9889; Defi Eclair</button><button id='tab-badges-admin' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>&#127885; Badges</button><button id='tab-assistant-admin' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>&#128037; Assistant IA</button><button id='tab-formations-admin' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>📚 Formations</button></div><div id='admin-members-list'><p style='color:#999;'>Chargement...</p></div>";
+        box.innerHTML = "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;'><h2 style='color:#8b735d;margin:0;'>Panneau Admin</h2><span id='close-admin' style='cursor:pointer;font-size:28px;color:#8b735d;'>X</span></div><div style='display:flex;gap:10px;margin-bottom:20px;border-bottom:1px solid #e8d4b0;padding-bottom:12px;flex-wrap:wrap;'><button id='tab-pending' style='background:#c9a86a;color:white;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>En attente</button><button id='tab-all' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>Tous les membres</button><button id='tab-dashboard' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>Tableau de bord</button><button id='tab-quiz' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>Quiz</button><button id='tab-annonces' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>Annonces</button><button id='tab-defi' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>&#9889; Defi Eclair</button><button id='tab-challenge' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>🏆 Challenge</button><button id='tab-badges-admin' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>&#127885; Badges</button><button id='tab-assistant-admin' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>&#128037; Assistant IA</button><button id='tab-formations-admin' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:bold;'>📚 Formations</button></div><div id='admin-members-list'><p style='color:#999;'>Chargement...</p></div>";
         panel.appendChild(box); document.body.appendChild(panel);
         document.getElementById("close-admin").onclick = function() { panel.remove(); };
         function loadPending() {
@@ -391,6 +391,11 @@ function initBeautyAddictLogin() {
           };
         }
         document.getElementById("tab-annonces").onclick = function() { document.getElementById("tab-annonces").style.cssText += "background:#c9a86a;color:white;border:none;"; document.getElementById("tab-pending").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-all").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-dashboard").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-quiz").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-defi").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; loadAnnonces(); };
+        document.getElementById("tab-challenge").onclick = function() {
+          ["tab-pending","tab-all","tab-dashboard","tab-quiz","tab-annonces","tab-defi","tab-badges-admin","tab-assistant-admin","tab-challenge"].forEach(function(t){var el=document.getElementById(t);if(el)el.style.cssText+="background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;";});
+          document.getElementById("tab-challenge").style.cssText += "background:#c9a86a;color:white;border:none;";
+          loadChallenge();
+        };
         document.getElementById("tab-defi").onclick = function() { document.getElementById("tab-defi").style.cssText += "background:#c9a86a;color:white;border:none;"; document.getElementById("tab-pending").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-all").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-dashboard").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-quiz").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-annonces").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; document.getElementById("tab-badges-admin").style.cssText += "background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;"; loadDefi(); };
         document.getElementById("tab-assistant-admin").onclick = function() {
           document.getElementById("tab-assistant-admin").style.cssText += "background:#c9a86a;color:white;border:none;";
@@ -492,6 +497,124 @@ function initBeautyAddictLogin() {
             });
           });
         }
+        function loadChallenge() {
+          var list = document.getElementById("admin-members-list");
+          list.innerHTML = "<div id='challenge-admin-content'><p style='color:#999;text-align:center;padding:20px;'>Chargement...</p></div>";
+          
+          // Charger les challenges existants
+          db.collection("challenges").orderBy("createdAt","desc").limit(10).get().then(function(snap) {
+            var content2 = document.getElementById("challenge-admin-content");
+            content2.innerHTML = "";
+
+            // Formulaire création
+            var formDiv = document.createElement("div"); formDiv.style.cssText="background:white;border-radius:14px;padding:20px;border:1px solid #e8d4b0;margin-bottom:16px;";
+            formDiv.innerHTML = "<h3 style='color:#8b735d;margin:0 0 14px;font-size:15px;'>🏆 Créer un Challenge Équipe</h3>";
+
+            var titreInp=document.createElement("input");titreInp.placeholder="Titre du challenge";titreInp.style.cssText="width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:10px;";formDiv.appendChild(titreInp);
+            var descInp=document.createElement("textarea");descInp.placeholder="Description, règles, objectif...";descInp.rows=3;descInp.style.cssText="width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:10px;resize:none;";formDiv.appendChild(descInp);
+
+            // Durée
+            var dureeLabel=document.createElement("p");dureeLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;";dureeLabel.textContent="Durée du challenge";formDiv.appendChild(dureeLabel);
+            var dureeRow=document.createElement("div");dureeRow.style.cssText="display:flex;gap:8px;align-items:center;margin-bottom:10px;";
+            var dureeInp=document.createElement("input");dureeInp.type="number";dureeInp.min="1";dureeInp.max="365";dureeInp.value="30";dureeInp.style.cssText="flex:1;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;";
+            var dureeUnit=document.createElement("select");dureeUnit.style.cssText="padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;background:white;";
+            [["jours","jours"],["semaines","semaines"],["mois","mois"]].forEach(function(u){var opt=document.createElement("option");opt.value=u[0];opt.textContent=u[1];dureeUnit.appendChild(opt);});
+            dureeRow.appendChild(dureeInp);dureeRow.appendChild(dureeUnit);formDiv.appendChild(dureeRow);
+
+            // Media upload
+            var mediaLabel=document.createElement("p");mediaLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;";mediaLabel.textContent="Photo ou vidéo (optionnel)";formDiv.appendChild(mediaLabel);
+            var fileInpMedia=document.createElement("input");fileInpMedia.type="file";fileInpMedia.accept="image/*,video/*";fileInpMedia.style.display="none";formDiv.appendChild(fileInpMedia);
+            var mediaBtn=document.createElement("button");mediaBtn.textContent="📎 Ajouter une photo/vidéo";mediaBtn.style.cssText="width:100%;background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:10px;border-radius:8px;cursor:pointer;font-size:13px;margin-bottom:10px;touch-action:manipulation;";
+            mediaBtn.onclick=function(){fileInpMedia.click();};formDiv.appendChild(mediaBtn);
+            var mediaStatus=document.createElement("p");mediaStatus.style.cssText="color:#999;font-size:11px;margin:0 0 10px;";formDiv.appendChild(mediaStatus);
+            var mediaUrl="";var mediaType="";
+            fileInpMedia.onchange=async function(){
+              var f=this.files[0];if(!f)return;
+              mediaStatus.textContent="Upload en cours...";mediaBtn.disabled=true;
+              mediaType=f.type.startsWith("video/")?"video":"image";
+              try{
+                var fd=new FormData();fd.append("file",f);fd.append("upload_preset","baa_avatars");fd.append("folder","challenges");
+                var r=await fetch("https://api.cloudinary.com/v1_1/dxcfq3nyl/"+mediaType+"/upload",{method:"POST",body:fd});
+                var data=await r.json();
+                if(data.secure_url){mediaUrl=data.secure_url;mediaStatus.textContent="✅ "+f.name+" uploadé !";}
+              }catch(e){mediaStatus.textContent="❌ Erreur upload";}
+              mediaBtn.disabled=false;
+            };
+
+            var lancerBtn=document.createElement("button");lancerBtn.textContent="🏆 Publier le Challenge !";lancerBtn.style.cssText="width:100%;background:linear-gradient(135deg,#8b735d,#c9a86a);color:white;border:none;padding:12px;border-radius:10px;cursor:pointer;font-weight:bold;font-size:14px;touch-action:manipulation;";
+            lancerBtn.onclick=async function(){
+              if(!titreInp.value.trim()){alert("Merci d'entrer un titre.");return;}
+              lancerBtn.disabled=true;lancerBtn.textContent="⏳ Publication...";
+              
+              var duree=parseInt(dureeInp.value)||30;
+              var unit=dureeUnit.value;
+              var ms=duree*(unit==="mois"?30:unit==="semaines"?7:1)*24*60*60*1000;
+              var dateFin=new Date(Date.now()+ms);
+
+              await db.collection("challenges").add({
+                titre:titreInp.value.trim(),description:descInp.value.trim(),
+                mediaUrl:mediaUrl,mediaType:mediaType,
+                actif:true,dateFin:dateFin,
+                createdAt:new Date().toISOString(),gagnantes:[]
+              });
+              lancerBtn.textContent="✅ Publié !";lancerBtn.style.background="#27AE60";
+              setTimeout(function(){loadChallenge();},1500);
+            };
+            formDiv.appendChild(lancerBtn);
+            content2.appendChild(formDiv);
+
+            // Liste des challenges
+            if(!snap.empty){
+              var listTitle=document.createElement("p");listTitle.style.cssText="color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 10px;letter-spacing:1px;";listTitle.textContent="📋 MES CHALLENGES";content2.appendChild(listTitle);
+              snap.forEach(function(docSnap){
+                var ch=docSnap.data();
+                var card=document.createElement("div");card.style.cssText="background:white;border-radius:14px;padding:16px;border:"+(ch.actif?"2px solid #c9a86a":"1px solid #e8d4b0")+";margin-bottom:12px;";
+                var fin=ch.dateFin?( ch.dateFin.toDate?ch.dateFin.toDate():new Date(ch.dateFin)):null;
+                card.innerHTML="<div style='display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;'><div><p style='color:#3a3a3a;font-size:14px;font-weight:bold;margin:0 0 3px;'>🏆 "+ch.titre+"</p>"+(fin?"<p style='color:#999;font-size:11px;margin:0;'>Fin le "+fin.toLocaleDateString("fr-FR")+"</p>":"")+"</div><span style='background:"+(ch.actif?"#e6f7ec":"#f0e6d3")+";color:"+(ch.actif?"#27AE60":"#999")+";border:1px solid "+(ch.actif?"#27AE60":"#ddd")+";padding:3px 8px;border-radius:6px;font-size:11px;font-weight:bold;'>"+(ch.actif?"✅ Actif":"⏹ Terminé")+"</span></div>";
+                
+                var btnRow=document.createElement("div");btnRow.style.cssText="display:flex;gap:8px;flex-wrap:wrap;";
+                
+                // Voir preuves
+                var voirBtn=document.createElement("button");voirBtn.textContent="👁️ Voir les preuves";voirBtn.style.cssText="flex:1;background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;touch-action:manipulation;";
+                voirBtn.onclick=function(){window.ouvrirChallengeAdmin&&window.ouvrirChallengeAdmin(docSnap.id,ch);};
+                btnRow.appendChild(voirBtn);
+
+                if(ch.actif){
+                  // Arrêter
+                  var stopBtn=document.createElement("button");stopBtn.textContent="🛑 Arrêter";stopBtn.style.cssText="flex:1;background:#fee;color:#e74c3c;border:1px solid #e74c3c;padding:8px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;touch-action:manipulation;";
+                  stopBtn.onclick=function(){if(confirm("Arrêter ce challenge ?")){db.collection("challenges").doc(docSnap.id).update({actif:false}).then(function(){loadChallenge();});}};
+                  btnRow.appendChild(stopBtn);
+
+                  // Annoncer gagnantes
+                  var gagBtn=document.createElement("button");gagBtn.textContent="🥇 Gagnantes";gagBtn.style.cssText="flex:1;background:#e6f7ec;color:#27AE60;border:1px solid #27AE60;padding:8px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;touch-action:manipulation;";
+                  gagBtn.onclick=function(){
+                    var noms=prompt("Entrez les noms des gagnantes (séparés par des virgules) :");
+                    if(!noms) return;
+                    var liste=noms.split(",").map(function(n){return n.trim();}).filter(Boolean);
+                    db.collection("challenges").doc(docSnap.id).update({gagnantes:liste,actif:false}).then(function(){
+                      // Créer une annonce
+                      db.collection("annonces").add({titre:"🏆 Gagnantes du challenge : "+ch.titre,message:"Félicitations à : "+liste.join(", ")+" ! 🎉",date:new Date().toISOString(),type:"challenge"});
+                      // Badges pour les gagnantes
+                      db.collection("users").where("actif","==",true).get().then(function(uSnap){
+                        uSnap.forEach(function(uDoc){
+                          if(liste.some(function(n){return uDoc.data().prenom&&n.toLowerCase().includes(uDoc.data().prenom.toLowerCase());})){
+                            db.collection("users").doc(uDoc.id).update({"badges.challenge_winner":true});
+                          }
+                        });
+                      });
+                      alert("✅ Gagnantes annoncées et badges attribués !");loadChallenge();
+                    });
+                  };
+                  btnRow.appendChild(gagBtn);
+                }
+                card.appendChild(btnRow);content2.appendChild(card);
+              });
+            }
+          }).catch(function(){
+            document.getElementById("challenge-admin-content").innerHTML="<p style='color:#e74c3c;font-size:13px;padding:20px;'>Créez d'abord un index Firebase pour la collection challenges.</p>";
+          });
+        }
+
         function loadDefi() {
           var list = document.getElementById("admin-members-list");
           list.innerHTML = "<div style='background:white;border-radius:14px;padding:20px;border:1px solid #e8d4b0;margin-bottom:16px;'><h3 style='color:#8b735d;margin:0 0 14px 0;font-size:15px;'>&#9889; Lancer un Defi Eclair</h3><input id='defi-titre' placeholder='Titre du defi' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:10px;' /><textarea id='defi-desc' placeholder='Description du defi...' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;height:70px;resize:vertical;margin-bottom:10px;'></textarea><div style='margin-bottom:14px;'><label style='color:#8b735d;font-size:13px;font-weight:bold;display:block;margin-bottom:6px;'>Duree du defi</label><div style='display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;'><button class='duree-btn' data-h='2' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;'>2h</button><button class='duree-btn' data-h='4' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;'>4h</button><button class='duree-btn' data-h='8' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;'>8h</button><button class='duree-btn' data-h='24' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;'>24h</button></div><div style='display:flex;gap:8px;align-items:center;'><input id='duree-custom' type='number' min='1' max='72' placeholder='Personnaliser (ex: 6)' style='flex:1;padding:8px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;' /><span style='color:#8b735d;font-size:13px;'>heures</span></div></div><button id='lancer-defi' style='width:100%;background:linear-gradient(135deg,#ff6b35,#f7931e);color:white;border:none;padding:12px;border-radius:10px;cursor:pointer;font-weight:bold;font-size:14px;'>&#9889; Lancer le Defi !</button><div id='defi-admin-msg' style='color:#8b735d;font-size:13px;margin-top:8px;text-align:center;'></div></div><div id='defi-en-cours-block'></div><div style='background:white;border-radius:14px;padding:20px;border:1px solid #e8d4b0;'><h3 style='color:#8b735d;margin:0 0 14px 0;font-size:15px;'>Preuves deposees</h3><div id='preuves-list'><p style='color:#999;'>Chargement...</p></div></div>";
