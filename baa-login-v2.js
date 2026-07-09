@@ -570,7 +570,7 @@ function initBeautyAddictLogin() {
                 usersSnap.forEach(function(uDoc) {
                   var u = uDoc.data();
                   if (u.email) {
-                    emailjs.send("service_wr9mlhk","template_nkfnrnd",{
+                    emailjs.send("service_wr9mlhk","template_sq7ofz6",{
                       vdi_prenom: u.prenom||"",
                       to_email: u.email,
                       client_nom: "",
@@ -628,7 +628,7 @@ function initBeautyAddictLogin() {
                           headers:{"Content-Type":"application/json"},
                           body:JSON.stringify({
                             service_id:"service_wr9mlhk",
-                            template_id:"template_nkfnrnd",
+                            template_id:"template_sq7ofz6",
                             user_id:"D_JtKhPDgOQWi_ECO",
                             template_params:{
                               vdi_prenom:u.prenom||"",
