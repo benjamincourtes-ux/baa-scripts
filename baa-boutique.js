@@ -786,6 +786,11 @@ function openGestionBoutique() {
             sousCatSel.onchange=function(){
               if(!b.sousCatsMakeup)b.sousCatsMakeup={};
               b.sousCatsMakeup[photoKey]=sousCatSel.value;
+              // Sauvegarder immédiatement
+              sauvegarderBoutique(b, function(){
+                sousCatSel.style.borderColor="#27AE60";
+                setTimeout(function(){sousCatSel.style.borderColor="#e8d4b0";},1500);
+              });
             };
             sousCatRow.appendChild(sousCatSel);
             catContent.appendChild(sousCatRow);
