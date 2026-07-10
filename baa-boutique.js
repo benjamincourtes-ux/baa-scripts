@@ -770,6 +770,27 @@ function openGestionBoutique() {
           editRow.appendChild(nomEdit); editRow.appendChild(prixEdit); editRow.appendChild(saveEditBtn);
           catContent.appendChild(pDiv);
           catContent.appendChild(editRow);
+          // Sous-catégorie Make-up
+          if (cat === "make-up") {
+            var sousCatRow = document.createElement("div");
+            sousCatRow.style.cssText = "padding:4px 14px 6px 52px;background:white;";
+            var sousCatSel = document.createElement("select");
+            sousCatSel.style.cssText = "width:100%;padding:6px 8px;border:1px solid #e8d4b0;border-radius:6px;font-size:12px;background:white;color:#8b735d;";
+            var sousCats = [["","-- Catégorie make-up --"],["teint","💄 Teint"],["yeux","👁️ Yeux"],["levres","💋 Lèvres"],["sourcils","✏️ Sourcils"],["ongles","💅 Ongles"]];
+            sousCats.forEach(function(sc){
+              var opt=document.createElement("option");opt.value=sc[0];opt.textContent=sc[1];
+              if((b.sousCatsMakeup&&b.sousCatsMakeup[photoKey])===sc[0])opt.selected=true;
+              sousCatSel.appendChild(opt);
+            });
+            sousCatSel.addEventListener("touchstart",function(e){e.stopPropagation();},{passive:true});
+            sousCatSel.onchange=function(){
+              if(!b.sousCatsMakeup)b.sousCatsMakeup={};
+              b.sousCatsMakeup[photoKey]=sousCatSel.value;
+            };
+            sousCatRow.appendChild(sousCatSel);
+            catContent.appendChild(sousCatRow);
+          }
+
           // Champs description et ingrédients
           var infoRow = document.createElement("div");
           infoRow.style.cssText = "padding:6px 14px 8px 52px;background:white;border-bottom:none;";
