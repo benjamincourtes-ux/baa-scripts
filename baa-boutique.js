@@ -805,8 +805,13 @@ function openGestionBoutique() {
             if(!b.nomsCustom)b.nomsCustom={};
             if(!b.prixCustom)b.prixCustom={};
             b.nomsCustom[photoKey]=nomEdit.value.trim()||prod.nom;
-            b.prixCustom[photoKey]=parseFloat(prixEdit.value)||prod.prix;
-            infoEl.innerHTML="<p style='color:#3a3a3a;font-size:13px;margin:0 0 1px;'>"+b.nomsCustom[photoKey]+"</p><p style='color:#c9a86a;font-size:12px;font-weight:bold;margin:0;'>"+b.prixCustom[photoKey].toFixed(2)+" €</p>";
+            var newPrix = parseFloat(prixEdit.value);
+            if (!prixEdit.value || isNaN(newPrix) || newPrix <= 0) {
+              delete b.prixCustom[photoKey];
+            } else {
+              b.prixCustom[photoKey]=newPrix;
+            }
+            infoEl.innerHTML="<p style='color:#3a3a3a;font-size:13px;margin:0 0 1px;'>"+b.nomsCustom[photoKey]+"</p><p style='color:#c9a86a;font-size:12px;font-weight:bold;margin:0;'>"+(b.prixCustom[photoKey]||prod.prix).toFixed(2)+" €</p>";
             saveEditBtn.textContent="✅"; setTimeout(function(){saveEditBtn.textContent="✓";},1500);
           }
           nomEdit.addEventListener("touchstart",function(e){e.stopPropagation();},{passive:true});
