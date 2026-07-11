@@ -1025,33 +1025,44 @@ function openGestionBoutique() {
     var saveBtn = document.createElement("button"); saveBtn.textContent="✅ Ajouter ce produit"; saveBtn.style.cssText="width:100%;background:linear-gradient(135deg,#c9a86a,#f5d48a);color:#1a0a00;border:none;padding:14px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:15px;margin-bottom:10px;touch-action:manipulation;";
     saveBtn.onclick = function() {
       if (!nomInp.value.trim() || !prixInp.value) { alert("Merci de remplir le nom et le prix."); return; }
-      saveBtn.disabled=true; saveBtn.textContent="⏳ Ajout en cours...";
-      var user2 = firebase.auth().currentUser; if(!user2) return;
-      var newProd = { nom: nomInp.value.trim(), prix: parseFloat(prixInp.value), categorie: catSel.value, description: descInp.value.trim(), ingredients: ingInp.value.trim(), photo: photoUrl };
-      var k_nom = newProd.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,20);
-      var docRef = firebase.firestore().collection("boutiques").doc(user2.uid);
+      var currentUser = firebase.auth().currentUser;
+      if (!currentUser) { alert("Non connecté"); return; }
+      var currentUid = currentUser.uid;
+      saveBtn.disabled=true; saveBtn.textContent="⏳...";
       
-      docRef.get().then(function(snap) {
-        var freshB = snap.exists ? snap.data() : {};
-        var produitsCustom = (freshB.produitsCustom || []).slice();
-        produitsCustom.push(newProd);
-        var idx = produitsCustom.length - 1;
-        var k = "custom_" + idx + "_" + k_nom;
-        var produits = (freshB.produits || []).filter(function(x){return typeof x==="string";});
-        if (!produits.includes(k)) produits.push(k);
+      var newProd = { 
+        nom: nomInp.value.trim(), 
+        prix: parseFloat(prixInp.value), 
+        categorie: catSel.value, 
+        description: descInp.value.trim(), 
+        ingredients: ingInp.value.trim(), 
+        photo: photoUrl 
+      };
+      
+      var db2 = firebase.firestore();
+      db2.collection("boutiques").doc(currentUid).get().then(function(snap) {
+        var data = snap.exists ? snap.data() : {};
+        var customs = Array.isArray(data.produitsCustom) ? data.produitsCustom.slice() : [];
+        customs.push(newProd);
+        var newIdx = customs.length - 1;
+        var newKey = "custom_" + newIdx + "_" + newProd.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,20);
+        var prods = Array.isArray(data.produits) ? data.produits.filter(function(x){return typeof x==="string";}) : [];
+        prods.push(newKey);
         
-        console.log("Sauvegarde k:", k, "produits:", produits.length);
-        
-        // Sauvegarder produitsCustom
-        docRef.update({ produitsCustom: produitsCustom }).then(function() {
-          // Sauvegarder produits séparément
-          docRef.update({ produits: produits }).then(function() {
-            console.log("✅ Tout sauvegardé");
-            alert("✅ Produit ajouté !");
-            state.boutique = null; state.step = "produits"; render();
-          }).catch(function(e){ console.log("Erreur produits:", e); alert("Erreur produits: " + e.message); saveBtn.disabled=false; saveBtn.textContent="✅ Ajouter ce produit"; });
-        }).catch(function(e){ console.log("Erreur custom:", e); alert("Erreur custom: " + e.message); saveBtn.disabled=false; saveBtn.textContent="✅ Ajouter ce produit"; });
-      }).catch(function(e){ console.log("Erreur get:", e); alert("Erreur get: " + e.message); saveBtn.disabled=false; saveBtn.textContent="✅ Ajouter ce produit"; });
+        db2.collection("boutiques").doc(currentUid).update({
+          produitsCustom: customs,
+          produits: prods
+        }).then(function() {
+          alert("✅ Produit ajouté !");
+          state.boutique = null; state.step = "produits"; render();
+        }).catch(function(err) {
+          alert("Erreur update: " + err.message);
+          saveBtn.disabled=false; saveBtn.textContent="✅ Ajouter ce produit";
+        });
+      }).catch(function(err) {
+        alert("Erreur get: " + err.message);
+        saveBtn.disabled=false; saveBtn.textContent="✅ Ajouter ce produit";
+      });
     };
     saveBtn.addEventListener("touchend", function(e){e.preventDefault();saveBtn.onclick();},{passive:false});
     box.appendChild(saveBtn);
