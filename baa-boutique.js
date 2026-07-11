@@ -589,10 +589,10 @@ function openGestionBoutique() {
       box.appendChild(fpMontantInp);
 
       // Stripe
-      var stripeLabel=document.createElement("p");stripeLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 4px;";stripeLabel.textContent="💳 Lien Stripe (optionnel — paiement par CB)";box.appendChild(stripeLabel);
-      var stripeNote=document.createElement("p");stripeNote.style.cssText="color:#999;font-size:11px;margin:0 0 6px;line-height:1.5;";stripeNote.textContent="Colle ton lien Stripe Payment Link. Si renseigné, tes clientes pourront payer par carte bancaire.";box.appendChild(stripeNote);
-      var stripeInp=document.createElement("input");stripeInp.type="url";stripeInp.placeholder="https://buy.stripe.com/...";stripeInp.value=b.lienStripe||"";stripeInp.style.cssText="width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:14px;";
-      stripeInp.oninput=function(){b.lienStripe=stripeInp.value.trim();};
+      var stripeLabel=document.createElement("p");stripeLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 4px;";stripeLabel.textContent="💳 Clé Stripe secrète (optionnel — paiement par CB)";box.appendChild(stripeLabel);
+      var stripeNote=document.createElement("p");stripeNote.style.cssText="color:#999;font-size:11px;margin:0 0 6px;line-height:1.5;";stripeNote.textContent="Colle ta clé secrète Stripe (sk_live_...). Trouve-la sur dashboard.stripe.com → Developers → API Keys.";box.appendChild(stripeNote);
+      var stripeInp=document.createElement("input");stripeInp.type="password";stripeInp.placeholder="sk_live_...";stripeInp.value=b.stripeKey||"";stripeInp.style.cssText="width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:14px;";
+      stripeInp.oninput=function(){b.stripeKey=stripeInp.value.trim();};
       box.appendChild(stripeInp);
 
       // ---- OPTIONS VIP ----
@@ -662,7 +662,7 @@ function openGestionBoutique() {
         b.message = inp3.value.trim();
         b.emailVdi = inpEmail.value.trim();
         b.fpGratuitSeuil = parseFloat(fpMontantInp.value)||60;
-        b.lienStripe = stripeInp.value.trim();
+        b.stripeKey = stripeInp.value.trim();
         b.lienParrainage = inp4.value.trim();
         b.texteParrainage = inp4b.value.trim() || "Rejoins mon équipe 🐦‍🔥";
         b.carteVisite = inpCv.value.trim();
