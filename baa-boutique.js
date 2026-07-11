@@ -1023,21 +1023,38 @@ function openGestionBoutique() {
     };
 
     var saveBtn = document.createElement("button"); saveBtn.textContent="✅ Ajouter ce produit"; saveBtn.style.cssText="width:100%;background:linear-gradient(135deg,#c9a86a,#f5d48a);color:#1a0a00;border:none;padding:14px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:15px;margin-bottom:10px;touch-action:manipulation;";
-    saveBtn.onclick = function() {
+    saveBtn.onclick = async function() {
       if (!nomInp.value.trim() || !prixInp.value) { alert("Merci de remplir le nom et le prix."); return; }
+      saveBtn.disabled=true; saveBtn.textContent="⏳ Ajout en cours...";
+      var user = firebase.auth().currentUser; if(!user) return;
+      
       var newProd = { nom: nomInp.value.trim(), prix: parseFloat(prixInp.value), categorie: catSel.value, description: descInp.value.trim(), ingredients: ingInp.value.trim(), photo: photoUrl };
-      b.produitsCustom.push(newProd);
-      var idx = b.produitsCustom.length - 1;
-      var k = "custom_" + idx + "_" + newProd.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,20);
-      if (!b.produits) b.produits = [];
-      // S'assurer que tous les strings sont dans produits
-      b.produits = b.produits.filter(function(x){return typeof x==="string";});
-      if (!b.produits.includes(k)) b.produits.push(k);
-      // Sauvegarder prix VIP si renseigné
-      if (vipInp2.value) { if(!b.prixVip)b.prixVip={}; b.prixVip[k]=parseFloat(vipInp2.value); }
-      // Sauvegarder sous-catégorie make-up si applicable
-      if (catSel.value === "make-up" && sousCatSel2.value) { if(!b.sousCatsMakeup)b.sousCatsMakeup={}; b.sousCatsMakeup[k]=sousCatSel2.value; }
-      sauvegarderBoutique(b, function() { alert("✅ Produit ajouté !"); state.boutique=null; state.step="produits"; render(); });
+      
+      try {
+        // Recharger depuis Firebase pour avoir les données fraîches
+        var snap = await firebase.firestore().collection("boutiques").doc(user.uid).get();
+        var freshB = snap.exists ? snap.data() : {};
+        
+        var produitsCustom = freshB.produitsCustom || [];
+        produitsCustom.push(newProd);
+        var idx = produitsCustom.length - 1;
+        var k = "custom_" + idx + "_" + newProd.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,20);
+        
+        var produits = (freshB.produits || []).filter(function(x){return typeof x==="string";});
+        if (!produits.includes(k)) produits.push(k);
+        
+        var updateData = { produitsCustom: produitsCustom, produits: produits };
+        if (vipInp2.value) { var prixVip = freshB.prixVip || {}; prixVip[k] = parseFloat(vipInp2.value); updateData.prixVip = prixVip; }
+        if (catSel.value === "make-up" && sousCatSel2.value) { var sousCats = freshB.sousCatsMakeup || {}; sousCats[k] = sousCatSel2.value; updateData.sousCatsMakeup = sousCats; }
+        
+        await firebase.firestore().collection("boutiques").doc(user.uid).set(updateData, {merge:true});
+        alert("✅ Produit ajouté !");
+        state.boutique = null; state.step = "produits"; render();
+      } catch(e) {
+        console.log("Erreur:", e);
+        alert("❌ Erreur : " + e.message);
+        saveBtn.disabled=false; saveBtn.textContent="✅ Ajouter ce produit";
+      }
     };
     box.appendChild(saveBtn);
 
