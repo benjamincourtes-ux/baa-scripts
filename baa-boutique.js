@@ -572,6 +572,29 @@ function openGestionBoutique() {
       info.innerHTML = "<p style='color:#2980B9;font-size:12px;margin:0;'>💡 Pour créer un lien PayPal.me, va sur <strong>paypal.me</strong> et crée ton lien personnalisé gratuit.</p>";
       box.appendChild(info);
 
+      // ---- FRAIS DE PORT & PAIEMENT ----
+      var fpLabel = document.createElement("p"); fpLabel.style.cssText="color:#8b735d;font-size:14px;font-weight:bold;margin:0 0 10px;border-top:1px solid #e8d4b0;padding-top:14px;"; fpLabel.textContent="🚚 Livraison & Paiement"; box.appendChild(fpLabel);
+
+      // Frais de port offerts
+      var fpRow = document.createElement("div"); fpRow.style.cssText="display:flex;align-items:center;justify-content:space-between;background:white;border:1px solid #e8d4b0;border-radius:10px;padding:12px;margin-bottom:8px;";
+      fpRow.innerHTML="<div><p style='color:#3a3a3a;font-size:13px;font-weight:bold;margin:0 0 2px;'>Frais de port offerts</p><p style='color:#999;font-size:11px;margin:0;'>A partir d un certain montant</p></div>";
+      var fpToggle=document.createElement("button"); fpToggle.textContent=b.fpGratuitActif?"✅ Actif":"⭕ Inactif";
+      fpToggle.style.cssText="background:"+(b.fpGratuitActif?"#e6f7ec":"#fee")+";color:"+(b.fpGratuitActif?"#27AE60":"#e74c3c")+";border:1px solid "+(b.fpGratuitActif?"#27AE60":"#e74c3c")+";padding:8px 12px;border-radius:8px;font-size:12px;font-weight:bold;cursor:pointer;touch-action:manipulation;";
+      fpToggle.onclick=function(){b.fpGratuitActif=!b.fpGratuitActif;sauvegarderBoutique(b,function(){fpToggle.textContent=b.fpGratuitActif?"✅ Actif":"⭕ Inactif";fpToggle.style.background=b.fpGratuitActif?"#e6f7ec":"#fee";fpToggle.style.color=b.fpGratuitActif?"#27AE60":"#e74c3c";fpToggle.style.borderColor=b.fpGratuitActif?"#27AE60":"#e74c3c";});};
+      fpRow.appendChild(fpToggle); box.appendChild(fpRow);
+
+      var fpMontantLabel=document.createElement("p");fpMontantLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 4px;";fpMontantLabel.textContent="Montant minimum pour frais de port offerts (€)";box.appendChild(fpMontantLabel);
+      var fpMontantInp=document.createElement("input");fpMontantInp.type="number";fpMontantInp.value=b.fpGratuitSeuil||60;fpMontantInp.min="0";fpMontantInp.style.cssText="width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:12px;";
+      fpMontantInp.oninput=function(){b.fpGratuitSeuil=parseFloat(fpMontantInp.value)||60;};
+      box.appendChild(fpMontantInp);
+
+      // Stripe
+      var stripeLabel=document.createElement("p");stripeLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 4px;";stripeLabel.textContent="💳 Lien Stripe (optionnel — paiement par CB)";box.appendChild(stripeLabel);
+      var stripeNote=document.createElement("p");stripeNote.style.cssText="color:#999;font-size:11px;margin:0 0 6px;line-height:1.5;";stripeNote.textContent="Colle ton lien Stripe Payment Link. Si renseigné, tes clientes pourront payer par carte bancaire.";box.appendChild(stripeNote);
+      var stripeInp=document.createElement("input");stripeInp.type="url";stripeInp.placeholder="https://buy.stripe.com/...";stripeInp.value=b.lienStripe||"";stripeInp.style.cssText="width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:14px;";
+      stripeInp.oninput=function(){b.lienStripe=stripeInp.value.trim();};
+      box.appendChild(stripeInp);
+
       // ---- OPTIONS VIP ----
       var vipLabel = document.createElement("p"); vipLabel.style.cssText = "color:#8b735d;font-size:14px;font-weight:bold;margin:0 0 10px;border-top:1px solid #e8d4b0;padding-top:14px;"; vipLabel.textContent = "💎 Options VIP"; box.appendChild(vipLabel);
 
@@ -638,6 +661,8 @@ function openGestionBoutique() {
         b.paypal = paypalLink;
         b.message = inp3.value.trim();
         b.emailVdi = inpEmail.value.trim();
+        b.fpGratuitSeuil = parseFloat(fpMontantInp.value)||60;
+        b.lienStripe = stripeInp.value.trim();
         b.lienParrainage = inp4.value.trim();
         b.texteParrainage = inp4b.value.trim() || "Rejoins mon équipe 🐦‍🔥";
         b.carteVisite = inpCv.value.trim();
