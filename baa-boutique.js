@@ -1027,7 +1027,8 @@ function openGestionBoutique() {
       if (!nomInp.value.trim() || !prixInp.value) { alert("Merci de remplir le nom et le prix."); return; }
       var newProd = { nom: nomInp.value.trim(), prix: parseFloat(prixInp.value), categorie: catSel.value, description: descInp.value.trim(), ingredients: ingInp.value.trim(), photo: photoUrl };
       b.produitsCustom.push(newProd);
-      var k = "custom_" + (b.produitsCustom.length-1) + "_" + newProd.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,20);
+      var idx = b.produitsCustom.length - 1;
+      var k = "custom_" + idx + "_" + newProd.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,20);
       if (!b.produits) b.produits = [];
       b.produits.push(k);
       // Sauvegarder prix VIP si renseigné
