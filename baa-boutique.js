@@ -882,6 +882,7 @@ function openGestionBoutique() {
           ruptureBtn.textContent = rupture ? "🔴 Rupture" : "✅ Dispo";
           ruptureBtn.style.cssText = "background:"+(rupture?"#fee":"#e6f7ec")+";color:"+(rupture?"#e74c3c":"#27AE60")+";border:1px solid "+(rupture?"#e74c3c":"#27AE60")+";padding:3px 8px;border-radius:6px;cursor:pointer;font-size:10px;font-weight:bold;flex-shrink:0;touch-action:manipulation;";
           ruptureBtn.onclick=function(e){e.stopPropagation();if(!b.ruptures)b.ruptures={};b.ruptures[photoKey]=!b.ruptures[photoKey];ruptureBtn.textContent=b.ruptures[photoKey]?"🔴 Rupture":"✅ Dispo";ruptureBtn.style.background=b.ruptures[photoKey]?"#fee":"#e6f7ec";ruptureBtn.style.color=b.ruptures[photoKey]?"#e74c3c":"#27AE60";ruptureBtn.style.borderColor=b.ruptures[photoKey]?"#e74c3c":"#27AE60";};
+          ruptureBtn.addEventListener("touchend",function(e){e.preventDefault();e.stopPropagation();ruptureBtn.onclick(e);},{passive:false});
           infoEl.appendChild(ruptureBtn);
 
           // Bouton partager ce produit
