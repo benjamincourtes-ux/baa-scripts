@@ -1025,43 +1025,18 @@ function openGestionBoutique() {
     var saveBtn = document.createElement("button"); saveBtn.textContent="✅ Ajouter ce produit"; saveBtn.style.cssText="width:100%;background:linear-gradient(135deg,#c9a86a,#f5d48a);color:#1a0a00;border:none;padding:14px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:15px;margin-bottom:10px;touch-action:manipulation;";
     saveBtn.onclick = function() {
       if (!nomInp.value.trim() || !prixInp.value) { alert("Merci de remplir le nom et le prix."); return; }
-      var currentUser = firebase.auth().currentUser;
-      if (!currentUser) { alert("Non connecté"); return; }
-      var currentUid = currentUser.uid;
       saveBtn.disabled=true; saveBtn.textContent="⏳...";
-      
-      var newProd = { 
-        nom: nomInp.value.trim(), 
-        prix: parseFloat(prixInp.value), 
-        categorie: catSel.value, 
-        description: descInp.value.trim(), 
-        ingredients: ingInp.value.trim(), 
-        photo: photoUrl 
-      };
-      
-      var db2 = firebase.firestore();
-      db2.collection("boutiques").doc(currentUid).get().then(function(snap) {
-        var data = snap.exists ? snap.data() : {};
-        var customs = Array.isArray(data.produitsCustom) ? data.produitsCustom.slice() : [];
-        customs.push(newProd);
-        var newIdx = customs.length - 1;
-        var newKey = "custom_" + newIdx + "_" + newProd.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,20);
-        var prods = Array.isArray(data.produits) ? data.produits.filter(function(x){return typeof x==="string";}) : [];
-        prods.push(newKey);
-        
-        db2.collection("boutiques").doc(currentUid).set({
-          produitsCustom: customs,
-          produits: prods
-        }, {merge:true}).then(function() {
-          alert("✅ Produit ajouté !");
-          state.boutique = null; state.step = "produits"; render();
-        }).catch(function(err) {
-          alert("Erreur update: " + err.message);
-          saveBtn.disabled=false; saveBtn.textContent="✅ Ajouter ce produit";
-        });
-      }).catch(function(err) {
-        alert("Erreur get: " + err.message);
-        saveBtn.disabled=false; saveBtn.textContent="✅ Ajouter ce produit";
+      var newProd = { nom: nomInp.value.trim(), prix: parseFloat(prixInp.value), categorie: catSel.value, description: descInp.value.trim(), ingredients: ingInp.value.trim(), photo: photoUrl };
+      if (!b.produitsCustom) b.produitsCustom = [];
+      b.produitsCustom.push(newProd);
+      var newIdx = b.produitsCustom.length - 1;
+      var newKey = "custom_" + newIdx + "_" + newProd.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,20);
+      if (!b.produits) b.produits = [];
+      b.produits = b.produits.filter(function(x){return typeof x==="string";});
+      b.produits.push(newKey);
+      sauvegarderBoutique(b, function() {
+        alert("✅ Produit ajouté ! Clé: " + newKey);
+        state.boutique = null; state.step = "produits"; render();
       });
     };
     saveBtn.addEventListener("touchend", function(e){e.preventDefault();saveBtn.onclick();},{passive:false});
