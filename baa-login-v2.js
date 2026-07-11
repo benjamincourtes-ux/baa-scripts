@@ -361,7 +361,7 @@ function initBeautyAddictLogin() {
               var count = 0;
               for (var i = 0; i < membres.length; i++) {
                 var d = membres[i];
-                var payload = Object.assign({ prenom: d.prenom, nom: d.nom, email: d.email, date: new Date().toLocaleDateString("fr-FR") }, dataExtra);
+                var payload = Object.assign({ prenom: d.prenom, nom: d.nom, email: d.email, to_email: d.email, date: new Date().toLocaleDateString("fr-FR") }, dataExtra);
                 try {
                   await emailjs.send("service_wr9mlhk", "template_wk2j4mg", payload);
                   count++;
