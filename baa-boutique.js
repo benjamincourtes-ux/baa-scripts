@@ -1006,15 +1006,34 @@ function openGestionBoutique() {
       photoBtn.disabled=false;
     };
 
+    // Prix VIP
+    var vipLabel2 = document.createElement("p"); vipLabel2.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 4px;"; vipLabel2.textContent="💎 Prix VIP (optionnel)"; box.appendChild(vipLabel2);
+    var vipInp2 = document.createElement("input"); vipInp2.type="number"; vipInp2.placeholder="Ex: 19.90"; vipInp2.step="0.01"; vipInp2.style.cssText="width:100%;padding:11px;border:1px solid #c0392b;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:10px;"; box.appendChild(vipInp2);
+
+    // Sous-catégorie make-up (visible seulement si catégorie = make-up)
+    var sousCatLabel = document.createElement("p"); sousCatLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 4px;display:none;"; sousCatLabel.textContent="💄 Sous-catégorie make-up"; box.appendChild(sousCatLabel);
+    var sousCatSel2 = document.createElement("select"); sousCatSel2.style.cssText="width:100%;padding:11px;border:1px solid #e8d4b0;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:10px;background:white;display:none;";
+    [["","-- Choisir --"],["teint","💄 Teint"],["yeux","👁️ Yeux"],["levres","💋 Lèvres"],["sourcils","✏️ Sourcils"],["ongles","💅 Ongles"]].forEach(function(sc){var opt=document.createElement("option");opt.value=sc[0];opt.textContent=sc[1];sousCatSel2.appendChild(opt);});
+    box.appendChild(sousCatSel2);
+
+    catSel.onchange = function() {
+      var isMakeup = catSel.value === "make-up";
+      sousCatLabel.style.display = isMakeup ? "block" : "none";
+      sousCatSel2.style.display = isMakeup ? "block" : "none";
+    };
+
     var saveBtn = document.createElement("button"); saveBtn.textContent="✅ Ajouter ce produit"; saveBtn.style.cssText="width:100%;background:linear-gradient(135deg,#c9a86a,#f5d48a);color:#1a0a00;border:none;padding:14px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:15px;margin-bottom:10px;touch-action:manipulation;";
     saveBtn.onclick = function() {
       if (!nomInp.value.trim() || !prixInp.value) { alert("Merci de remplir le nom et le prix."); return; }
       var newProd = { nom: nomInp.value.trim(), prix: parseFloat(prixInp.value), categorie: catSel.value, description: descInp.value.trim(), ingredients: ingInp.value.trim(), photo: photoUrl };
       b.produitsCustom.push(newProd);
-      // Ajouter automatiquement à la sélection
       var k = "custom_" + (b.produitsCustom.length-1) + "_" + newProd.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,20);
       if (!b.produits) b.produits = [];
       b.produits.push(k);
+      // Sauvegarder prix VIP si renseigné
+      if (vipInp2.value) { if(!b.prixVip)b.prixVip={}; b.prixVip[k]=parseFloat(vipInp2.value); }
+      // Sauvegarder sous-catégorie make-up si applicable
+      if (catSel.value === "make-up" && sousCatSel2.value) { if(!b.sousCatsMakeup)b.sousCatsMakeup={}; b.sousCatsMakeup[k]=sousCatSel2.value; }
       sauvegarderBoutique(b, function() { alert("✅ Produit ajouté !"); state.boutique=null; state.step="produits"; render(); });
     };
     box.appendChild(saveBtn);
