@@ -1030,7 +1030,9 @@ function openGestionBoutique() {
       var idx = b.produitsCustom.length - 1;
       var k = "custom_" + idx + "_" + newProd.nom.replace(/[^a-zA-Z0-9]/g,"_").slice(0,20);
       if (!b.produits) b.produits = [];
-      b.produits.push(k);
+      // S'assurer que tous les strings sont dans produits
+      b.produits = b.produits.filter(function(x){return typeof x==="string";});
+      if (!b.produits.includes(k)) b.produits.push(k);
       // Sauvegarder prix VIP si renseigné
       if (vipInp2.value) { if(!b.prixVip)b.prixVip={}; b.prixVip[k]=parseFloat(vipInp2.value); }
       // Sauvegarder sous-catégorie make-up si applicable
