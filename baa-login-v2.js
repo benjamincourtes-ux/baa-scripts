@@ -353,19 +353,24 @@ function initBeautyAddictLogin() {
             var btnEl = document.getElementById(btnElId);
             btnEl.disabled = true; btnEl.innerText = "Envoi en cours...";
             msgEl.innerText = "";
-            db.collection("users").where("accountStatus", "==", "active").get().then(function(snapshot) {
+            db.collection("users").where("accountStatus", "==", "active").get().then(async function(snapshot) {
               if (snapshot.empty) { msgEl.innerText = "Aucune membre active."; btnEl.disabled = false; btnEl.innerText = "Envoyer a toutes les membres"; return; }
-              var promises = [];
               emailjs.init("D_JtKhPDgOQWi_ECO");
-              snapshot.forEach(function(docSnap) {
-                var d = docSnap.data();
+              var membres = [];
+              snapshot.forEach(function(docSnap) { membres.push(docSnap.data()); });
+              var count = 0;
+              for (var i = 0; i < membres.length; i++) {
+                var d = membres[i];
                 var payload = Object.assign({ prenom: d.prenom, nom: d.nom, email: d.email, date: new Date().toLocaleDateString("fr-FR") }, dataExtra);
-                promises.push(emailjs.send("service_wr9mlhk", "template_wk2j4mg", payload).catch(function(err) { console.log("Erreur envoi a " + d.email, err); }));
-              });
-              Promise.all(promises).then(function() {
-                msgEl.innerText = "Email envoye a " + snapshot.size + " membre" + (snapshot.size > 1 ? "s" : "") + " !";
-                btnEl.disabled = false; btnEl.innerText = "Envoyer a toutes les membres";
-              });
+                try {
+                  await emailjs.send("service_wr9mlhk", "template_wk2j4mg", payload);
+                  count++;
+                  msgEl.innerText = "Envoi en cours... " + count + "/" + membres.length;
+                } catch(err) { console.log("Erreur envoi a " + d.email, err); }
+                await new Promise(function(r){setTimeout(r,2000);});
+              }
+              msgEl.innerText = "✅ Email envoye a " + count + " membre" + (count > 1 ? "s" : "") + " !";
+              btnEl.disabled = false; btnEl.innerText = "Envoyer a toutes les membres";
             });
           }
           document.getElementById("envoyer-annonce-formation").onclick = function() {
