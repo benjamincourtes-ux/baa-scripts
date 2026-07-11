@@ -572,6 +572,25 @@ function openGestionBoutique() {
       info.innerHTML = "<p style='color:#2980B9;font-size:12px;margin:0;'>💡 Pour créer un lien PayPal.me, va sur <strong>paypal.me</strong> et crée ton lien personnalisé gratuit.</p>";
       box.appendChild(info);
 
+      // ---- OPTIONS VIP ----
+      var vipLabel = document.createElement("p"); vipLabel.style.cssText = "color:#8b735d;font-size:14px;font-weight:bold;margin:0 0 10px;border-top:1px solid #e8d4b0;padding-top:14px;"; vipLabel.textContent = "💎 Options VIP"; box.appendChild(vipLabel);
+
+      // Toggle prix VIP
+      var vipPrixRow = document.createElement("div"); vipPrixRow.style.cssText="display:flex;align-items:center;justify-content:space-between;background:white;border:1px solid #e8d4b0;border-radius:10px;padding:12px;margin-bottom:10px;";
+      vipPrixRow.innerHTML="<div><p style='color:#3a3a3a;font-size:13px;font-weight:bold;margin:0 0 2px;'>Afficher les prix VIP</p><p style='color:#999;font-size:11px;margin:0;'>Badge rouge avec prix spécial sur chaque produit</p></div>";
+      var vipPrixToggle=document.createElement("button"); vipPrixToggle.textContent=b.showPrixVip?"✅ Actif":"⭕ Inactif";
+      vipPrixToggle.style.cssText="background:"+(b.showPrixVip?"#e6f7ec":"#fee")+";color:"+(b.showPrixVip?"#27AE60":"#e74c3c")+";border:1px solid "+(b.showPrixVip?"#27AE60":"#e74c3c")+";padding:8px 12px;border-radius:8px;font-size:12px;font-weight:bold;cursor:pointer;touch-action:manipulation;";
+      vipPrixToggle.onclick=function(){b.showPrixVip=!b.showPrixVip;sauvegarderBoutique(b,function(){vipPrixToggle.textContent=b.showPrixVip?"✅ Actif":"⭕ Inactif";vipPrixToggle.style.background=b.showPrixVip?"#e6f7ec":"#fee";vipPrixToggle.style.color=b.showPrixVip?"#27AE60":"#e74c3c";vipPrixToggle.style.borderColor=b.showPrixVip?"#27AE60":"#e74c3c";});};
+      vipPrixRow.appendChild(vipPrixToggle); box.appendChild(vipPrixRow);
+
+      // Toggle bouton devenir VIP
+      var vipBtnRow = document.createElement("div"); vipBtnRow.style.cssText="display:flex;align-items:center;justify-content:space-between;background:white;border:1px solid #e8d4b0;border-radius:10px;padding:12px;margin-bottom:10px;";
+      vipBtnRow.innerHTML="<div><p style='color:#3a3a3a;font-size:13px;font-weight:bold;margin:0 0 2px;'>Afficher le bouton Devenir Cliente VIP</p><p style='color:#999;font-size:11px;margin:0;'>Lien vers ton parrainage Mihi</p></div>";
+      var vipBtnToggle=document.createElement("button"); vipBtnToggle.textContent=b.showBoutonVip?"✅ Actif":"⭕ Inactif";
+      vipBtnToggle.style.cssText="background:"+(b.showBoutonVip?"#e6f7ec":"#fee")+";color:"+(b.showBoutonVip?"#27AE60":"#e74c3c")+";border:1px solid "+(b.showBoutonVip?"#27AE60":"#e74c3c")+";padding:8px 12px;border-radius:8px;font-size:12px;font-weight:bold;cursor:pointer;touch-action:manipulation;";
+      vipBtnToggle.onclick=function(){b.showBoutonVip=!b.showBoutonVip;sauvegarderBoutique(b,function(){vipBtnToggle.textContent=b.showBoutonVip?"✅ Actif":"⭕ Inactif";vipBtnToggle.style.background=b.showBoutonVip?"#e6f7ec":"#fee";vipBtnToggle.style.color=b.showBoutonVip?"#27AE60":"#e74c3c";vipBtnToggle.style.borderColor=b.showBoutonVip?"#27AE60":"#e74c3c";});};
+      vipBtnRow.appendChild(vipBtnToggle); box.appendChild(vipBtnRow);
+
       // Bouton test email — admin seulement
       var user = firebase.auth().currentUser;
       if (user && user.uid === "HW5yBMrCSfZvRJpJNBYJbY1hzen2") {
@@ -797,6 +816,15 @@ function openGestionBoutique() {
           }
 
           // Champs description et ingrédients
+          // Champ prix VIP
+          var vipRow = document.createElement("div"); vipRow.style.cssText="padding:4px 14px 6px 52px;background:white;display:flex;gap:8px;align-items:center;";
+          var vipLabel2 = document.createElement("span"); vipLabel2.style.cssText="background:#c0392b;color:#f5d48a;font-size:10px;font-weight:bold;padding:3px 6px;border-radius:4px;flex-shrink:0;"; vipLabel2.textContent="💎 PRIX VIP";
+          var vipInp = document.createElement("input"); vipInp.type="number"; vipInp.step="0.01"; vipInp.placeholder="Prix VIP (ex: 19.90)"; vipInp.value=(b.prixVip&&b.prixVip[photoKey])||""; vipInp.style.cssText="flex:1;padding:6px 8px;border:1px solid #e8d4b0;border-radius:6px;font-size:12px;";
+          vipInp.addEventListener("touchstart",function(e){e.stopPropagation();},{passive:true});
+          vipInp.oninput=function(){if(!b.prixVip)b.prixVip={};b.prixVip[photoKey]=parseFloat(vipInp.value)||null;};
+          vipRow.appendChild(vipLabel2); vipRow.appendChild(vipInp);
+          catContent.appendChild(vipRow);
+
           var infoRow = document.createElement("div");
           infoRow.style.cssText = "padding:6px 14px 8px 52px;background:white;border-bottom:none;";
           var descInp = document.createElement("textarea");
