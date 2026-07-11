@@ -884,6 +884,25 @@ function openGestionBoutique() {
           ruptureBtn.onclick=function(e){e.stopPropagation();if(!b.ruptures)b.ruptures={};b.ruptures[photoKey]=!b.ruptures[photoKey];ruptureBtn.textContent=b.ruptures[photoKey]?"🔴 Rupture":"✅ Dispo";ruptureBtn.style.background=b.ruptures[photoKey]?"#fee":"#e6f7ec";ruptureBtn.style.color=b.ruptures[photoKey]?"#e74c3c":"#27AE60";ruptureBtn.style.borderColor=b.ruptures[photoKey]?"#e74c3c":"#27AE60";};
           infoEl.appendChild(ruptureBtn);
 
+          // Bouton partager ce produit
+          var shareRow = document.createElement("div");
+          shareRow.style.cssText = "padding:4px 14px 8px 52px;background:white;border-bottom:1px solid #f0e6d3;";
+          var shareBtn = document.createElement("button");
+          shareBtn.textContent = "📤 Copier le lien de ce produit";
+          shareBtn.style.cssText = "background:#f0f4ff;color:#2980B9;border:1px solid #2980B9;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:bold;touch-action:manipulation;";
+          var lienProd = "https://baa-vitrine.vercel.app/?uid=" + (firebase.auth().currentUser ? firebase.auth().currentUser.uid : "") + "&produit=" + encodeURIComponent(photoKey);
+          var doShare = (function(lien, nom) { return function() {
+            if (navigator.share) {
+              navigator.share({ title: nom, text: "Découvre ce produit sur ma boutique !", url: lien });
+            } else {
+              navigator.clipboard && navigator.clipboard.writeText(lien).then(function(){ shareBtn.textContent="✅ Lien copié !"; setTimeout(function(){shareBtn.textContent="📤 Copier le lien de ce produit";},2000); });
+            }
+          }; })(lienProd, prod.nom);
+          shareBtn.onclick = function(e) { e.stopPropagation(); doShare(); };
+          shareBtn.addEventListener("touchend", function(e){e.preventDefault();e.stopPropagation();doShare();},{passive:false});
+          shareRow.appendChild(shareBtn);
+          catContent.appendChild(shareRow);
+
           var handleSelect = function() {
             var idx = produitsSel.indexOf(photoKey);
             if (idx >= 0) {
