@@ -1049,10 +1049,10 @@ function openGestionBoutique() {
         var prods = Array.isArray(data.produits) ? data.produits.filter(function(x){return typeof x==="string";}) : [];
         prods.push(newKey);
         
-        db2.collection("boutiques").doc(currentUid).update({
+        db2.collection("boutiques").doc(currentUid).set({
           produitsCustom: customs,
           produits: prods
-        }).then(function() {
+        }, {merge:true}).then(function() {
           alert("✅ Produit ajouté !");
           state.boutique = null; state.step = "produits"; render();
         }).catch(function(err) {
