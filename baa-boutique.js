@@ -803,15 +803,25 @@ function openGestionBoutique() {
           saveEditBtn.onclick=function(e){e.stopPropagation();doSaveEdit();};
           function doSaveEdit(){
             if(!b.nomsCustom)b.nomsCustom={};
-            if(!b.prixCustom)b.prixCustom={};
             b.nomsCustom[photoKey]=nomEdit.value.trim()||prod.nom;
             var newPrix = parseFloat(prixEdit.value);
+            var updateData = { nomsCustom: b.nomsCustom };
             if (!prixEdit.value || isNaN(newPrix) || newPrix <= 0) {
-              delete b.prixCustom[photoKey];
+              // Supprimer le prix custom directement dans Firebase
+              var user3 = firebase.auth().currentUser;
+              if (user3) {
+                var updatePrix = {};
+                updatePrix["prixCustom." + photoKey] = firebase.firestore.FieldValue.delete();
+                firebase.firestore().collection("boutiques").doc(user3.uid).update(updatePrix);
+                if (b.prixCustom) delete b.prixCustom[photoKey];
+              }
             } else {
+              if(!b.prixCustom)b.prixCustom={};
               b.prixCustom[photoKey]=newPrix;
+              updateData.prixCustom = b.prixCustom;
             }
-            infoEl.innerHTML="<p style='color:#3a3a3a;font-size:13px;margin:0 0 1px;'>"+b.nomsCustom[photoKey]+"</p><p style='color:#c9a86a;font-size:12px;font-weight:bold;margin:0;'>"+(b.prixCustom[photoKey]||prod.prix).toFixed(2)+" €</p>";
+            sauvegarderBoutique(b, function(){});
+            infoEl.innerHTML="<p style='color:#3a3a3a;font-size:13px;margin:0 0 1px;'>"+b.nomsCustom[photoKey]+"</p><p style='color:#c9a86a;font-size:12px;font-weight:bold;margin:0;'>"+((b.prixCustom&&b.prixCustom[photoKey])||prod.prix).toFixed(2)+" €</p>";
             saveEditBtn.textContent="✅"; setTimeout(function(){saveEditBtn.textContent="✓";},1500);
           }
           nomEdit.addEventListener("touchstart",function(e){e.stopPropagation();},{passive:true});
