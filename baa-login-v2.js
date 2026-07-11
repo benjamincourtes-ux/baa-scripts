@@ -631,8 +631,8 @@ function initBeautyAddictLogin() {
                         count++;
                         rappelBtn.textContent="⏳ "+count+"/"+membres.length+"...";
                       }catch(e){console.log("Erreur email",u.email,e);}
-                      // Délai de 1 seconde entre chaque email
-                      await new Promise(function(r){setTimeout(r,1000);});
+                      // Délai de 2 secondes entre chaque email
+                      await new Promise(function(r){setTimeout(r,2000);});
                     }
                     rappelBtn.textContent="✅ "+count+" email(s) envoyé(s) !";rappelBtn.style.background="#27AE60";rappelBtn.style.color="white";rappelBtn.style.borderColor="#27AE60";
                     setTimeout(function(){rappelBtn.textContent="📧 Rappel email";rappelBtn.style.background="#f0f4ff";rappelBtn.style.color="#2980B9";rappelBtn.style.borderColor="#2980B9";rappelBtn.disabled=false;},5000);
