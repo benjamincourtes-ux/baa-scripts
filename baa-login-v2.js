@@ -1380,10 +1380,6 @@ function ouvrirGenerateurPostsBAA() {
     box.appendChild(tabBar);
 
     // ===== SECTION POSTS =====
-    var sectionPosts = document.createElement("div"); sectionsMap["posts"]=sectionPosts;
-    var closeBtn = document.createElement("button"); closeBtn.textContent="✕"; closeBtn.style.cssText="background:none;border:none;font-size:22px;color:#8b735d;cursor:pointer;touch-action:manipulation;";
-    closeBtn.onclick = function() { panel.remove(); };
-    hdr.appendChild(closeBtn); box.appendChild(hdr);
 
     // Sélection réseau
     var reseauLabel = document.createElement("p"); reseauLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;"; reseauLabel.textContent="📱 Réseau social"; sectionPosts.appendChild(reseauLabel);
@@ -1427,15 +1423,15 @@ function ouvrirGenerateurPostsBAA() {
     sectionPosts.appendChild(objBtns);
 
     // Infos perso
-    var infoLabel = document.createElement("p"); infoLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;"; infoLabel.textContent="✍️ Ajouter une touche personnelle (optionnel)"; box.appendChild(infoLabel);
+    var infoLabel = document.createElement("p"); infoLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;"; infoLabel.textContent="✍️ Ajouter une touche personnelle (optionnel)"; sectionPosts.appendChild(infoLabel);
     var infoInp = document.createElement("textarea"); infoInp.placeholder="Ex: J'utilise ce produit depuis 3 mois et mes rides ont diminué..."; infoInp.rows=3; infoInp.style.cssText="width:100%;padding:11px;border:1px solid #e8d4b0;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:14px;resize:none;";
     infoInp.addEventListener("touchstart",function(e){e.stopPropagation();},{passive:true});
-    box.appendChild(infoInp);
+    sectionPosts.appendChild(infoInp);
 
     // Bouton générer
     var genBtn = document.createElement("button"); genBtn.textContent="✨ Générer 3 posts"; genBtn.style.cssText="width:100%;background:linear-gradient(135deg,#c9a86a,#f5d48a);color:#1a0a00;border:none;padding:14px;border-radius:12px;font-weight:bold;font-size:15px;cursor:pointer;touch-action:manipulation;margin-bottom:16px;";
 
-    var resultsDiv = document.createElement("div"); box.appendChild(genBtn); box.appendChild(resultsDiv);
+    var resultsDiv = document.createElement("div");
 
     var doGen = function() {
       genBtn.disabled=true; genBtn.textContent="⏳ Génération en cours...";
