@@ -1291,7 +1291,7 @@ function afficherPhenixContextuel(page) {
 
   var bubble = document.createElement("div");
   bubble.id = "phenix-contextuel";
-  bubble.style.cssText = "position:fixed;bottom:80px;left:16px;z-index:9999;display:flex;align-items:flex-end;gap:8px;font-family:Arial,sans-serif;animation:phenixFadeIn 0.4s ease;";
+  bubble.style.cssText = "position:fixed;bottom:80px;left:16px;z-index:9999999;display:flex;align-items:flex-end;gap:8px;font-family:Arial,sans-serif;animation:phenixFadeIn 0.4s ease;";
 
   var avatar = document.createElement("div");
   avatar.style.cssText = "width:44px;height:44px;background:linear-gradient(135deg,#c9a86a,#f5d48a);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 4px 12px rgba(201,168,106,0.4);cursor:pointer;touch-action:manipulation;";
