@@ -19,7 +19,7 @@ function initGenerateurPosts() {
     panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999999;display:flex;justify-content:center;align-items:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch;font-family:Arial,sans-serif;";
 
     var box = document.createElement("div");
-    box.style.cssText = "background:#f8f3ee;width:100%;max-width:560px;border-radius:20px;padding:24px;margin:20px 16px;";
+    box.style.cssText = "background:#f8f3ee;width:100%;max-width:560px;border-radius:20px;padding:24px;margin:20px 16px;overflow-y:auto;max-height:90vh;";
 
     // Header
     var hdr = document.createElement("div"); hdr.style.cssText="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;";
