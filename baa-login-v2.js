@@ -1355,6 +1355,10 @@ function ouvrirGenerateurPostsBAA() {
     // Header
     var hdr = document.createElement("div"); hdr.style.cssText="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;";
     hdr.innerHTML = "<div><p style='color:#999;font-size:11px;font-weight:bold;margin:0 0 2px;letter-spacing:1px;'>✨ OUTILS IA</p><h3 style='color:#8b735d;font-size:17px;margin:0;'>Marché froid & Contenu</h3></div>";
+    var closeBtn = document.createElement("button"); closeBtn.textContent="✕"; closeBtn.style.cssText="background:none;border:none;font-size:22px;color:#8b735d;cursor:pointer;touch-action:manipulation;";
+    closeBtn.onclick = function() { panel.remove(); };
+    hdr.appendChild(closeBtn);
+    box.appendChild(hdr);
 
     // Onglets
     var tabBar = document.createElement("div"); tabBar.style.cssText="display:flex;gap:6px;margin-bottom:16px;";
