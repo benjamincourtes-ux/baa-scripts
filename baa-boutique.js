@@ -829,36 +829,35 @@ function openGestionBoutique() {
           editRow.appendChild(nomEdit); editRow.appendChild(prixEdit); editRow.appendChild(saveEditBtn);
           catContent.appendChild(pDiv);
           catContent.appendChild(editRow);
-          // Sous-catégorie Make-up
+          // Sous-catégorie Make-up — boutons au lieu de select
           if (cat === "make-up") {
             var sousCatRow = document.createElement("div");
-            sousCatRow.style.cssText = "padding:4px 14px 6px 52px;background:white;";
-            var sousCatSel = document.createElement("select");
-            sousCatSel.style.cssText = "width:100%;padding:6px 8px;border:1px solid #e8d4b0;border-radius:6px;font-size:12px;background:white;color:#8b735d;";
-            var sousCats = [["","-- Catégorie make-up --"],["teint","💄 Teint"],["yeux","👁️ Yeux"],["levres","💋 Lèvres"],["sourcils","✏️ Sourcils"],["ongles","💅 Ongles"]];
+            sousCatRow.style.cssText = "padding:6px 14px 8px 52px;background:white;display:flex;flex-wrap:wrap;gap:6px;";
+            var sousCats = [["teint","💄 Teint"],["yeux","👁️ Yeux"],["levres","💋 Lèvres"],["sourcils","✏️ Sourcils"],["ongles","💅 Ongles"]];
+            var currentSousCat = (b.sousCatsMakeup && b.sousCatsMakeup[photoKey]) || "";
             sousCats.forEach(function(sc){
-              var opt=document.createElement("option");opt.value=sc[0];opt.textContent=sc[1];
-              if((b.sousCatsMakeup&&b.sousCatsMakeup[photoKey])===sc[0])opt.selected=true;
-              sousCatSel.appendChild(opt);
+              var scBtn = document.createElement("button");
+              scBtn.textContent = sc[1];
+              scBtn.style.cssText = "padding:5px 10px;border-radius:14px;border:1px solid #e8d4b0;background:"+(currentSousCat===sc[0]?"#c9a86a":"white")+";color:"+(currentSousCat===sc[0]?"#1a0a00":"#8b735d")+";font-size:11px;cursor:pointer;touch-action:manipulation;";
+              var doSaveSC = (function(val, btn){return function(e){
+                e.stopPropagation();
+                currentSousCat = val;
+                sousCatRow.querySelectorAll("button").forEach(function(b2){b2.style.background="white";b2.style.color="#8b735d";});
+                btn.style.background="#c9a86a"; btn.style.color="#1a0a00";
+                if(!b.sousCatsMakeup)b.sousCatsMakeup={};
+                b.sousCatsMakeup[photoKey]=val;
+                var user3=firebase.auth().currentUser;
+                if(user3){
+                  var upd={};upd["sousCatsMakeup."+photoKey]=val;
+                  firebase.firestore().collection("boutiques").doc(user3.uid).update(upd).then(function(){
+                    btn.textContent="✅";setTimeout(function(){btn.textContent=sc[1];},1500);
+                  });
+                }
+              };})(sc[0], scBtn);
+              scBtn.onclick = doSaveSC;
+              scBtn.addEventListener("touchend",function(e){e.preventDefault();doSaveSC(e);},{passive:false});
+              sousCatRow.appendChild(scBtn);
             });
-            sousCatSel.addEventListener("touchstart",function(e){e.stopPropagation();},{passive:true});
-            var doSaveSousCat = function(){
-              if(!b.sousCatsMakeup)b.sousCatsMakeup={};
-              b.sousCatsMakeup[photoKey]=sousCatSel.value;
-              var user3 = firebase.auth().currentUser;
-              if (user3 && sousCatSel.value) {
-                var update = {};
-                update["sousCatsMakeup."+photoKey] = sousCatSel.value;
-                firebase.firestore().collection("boutiques").doc(user3.uid).update(update).then(function(){
-                  sousCatSel.style.borderColor="#27AE60";
-                  setTimeout(function(){sousCatSel.style.borderColor="#e8d4b0";},1500);
-                });
-              }
-            };
-            sousCatSel.onchange = doSaveSousCat;
-            sousCatSel.addEventListener("change", doSaveSousCat);
-            sousCatSel.addEventListener("blur", doSaveSousCat);
-            sousCatRow.appendChild(sousCatSel);
             catContent.appendChild(sousCatRow);
           }
 
