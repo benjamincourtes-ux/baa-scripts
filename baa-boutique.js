@@ -845,11 +845,16 @@ function openGestionBoutique() {
             sousCatSel.onchange=function(){
               if(!b.sousCatsMakeup)b.sousCatsMakeup={};
               b.sousCatsMakeup[photoKey]=sousCatSel.value;
-              // Sauvegarder immédiatement
-              sauvegarderBoutique(b, function(){
-                sousCatSel.style.borderColor="#27AE60";
-                setTimeout(function(){sousCatSel.style.borderColor="#e8d4b0";},1500);
-              });
+              // Sauvegarder uniquement le champ sousCatsMakeup
+              var user3 = firebase.auth().currentUser;
+              if (user3) {
+                var update = {};
+                update["sousCatsMakeup."+photoKey] = sousCatSel.value;
+                firebase.firestore().collection("boutiques").doc(user3.uid).update(update).then(function(){
+                  sousCatSel.style.borderColor="#27AE60";
+                  setTimeout(function(){sousCatSel.style.borderColor="#e8d4b0";},1500);
+                });
+              }
             };
             sousCatRow.appendChild(sousCatSel);
             catContent.appendChild(sousCatRow);
