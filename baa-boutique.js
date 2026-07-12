@@ -1115,8 +1115,17 @@ function openGestionBoutique() {
       var titre=document.createElement("p");titre.style.cssText="color:#8b735d;font-size:15px;font-weight:bold;margin:0 0 6px;";titre.textContent="🎯 Mon tunnel recrutement";box.appendChild(titre);
       var sub=document.createElement("p");sub.style.cssText="color:#999;font-size:12px;margin:0 0 16px;line-height:1.5;";sub.textContent="Une page personnalisée qui présente l'opportunité Mihi avec ta boutique en démo, le simulateur de revenus et un formulaire de contact.";box.appendChild(sub);
 
-      // Aperçu lien
-      var lienBox=document.createElement("div");lienBox.style.cssText="background:white;border:2px solid #c9a86a;border-radius:12px;padding:16px;margin-bottom:12px;";
+      // Stats visites tunnel
+      var statsDiv = document.createElement("div"); statsDiv.style.cssText="background:white;border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid #e8d4b0;";
+      statsDiv.innerHTML="<p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 10px;'>📊 STATISTIQUES DU TUNNEL</p><p style='color:#999;font-size:12px;'>Chargement...</p>";
+      box.appendChild(statsDiv);
+
+      firebase.firestore().collection("boutiques").doc(user.uid).collection("stats").doc("recrutement").get().then(function(snap) {
+        var st = snap.exists ? snap.data() : {};
+        var visites = st.visites || 0;
+        var derniere = st.derniereVisite ? new Date(st.derniereVisite).toLocaleDateString("fr-FR",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"}) : "Jamais";
+        statsDiv.innerHTML = "<p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 10px;letter-spacing:1px;'>📊 STATISTIQUES DU TUNNEL</p><div style='display:flex;gap:12px;'><div style='flex:1;background:#f8f3ee;border-radius:10px;padding:12px;text-align:center;'><p style='color:#c9a86a;font-size:28px;font-weight:bold;margin:0;'>"+visites+"</p><p style='color:#999;font-size:11px;margin:0;'>Visites</p></div><div style='flex:1;background:#f8f3ee;border-radius:10px;padding:12px;text-align:center;'><p style='color:#27AE60;font-size:13px;font-weight:bold;margin:0 0 4px;'>"+derniere+"</p><p style='color:#999;font-size:11px;margin:0;'>Dernière visite</p></div></div>";
+      }).catch(function(){ statsDiv.innerHTML="<p style='color:#999;font-size:12px;text-align:center;'>Pas encore de données</p>"; });
       lienBox.innerHTML="<p style='color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;'>🔗 TON LIEN RECRUTEMENT</p><p style='color:#3a3a3a;font-size:12px;word-break:break-all;background:#f8f3ee;padding:8px;border-radius:8px;margin-bottom:10px;'>"+lien+"</p>";
 
       var copyBtn=document.createElement("button");copyBtn.textContent="📋 Copier le lien";copyBtn.style.cssText="width:100%;background:#c9a86a;color:#1a0a00;border:none;padding:12px;border-radius:10px;font-weight:bold;font-size:14px;cursor:pointer;margin-bottom:8px;touch-action:manipulation;";
