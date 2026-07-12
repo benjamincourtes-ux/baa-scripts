@@ -1269,7 +1269,7 @@ function initBeautyAddictLogin() {
   });
 }
 function baaGetApiKey(cb) {
-    db.collection("config").doc("assistant").get().then(function(snap) {
+    firebase.firestore().collection("config").doc("assistant").get().then(function(snap) {
       cb(snap.exists ? snap.data().apiKey || "" : "");
     }).catch(function() { cb(""); });
   }
