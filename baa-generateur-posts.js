@@ -45,8 +45,13 @@ function initGenerateurPosts() {
     });
     box.appendChild(reseauBtns);
 
-    // Sélection objectif
-    var objLabel = document.createElement("p"); objLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;"; objLabel.textContent="🎯 Objectif du post"; box.appendChild(objLabel);
+    var produitSection = document.createElement("div");
+    var produitLabel = document.createElement("p"); produitLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;"; produitLabel.textContent="💄 Produit à mettre en avant (optionnel)"; produitSection.appendChild(produitLabel);
+    var produitInp = document.createElement("input"); produitInp.placeholder="Ex: Sérum anti-âge, Rouge à lèvres Nude..."; produitInp.style.cssText="width:100%;padding:11px;border:1px solid #e8d4b0;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:14px;";
+    produitInp.addEventListener("touchstart",function(e){e.stopPropagation();},{passive:true});
+    produitSection.appendChild(produitInp);
+    box.appendChild(produitSection);
+
     var objBtns = document.createElement("div"); objBtns.style.cssText="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;";
     var objectifs = ["Vendre un produit","Attirer des clientes","Recruter","Partager un conseil","Avant/Après"];
     var objSel = "Vendre un produit";
@@ -57,19 +62,11 @@ function initGenerateurPosts() {
         objSel = o;
         objBtns.querySelectorAll("button").forEach(function(b){b.style.background="white";b.style.color="#8b735d";});
         btn.style.background="#c9a86a"; btn.style.color="#1a0a00";
-        if (o === "Vendre un produit") { produitSection.style.display="block"; } else { produitSection.style.display="none"; }
       };
       objBtns.appendChild(btn);
     });
+    box.appendChild(objLabel);
     box.appendChild(objBtns);
-
-    // Produit (optionnel)
-    var produitSection = document.createElement("div");
-    var produitLabel = document.createElement("p"); produitLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;"; produitLabel.textContent="💄 Produit à mettre en avant"; produitSection.appendChild(produitLabel);
-    var produitInp = document.createElement("input"); produitInp.placeholder="Ex: Sérum anti-âge, Rouge à lèvres Nude..."; produitInp.style.cssText="width:100%;padding:11px;border:1px solid #e8d4b0;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:14px;";
-    produitInp.addEventListener("touchstart",function(e){e.stopPropagation();},{passive:true});
-    produitSection.appendChild(produitInp);
-    box.appendChild(produitSection);
 
     // Infos perso
     var infoLabel = document.createElement("p"); infoLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;"; infoLabel.textContent="✍️ Ajouter une touche personnelle (optionnel)"; box.appendChild(infoLabel);
