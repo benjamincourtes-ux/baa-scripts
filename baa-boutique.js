@@ -1630,6 +1630,54 @@ function openGestionBoutique() {
         empty.innerHTML = "<p style='font-size:40px;'>🌿</p><p style='color:#999;font-size:14px;'>Pas encore de visites. Partagez votre lien boutique !</p>";
         box.appendChild(empty);
       }
+
+      // Top 3 produits
+      if (stats.topProduits) {
+        var topTitle = document.createElement("p"); topTitle.style.cssText="color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 10px;letter-spacing:1px;"; topTitle.textContent="🏆 TOP PRODUITS AJOUTÉS AU PANIER"; box.appendChild(topTitle);
+        var topDiv = document.createElement("div"); topDiv.style.cssText="background:white;border-radius:12px;padding:14px;margin-bottom:16px;border:1px solid #e8d4b0;";
+        var sorted = Object.entries(stats.topProduits).sort(function(a,b){return b[1]-a[1];}).slice(0,3);
+        if (sorted.length === 0) { topDiv.innerHTML="<p style='color:#999;font-size:13px;text-align:center;'>Pas encore de données</p>"; }
+        sorted.forEach(function(entry, i) {
+          var key=entry[0]; var count=entry[1];
+          var nomProd = key;
+          // Chercher le nom dans BAA_PRODUITS serait trop complexe ici, on affiche la clé
+          var row=document.createElement("div");row.style.cssText="display:flex;align-items:center;justify-content:space-between;padding:8px 0;"+(i<sorted.length-1?"border-bottom:1px solid #f0e6d3;":"");
+          row.innerHTML="<p style='color:#3a3a3a;font-size:13px;margin:0;'>"+(i===0?"🥇":i===1?"🥈":"🥉")+" "+key.replace(/^prod_/,"").replace(/_/g," ").slice(0,35)+"</p><span style='background:#c9a86a20;color:#8b735d;padding:3px 8px;border-radius:6px;font-size:12px;font-weight:bold;'>"+count+"x</span>";
+          topDiv.appendChild(row);
+        });
+        box.appendChild(topDiv);
+      }
+
+      // Paniers abandonnés
+      var abandonTitle = document.createElement("p"); abandonTitle.style.cssText="color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 10px;letter-spacing:1px;"; abandonTitle.textContent="🛒 PANIERS ABANDONNÉS"; box.appendChild(abandonTitle);
+      var abandonDiv = document.createElement("div"); abandonDiv.innerHTML="<p style='color:#999;font-size:13px;text-align:center;padding:10px;'>Chargement...</p>"; box.appendChild(abandonDiv);
+
+      firebase.firestore().collection("paniers_abandonnes").where("boutiqueUid","==",user.uid).orderBy("updatedAt","desc").limit(10).get().then(function(aSnap) {
+        abandonDiv.innerHTML="";
+        if (aSnap.empty) { abandonDiv.innerHTML="<p style='color:#999;font-size:13px;text-align:center;padding:10px;'>Aucun panier abandonné</p>"; return; }
+        aSnap.forEach(function(aDoc) {
+          var ab=aDoc.data();
+          var nbProduits=Object.keys(ab.panier||{}).reduce(function(t,k){return t+(ab.panier[k]||0);},0);
+          var card=document.createElement("div");card.style.cssText="background:white;border-radius:12px;padding:12px;margin-bottom:8px;border:1px solid #e8d4b0;";
+          var date=ab.updatedAt?new Date(ab.updatedAt).toLocaleDateString("fr-FR",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"";
+          card.innerHTML="<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'><div><p style='color:#3a3a3a;font-size:13px;font-weight:bold;margin:0 0 2px;'>"+ab.clientNom+"</p><p style='color:#999;font-size:11px;margin:0;'>"+date+" • "+nbProduits+" produit(s)</p></div></div>";
+          if (ab.clientEmail) {
+            var rappelBtn=document.createElement("button");rappelBtn.textContent="📧 Envoyer un rappel";rappelBtn.style.cssText="width:100%;background:#f0f4ff;color:#2980B9;border:1px solid #2980B9;padding:8px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;touch-action:manipulation;";
+            rappelBtn.onclick=(function(ab2){return function(){
+              emailjs.send("service_wr9mlhk","template_nkfnrnd",{
+                vdi_prenom:"",to_email:ab2.clientEmail,
+                client_nom:ab2.clientNom||"",client_prenom:"",
+                client_adresse:"",client_tel:"",client_email:ab2.clientEmail,
+                commande_detail:"Tu as laissé des produits dans ton panier ! Reviens vite les commander avant qu'ils ne disparaissent 🛍️",
+                total:"Rappel panier"
+              }).then(function(){rappelBtn.textContent="✅ Rappel envoyé !";rappelBtn.style.background="#27AE60";rappelBtn.style.color="white";});
+            };})(ab);
+            card.appendChild(rappelBtn);
+          }
+          abandonDiv.appendChild(card);
+        });
+      }).catch(function(){abandonDiv.innerHTML="<p style='color:#999;font-size:12px;text-align:center;'>Créez un index Firebase si demandé.</p>";});
+
     }).catch(function() {
       loading.textContent = "Erreur de chargement.";
     });
