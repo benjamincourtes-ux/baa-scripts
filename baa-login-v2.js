@@ -208,9 +208,8 @@ function initBeautyAddictLogin() {
               setTimeout(function() { menu.remove(); if (typeof openGestionBoutique === "function") openGestionBoutique(); }, 200);
             };
             document.getElementById("menu-generateur").onclick = function() {
-              menu.style.transform = "translateX(-100%)";
               menu.remove();
-              setTimeout(function() { if (typeof window.ouvrirGenerateurPosts === "function") window.ouvrirGenerateurPosts(); }, 300);
+              if (typeof window.ouvrirGenerateurPosts === "function") window.ouvrirGenerateurPosts();
             };
             document.getElementById("menu-analyse-profil").onclick = function() {
               menu.style.transform = "translateX(-100%)";
