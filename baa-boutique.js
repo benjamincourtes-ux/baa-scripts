@@ -985,7 +985,17 @@ function openGestionBoutique() {
           var checkEl=document.createElement("div"); checkEl.className="check-el"; checkEl.style.cssText="width:20px;height:20px;border-radius:4px;border:2px solid "+(checked?"#c9a86a":"#ddd")+";background:"+(checked?"#c9a86a":"white")+";margin-right:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;"; checkEl.innerHTML=checked?"<span style='color:white;font-size:12px;font-weight:bold;'>✓</span>":"";
           var infoEl=document.createElement("div"); infoEl.style.cssText="flex:1;"; infoEl.innerHTML="<p style='color:#3a3a3a;font-size:13px;margin:0 0 1px;'>"+prod.nom+"</p><p style='color:#c9a86a;font-size:12px;font-weight:bold;margin:0;'>"+parseFloat(prod.prix||0).toFixed(2)+" €</p>";
           var delBtn=document.createElement("button"); delBtn.textContent="🗑️"; delBtn.style.cssText="background:#fee;color:#e74c3c;border:1px solid #e74c3c;padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;touch-action:manipulation;";
-          delBtn.onclick=(function(idx, key){return function(e){e.stopPropagation();if(confirm("Supprimer ce produit ?")){b.produitsCustom.splice(idx,1);var i2=produitsSel.indexOf(key);if(i2>=0)produitsSel.splice(i2,1);b.produits=produitsSel.slice();sauvegarderBoutique(b,function(){state.boutique=null;state.step="produits";render();});}};})(i,k);
+          var doDelete=(function(idx, key){return function(e){e.stopPropagation();if(confirm("Supprimer ce produit ?")){
+            b.produitsCustom.splice(idx,1);
+            var i2=produitsSel.indexOf(key);if(i2>=0)produitsSel.splice(i2,1);
+            b.produits=produitsSel.slice();
+            // Supprimer aussi la sous-catégorie et le prix VIP
+            if(b.sousCatsMakeup&&b.sousCatsMakeup[key])delete b.sousCatsMakeup[key];
+            if(b.prixVip&&b.prixVip[key])delete b.prixVip[key];
+            sauvegarderBoutique(b,function(){state.boutique=null;state.step="produits";render();});
+          }};})(i,k);
+          delBtn.onclick=doDelete;
+          delBtn.addEventListener("touchend",function(e){e.preventDefault();doDelete(e);},{passive:false});
           pDiv.appendChild(checkEl);pDiv.appendChild(infoEl);pDiv.appendChild(delBtn);
           var handleSel=function(){var idx2=produitsSel.indexOf(k);if(idx2>=0){produitsSel.splice(idx2,1);checkEl.style.background="white";checkEl.style.borderColor="#ddd";checkEl.innerHTML="";}else{produitsSel.push(k);checkEl.style.background="#c9a86a";checkEl.style.borderColor="#c9a86a";checkEl.innerHTML="<span style='color:white;font-size:12px;font-weight:bold;'>✓</span>";}b.produits=produitsSel.slice();};
           pDiv.onclick=handleSel; pDiv.addEventListener("touchend",function(e){e.preventDefault();handleSel();},{passive:false});
