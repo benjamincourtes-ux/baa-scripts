@@ -1122,6 +1122,11 @@ function openGestionBoutique() {
         if (!b.sousCatsMakeup) b.sousCatsMakeup = {};
         b.sousCatsMakeup[newKey] = sousCatValeur;
       }
+      // Sauvegarder le prix VIP si renseigné
+      if (vipInp2.value && parseFloat(vipInp2.value) > 0) {
+        if (!b.prixVip) b.prixVip = {};
+        b.prixVip[newKey] = parseFloat(vipInp2.value);
+      }
       sauvegarderBoutique(b, function() {
         alert("✅ Produit ajouté !");
         state.boutique = null; state.step = "produits"; render();
