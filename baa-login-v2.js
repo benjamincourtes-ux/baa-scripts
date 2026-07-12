@@ -1354,13 +1354,39 @@ function ouvrirGenerateurPostsBAA() {
 
     // Header
     var hdr = document.createElement("div"); hdr.style.cssText="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;";
-    hdr.innerHTML = "<div><p style='color:#999;font-size:11px;font-weight:bold;margin:0 0 2px;letter-spacing:1px;'>✨ OUTIL IA</p><h3 style='color:#8b735d;font-size:17px;margin:0;'>Générateur de posts</h3></div>";
+    hdr.innerHTML = "<div><p style='color:#999;font-size:11px;font-weight:bold;margin:0 0 2px;letter-spacing:1px;'>✨ OUTILS IA</p><h3 style='color:#8b735d;font-size:17px;margin:0;'>Marché froid & Contenu</h3></div>";
+
+    // Onglets
+    var tabBar = document.createElement("div"); tabBar.style.cssText="display:flex;gap:6px;margin-bottom:16px;";
+    var tabs = [
+      {id:"posts", label:"✨ Posts"},
+      {id:"profil", label:"🔍 Analyser profil"},
+      {id:"viral", label:"🔥 Post viral"}
+    ];
+    var activeTab = "posts";
+    var sectionsMap = {};
+
+    tabs.forEach(function(t) {
+      var btn = document.createElement("button"); btn.textContent=t.label; btn.dataset.tab=t.id;
+      btn.style.cssText="flex:1;padding:8px;border-radius:10px;border:1px solid #e8d4b0;background:"+(t.id==="posts"?"#c9a86a":"white")+";color:"+(t.id==="posts"?"#1a0a00":"#8b735d")+";font-size:11px;font-weight:bold;cursor:pointer;touch-action:manipulation;";
+      btn.onclick=function(){
+        activeTab=t.id;
+        tabBar.querySelectorAll("button").forEach(function(b){b.style.background="white";b.style.color="#8b735d";});
+        btn.style.background="#c9a86a";btn.style.color="#1a0a00";
+        Object.keys(sectionsMap).forEach(function(k){sectionsMap[k].style.display=k===t.id?"block":"none";});
+      };
+      tabBar.appendChild(btn);
+    });
+    box.appendChild(tabBar);
+
+    // ===== SECTION POSTS =====
+    var sectionPosts = document.createElement("div"); sectionsMap["posts"]=sectionPosts;
     var closeBtn = document.createElement("button"); closeBtn.textContent="✕"; closeBtn.style.cssText="background:none;border:none;font-size:22px;color:#8b735d;cursor:pointer;touch-action:manipulation;";
     closeBtn.onclick = function() { panel.remove(); };
     hdr.appendChild(closeBtn); box.appendChild(hdr);
 
     // Sélection réseau
-    var reseauLabel = document.createElement("p"); reseauLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;"; reseauLabel.textContent="📱 Réseau social"; box.appendChild(reseauLabel);
+    var reseauLabel = document.createElement("p"); reseauLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;"; reseauLabel.textContent="📱 Réseau social"; sectionPosts.appendChild(reseauLabel);
     var reseauBtns = document.createElement("div"); reseauBtns.style.cssText="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;";
     var reseaux = ["Facebook","Instagram","WhatsApp","Story"];
     var reseauSel = "Facebook";
@@ -1374,14 +1400,14 @@ function ouvrirGenerateurPostsBAA() {
       };
       reseauBtns.appendChild(btn);
     });
-    box.appendChild(reseauBtns);
+    sectionPosts.appendChild(reseauBtns);
 
     var produitSection = document.createElement("div");
     var produitLabel = document.createElement("p"); produitLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;"; produitLabel.textContent="💄 Produit à mettre en avant (optionnel)"; produitSection.appendChild(produitLabel);
     var produitInp = document.createElement("input"); produitInp.placeholder="Ex: Sérum anti-âge, Rouge à lèvres Nude..."; produitInp.style.cssText="width:100%;padding:11px;border:1px solid #e8d4b0;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:14px;";
     produitInp.addEventListener("touchstart",function(e){e.stopPropagation();},{passive:true});
     produitSection.appendChild(produitInp);
-    box.appendChild(produitSection);
+    sectionPosts.appendChild(produitSection);
 
     var objLabel = document.createElement("p"); objLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;"; objLabel.textContent="🎯 Objectif du post";
     var objBtns = document.createElement("div"); objBtns.style.cssText="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;";
@@ -1397,8 +1423,8 @@ function ouvrirGenerateurPostsBAA() {
       };
       objBtns.appendChild(btn);
     });
-    box.appendChild(objLabel);
-    box.appendChild(objBtns);
+    sectionPosts.appendChild(objLabel);
+    sectionPosts.appendChild(objBtns);
 
     // Infos perso
     var infoLabel = document.createElement("p"); infoLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;"; infoLabel.textContent="✍️ Ajouter une touche personnelle (optionnel)"; box.appendChild(infoLabel);
@@ -1473,6 +1499,88 @@ function ouvrirGenerateurPostsBAA() {
 
     genBtn.onclick = doGen;
     genBtn.addEventListener("touchend",function(e){e.preventDefault();doGen();},{passive:false});
+    sectionPosts.appendChild(genBtn); sectionPosts.appendChild(resultsDiv);
+    // sectionPosts déjà ajouté plus bas
+
+    // ===== SECTION ANALYSER PROFIL =====
+    var sectionProfil = document.createElement("div"); sectionProfil.style.display="none"; sectionsMap["profil"]=sectionProfil;
+    var profilDesc = document.createElement("p"); profilDesc.style.cssText="color:#666;font-size:13px;line-height:1.6;margin:0 0 14px;"; profilDesc.textContent="Décris le profil d'une prospect (ce qu'elle poste, ses intérêts, sa situation) et l'IA génère un message d'approche ultra-personnalisé."; sectionProfil.appendChild(profilDesc);
+    var profilLabel = document.createElement("p"); profilLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;"; profilLabel.textContent="👤 Décris le profil de ta prospect"; sectionProfil.appendChild(profilLabel);
+    var profilInp = document.createElement("textarea"); profilInp.placeholder="Ex: Maman de 2 enfants, poste souvent sur le bien-être, a commenté 'j'aimerais prendre soin de moi', habite en province, semble chercher un complément de revenus..."; profilInp.rows=5; profilInp.style.cssText="width:100%;padding:11px;border:1px solid #e8d4b0;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:14px;resize:none;"; profilInp.addEventListener("touchstart",function(e){e.stopPropagation();},{passive:true}); sectionProfil.appendChild(profilInp);
+    var profilBtn = document.createElement("button"); profilBtn.textContent="🔍 Générer le message d'approche"; profilBtn.style.cssText="width:100%;background:linear-gradient(135deg,#c9a86a,#f5d48a);color:#1a0a00;border:none;padding:14px;border-radius:12px;font-weight:bold;font-size:15px;cursor:pointer;touch-action:manipulation;margin-bottom:16px;";
+    var profilResults = document.createElement("div"); sectionProfil.appendChild(profilBtn); sectionProfil.appendChild(profilResults);
+    var doProfilGen = function() {
+      if (!profilInp.value.trim()) { alert("Décris d'abord le profil de ta prospect."); return; }
+      profilBtn.disabled=true; profilBtn.textContent="⏳ Génération...";
+      profilResults.innerHTML="<p style='color:#999;font-size:13px;text-align:center;padding:16px;'>L'IA analyse le profil...</p>";
+      baaGetApiKey(function(apiKey) {
+        if (!apiKey) { profilResults.innerHTML="<p style='color:#e74c3c;font-size:13px;text-align:center;'>Clé API non configurée.</p>"; profilBtn.disabled=false; profilBtn.textContent="🔍 Générer le message d'approche"; return; }
+        var prompt = "Tu es une experte en prospection douce pour une VDI Mihi (cosmétiques haut de gamme).\n\nVoici le profil d'une prospect sur les réseaux sociaux :\n"+profilInp.value.trim()+"\n\nGénère 3 messages d'approche différents, naturels et personnalisés basés sur ce profil.\nRègles importantes :\n- Ne pas mentionner Mihi ou le MLM dans le premier message\n- Ton amical et authentique, pas commercial\n- Commencer par créer une connexion humaine\n- Court (3-4 lignes max)\n- Basé sur des détails spécifiques du profil\n\nFormate avec ---MESSAGE 1--- ---MESSAGE 2--- ---MESSAGE 3---";
+        fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:prompt}]})}).then(function(r){return r.json();}).then(function(data){
+          var texte = data.content&&data.content[0]?data.content[0].text:"";
+          if(!texte){profilResults.innerHTML="<p style='color:#e74c3c;font-size:13px;text-align:center;'>Erreur. Réessaie.</p>";profilBtn.disabled=false;profilBtn.textContent="🔍 Générer le message d'approche";return;}
+          var msgs = texte.split(/---MESSAGE \d+---/).filter(function(p){return p.trim();});
+          profilResults.innerHTML="";
+          msgs.forEach(function(msg,i){
+            var card=document.createElement("div");card.style.cssText="background:white;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8d4b0;";
+            var num=document.createElement("p");num.style.cssText="color:#c9a86a;font-size:11px;font-weight:bold;margin:0 0 6px;";num.textContent="💬 MESSAGE "+(i+1);
+            var content=document.createElement("p");content.style.cssText="color:#3a3a3a;font-size:13px;line-height:1.7;margin:0 0 8px;white-space:pre-wrap;";content.textContent=msg.trim();
+            var copyBtn=document.createElement("button");copyBtn.textContent="📋 Copier";copyBtn.style.cssText="background:#f8f3ee;color:#8b735d;border:1px solid #e8d4b0;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:12px;touch-action:manipulation;";
+            var doCopy=(function(txt){return function(){navigator.clipboard&&navigator.clipboard.writeText(txt).then(function(){copyBtn.textContent="✅ Copié !";setTimeout(function(){copyBtn.textContent="📋 Copier";},2000);});};})(msg.trim());
+            copyBtn.onclick=doCopy;copyBtn.addEventListener("touchend",function(e){e.preventDefault();doCopy();},{passive:false});
+            card.appendChild(num);card.appendChild(content);card.appendChild(copyBtn);profilResults.appendChild(card);
+          });
+          profilBtn.disabled=false;profilBtn.textContent="🔍 Générer le message d'approche";
+        }).catch(function(){profilResults.innerHTML="<p style='color:#e74c3c;font-size:13px;text-align:center;'>Erreur de connexion.</p>";profilBtn.disabled=false;profilBtn.textContent="🔍 Générer le message d'approche";});
+      });
+    };
+    profilBtn.onclick=doProfilGen; profilBtn.addEventListener("touchend",function(e){e.preventDefault();doProfilGen();},{passive:false});
+    box.appendChild(sectionProfil);
+
+    // ===== SECTION POST VIRAL =====
+    var sectionViral = document.createElement("div"); sectionViral.style.display="none"; sectionsMap["viral"]=sectionViral;
+    var viralDesc = document.createElement("p"); viralDesc.style.cssText="color:#666;font-size:13px;line-height:1.6;margin:0 0 14px;"; viralDesc.textContent="L'IA génère un post calibré pour attirer naturellement des prospects — sans parler de recrutement. Les gens viennent à toi d'eux-mêmes."; sectionViral.appendChild(viralDesc);
+    var viralCibleLabel = document.createElement("p"); viralCibleLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;"; viralCibleLabel.textContent="🎯 Qui veux-tu attirer ?"; sectionViral.appendChild(viralCibleLabel);
+    var viralCiblage = document.createElement("div"); viralCiblage.style.cssText="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;";
+    var cibles = ["Mamans","Femmes actives","Passionnées beauté","Cherchant revenus","Toutes"];
+    var cibleSel = "Toutes";
+    cibles.forEach(function(c){
+      var btn=document.createElement("button");btn.textContent=c;
+      btn.style.cssText="padding:7px 12px;border-radius:20px;border:1px solid #e8d4b0;background:"+(c==="Toutes"?"#c9a86a":"white")+";color:"+(c==="Toutes"?"#1a0a00":"#8b735d")+";font-size:11px;font-weight:bold;cursor:pointer;touch-action:manipulation;";
+      btn.onclick=function(){cibleSel=c;viralCiblage.querySelectorAll("button").forEach(function(b){b.style.background="white";b.style.color="#8b735d";});btn.style.background="#c9a86a";btn.style.color="#1a0a00";};
+      viralCiblage.appendChild(btn);
+    });
+    sectionViral.appendChild(viralCiblage);
+    var viralThemeLabel = document.createElement("p"); viralThemeLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;"; viralThemeLabel.textContent="💡 Thème (optionnel)"; sectionViral.appendChild(viralThemeLabel);
+    var viralThemeInp = document.createElement("input"); viralThemeInp.placeholder="Ex: routine matin, peau éclatante, confiance en soi..."; viralThemeInp.style.cssText="width:100%;padding:11px;border:1px solid #e8d4b0;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:14px;"; viralThemeInp.addEventListener("touchstart",function(e){e.stopPropagation();},{passive:true}); sectionViral.appendChild(viralThemeInp);
+    var viralBtn = document.createElement("button"); viralBtn.textContent="🔥 Générer le post viral"; viralBtn.style.cssText="width:100%;background:linear-gradient(135deg,#c0392b,#e74c3c);color:white;border:none;padding:14px;border-radius:12px;font-weight:bold;font-size:15px;cursor:pointer;touch-action:manipulation;margin-bottom:16px;";
+    var viralResults = document.createElement("div"); sectionViral.appendChild(viralBtn); sectionViral.appendChild(viralResults);
+    var doViralGen = function() {
+      viralBtn.disabled=true; viralBtn.textContent="⏳ Génération...";
+      viralResults.innerHTML="<p style='color:#999;font-size:13px;text-align:center;padding:16px;'>L'IA crée ton post viral...</p>";
+      baaGetApiKey(function(apiKey) {
+        if (!apiKey) { viralResults.innerHTML="<p style='color:#e74c3c;font-size:13px;text-align:center;'>Clé API non configurée.</p>"; viralBtn.disabled=false; viralBtn.textContent="🔥 Générer le post viral"; return; }
+        var prompt = "Tu es une experte en contenu viral beauté et lifestyle pour Facebook/Instagram.\n\nCrée 3 posts viraux différents pour attirer naturellement des prospects vers une VDI Mihi (cosmétiques).\nCible : "+cibleSel+(viralThemeInp.value.trim()?"\nThème : "+viralThemeInp.value.trim():"")+".\n\nRègles IMPORTANTES :\n- Ne JAMAIS parler de vente, MLM, recrutement ou argent\n- Créer de l'émotion, de l'identification ou de la curiosité\n- Les gens doivent commenter ou demander en DM d'eux-mêmes\n- Accroche ultra-forte dès la première ligne\n- Authentique, comme si c'était une vraie vie et non une pub\n- Terminer par une question ou un appel à l'interaction\n- Émojis pertinents\n\nFormate avec ---POST 1--- ---POST 2--- ---POST 3---";
+        fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1500,messages:[{role:"user",content:prompt}]})}).then(function(r){return r.json();}).then(function(data){
+          var texte=data.content&&data.content[0]?data.content[0].text:"";
+          if(!texte){viralResults.innerHTML="<p style='color:#e74c3c;font-size:13px;text-align:center;'>Erreur. Réessaie.</p>";viralBtn.disabled=false;viralBtn.textContent="🔥 Générer le post viral";return;}
+          var posts=texte.split(/---POST \d+---/).filter(function(p){return p.trim();});
+          viralResults.innerHTML="";
+          posts.forEach(function(post,i){
+            var card=document.createElement("div");card.style.cssText="background:white;border-radius:12px;padding:14px;margin-bottom:10px;border:2px solid #fee;";
+            var num=document.createElement("p");num.style.cssText="color:#e74c3c;font-size:11px;font-weight:bold;margin:0 0 6px;";num.textContent="🔥 VERSION "+(i+1);
+            var content=document.createElement("p");content.style.cssText="color:#3a3a3a;font-size:13px;line-height:1.7;margin:0 0 8px;white-space:pre-wrap;";content.textContent=post.trim();
+            var copyBtn=document.createElement("button");copyBtn.textContent="📋 Copier";copyBtn.style.cssText="background:#fee;color:#e74c3c;border:1px solid #e74c3c;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:12px;touch-action:manipulation;";
+            var doCopy=(function(txt){return function(){navigator.clipboard&&navigator.clipboard.writeText(txt).then(function(){copyBtn.textContent="✅ Copié !";setTimeout(function(){copyBtn.textContent="📋 Copier";},2000);});};})(post.trim());
+            copyBtn.onclick=doCopy;copyBtn.addEventListener("touchend",function(e){e.preventDefault();doCopy();},{passive:false});
+            card.appendChild(num);card.appendChild(content);card.appendChild(copyBtn);viralResults.appendChild(card);
+          });
+          viralBtn.disabled=false;viralBtn.textContent="🔥 Générer le post viral";
+        }).catch(function(){viralResults.innerHTML="<p style='color:#e74c3c;font-size:13px;text-align:center;'>Erreur de connexion.</p>";viralBtn.disabled=false;viralBtn.textContent="🔥 Générer le post viral";});
+      });
+    };
+    viralBtn.onclick=doViralGen; viralBtn.addEventListener("touchend",function(e){e.preventDefault();doViralGen();},{passive:false});
+    box.appendChild(sectionViral);
 
     var iosSpace = document.createElement("div"); iosSpace.style.height="60px"; box.appendChild(iosSpace);
     panel.appendChild(box); document.body.appendChild(panel);
