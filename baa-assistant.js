@@ -26,7 +26,7 @@ function openAssistantPanel() {
 
   panel.onclick = function(e) { if (e.target === panel) panel.remove(); };
   document.getElementById("close-assistant").onclick = function() {
-    panel.remove(); var mb = document.getElementById("baa-menu-btn"); if (mb) mb.click();
+    panel.remove();
   };
 
   var messages = [];
