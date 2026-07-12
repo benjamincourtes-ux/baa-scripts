@@ -149,21 +149,8 @@ function initGenerateurPosts() {
     panel.appendChild(box); document.body.appendChild(panel);
   }
 
-  // Ajouter bouton dans le menu hamburger
-  function ajouterBoutonMenu() {
-    var menuEl = document.getElementById("baa-menu-btn");
-    if (!menuEl) { setTimeout(ajouterBoutonMenu, 1000); return; }
-
-    var genBtnMenu = document.createElement("div");
-    genBtnMenu.id = "menu-generateur-btn";
-    genBtnMenu.style.cssText = "position:fixed;bottom:170px;right:20px;z-index:99999;background:linear-gradient(135deg,#8b735d,#c9a86a);color:white;border-radius:24px;padding:10px 16px;cursor:pointer;font-family:Arial,sans-serif;font-size:12px;font-weight:bold;box-shadow:0 4px 15px rgba(139,115,93,0.5);touch-action:manipulation;white-space:nowrap;";
-    genBtnMenu.innerHTML = "✨ Générateur posts";
-    genBtnMenu.onclick = ouvrirGenerateur;
-    genBtnMenu.addEventListener("touchend",function(e){e.preventDefault();ouvrirGenerateur();},{passive:false});
-    document.body.appendChild(genBtnMenu);
-  }
-
-  ajouterBoutonMenu();
+  // Exposer la fonction pour le menu hamburger
+  window.ouvrirGenerateurPosts = ouvrirGenerateur;
 }
 
 if (document.readyState === "complete") { setTimeout(initGenerateurPosts, 2500); }
