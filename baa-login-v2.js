@@ -209,7 +209,8 @@ function initBeautyAddictLogin() {
             };
             document.getElementById("menu-generateur").onclick = function() {
               menu.style.transform = "translateX(-100%)";
-              setTimeout(function() { menu.remove(); if (typeof window.ouvrirGenerateurPosts === "function") window.ouvrirGenerateurPosts(); }, 200);
+              menu.remove();
+              setTimeout(function() { if (typeof window.ouvrirGenerateurPosts === "function") window.ouvrirGenerateurPosts(); }, 300);
             };
             document.getElementById("menu-analyse-profil").onclick = function() {
               menu.style.transform = "translateX(-100%)";
