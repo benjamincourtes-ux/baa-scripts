@@ -1311,7 +1311,7 @@ function afficherPhenixContextuel(page) {
 
   var doOpen = function() {
     bubble.remove();
-    if (typeof openAssistantPanel === "function") openAssistantPanel();
+    if (typeof openAssistantPanel === "function") openAssistantPanel(true);
   };
   avatar.onclick = doOpen;
   msgDiv.onclick = function(e) { if (e.target !== closeX) doOpen(); };
