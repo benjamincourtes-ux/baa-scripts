@@ -1497,7 +1497,7 @@ function ouvrirGenerateurPostsBAA() {
     genBtn.onclick = doGen;
     genBtn.addEventListener("touchend",function(e){e.preventDefault();doGen();},{passive:false});
     sectionPosts.appendChild(genBtn); sectionPosts.appendChild(resultsDiv);
-    // sectionPosts déjà ajouté plus bas
+    box.appendChild(sectionPosts);
 
     // ===== SECTION ANALYSER PROFIL =====
     var sectionProfil = document.createElement("div"); sectionProfil.style.display="none"; sectionsMap["profil"]=sectionProfil;
