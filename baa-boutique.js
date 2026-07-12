@@ -1077,15 +1077,22 @@ function openGestionBoutique() {
     var vipInp2 = document.createElement("input"); vipInp2.type="number"; vipInp2.placeholder="Ex: 19.90"; vipInp2.step="0.01"; vipInp2.style.cssText="width:100%;padding:11px;border:1px solid #c0392b;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:10px;"; box.appendChild(vipInp2);
 
     // Sous-catégorie make-up (visible seulement si catégorie = make-up)
-    var sousCatLabel = document.createElement("p"); sousCatLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 4px;display:none;"; sousCatLabel.textContent="💄 Sous-catégorie make-up"; box.appendChild(sousCatLabel);
-    var sousCatSel2 = document.createElement("select"); sousCatSel2.style.cssText="width:100%;padding:11px;border:1px solid #e8d4b0;border-radius:10px;font-size:13px;box-sizing:border-box;margin-bottom:10px;background:white;display:none;";
-    [["","-- Choisir --"],["teint","💄 Teint"],["yeux","👁️ Yeux"],["levres","💋 Lèvres"],["sourcils","✏️ Sourcils"],["ongles","💅 Ongles"]].forEach(function(sc){var opt=document.createElement("option");opt.value=sc[0];opt.textContent=sc[1];sousCatSel2.appendChild(opt);});
-    box.appendChild(sousCatSel2);
+    var sousCatLabel = document.createElement("p"); sousCatLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;display:none;"; sousCatLabel.textContent="💄 Sous-catégorie make-up"; box.appendChild(sousCatLabel);
+    var sousCatBtnsDiv = document.createElement("div"); sousCatBtnsDiv.style.cssText="display:none;flex-wrap:wrap;gap:6px;margin-bottom:12px;";
+    var sousCatValeur = "";
+    [["teint","💄 Teint"],["yeux","👁️ Yeux"],["levres","💋 Lèvres"],["sourcils","✏️ Sourcils"],["ongles","💅 Ongles"]].forEach(function(sc){
+      var scBtn=document.createElement("button");scBtn.textContent=sc[1];
+      scBtn.style.cssText="padding:8px 12px;border-radius:14px;border:1px solid #e8d4b0;background:white;color:#8b735d;font-size:12px;cursor:pointer;touch-action:manipulation;";
+      var doSC=(function(val,btn){return function(e){e.stopPropagation();sousCatValeur=val;sousCatBtnsDiv.querySelectorAll("button").forEach(function(b){b.style.background="white";b.style.color="#8b735d";});btn.style.background="#c9a86a";btn.style.color="#1a0a00";};})(sc[0],scBtn);
+      scBtn.onclick=doSC;scBtn.addEventListener("touchend",function(e){e.preventDefault();doSC(e);},{passive:false});
+      sousCatBtnsDiv.appendChild(scBtn);
+    });
+    box.appendChild(sousCatBtnsDiv);
 
     catSel.onchange = function() {
       var isMakeup = catSel.value === "make-up";
       sousCatLabel.style.display = isMakeup ? "block" : "none";
-      sousCatSel2.style.display = isMakeup ? "block" : "none";
+      sousCatBtnsDiv.style.display = isMakeup ? "flex" : "none";
     };
 
     var saveBtn = document.createElement("button"); saveBtn.textContent="✅ Ajouter ce produit"; saveBtn.style.cssText="width:100%;background:linear-gradient(135deg,#c9a86a,#f5d48a);color:#1a0a00;border:none;padding:14px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:15px;margin-bottom:10px;touch-action:manipulation;";
@@ -1100,8 +1107,13 @@ function openGestionBoutique() {
       if (!b.produits) b.produits = [];
       b.produits = b.produits.filter(function(x){return typeof x==="string";});
       b.produits.push(newKey);
+      // Sauvegarder la sous-catégorie make-up si sélectionnée
+      if (catSel.value === "make-up" && sousCatValeur) {
+        if (!b.sousCatsMakeup) b.sousCatsMakeup = {};
+        b.sousCatsMakeup[newKey] = sousCatValeur;
+      }
       sauvegarderBoutique(b, function() {
-        alert("✅ Produit ajouté ! Clé: " + newKey);
+        alert("✅ Produit ajouté !");
         state.boutique = null; state.step = "produits"; render();
       });
     };
