@@ -181,9 +181,9 @@ function initBeautyAddictLogin() {
             document.querySelectorAll(".baa-menu-item").forEach(function(item) { item.onmouseenter = function() { item.style.background = "#f0e6d3"; }; item.onmouseleave = function() { item.style.background = "transparent"; }; });
             if (data.role === "admin") { document.getElementById("menu-admin").onclick = function() { menu.remove(); openAdminPanel(); }; }
             document.getElementById("menu-moncompte").onclick = function() { menu.remove(); openInfoPanel(); };
-            document.getElementById("menu-carnet").onclick = function() { menu.remove(); openCarnetPanel(); };
-            document.getElementById("menu-commandes").onclick = function() { menu.remove(); openCommandesPanel(); };
-            document.getElementById("menu-notes").onclick = function() { menu.remove(); openNotesPanel(); };
+            document.getElementById("menu-carnet").onclick = function() { menu.remove(); openCarnetPanel(); setTimeout(function(){afficherPhenixContextuel("carnet");},800); };
+            document.getElementById("menu-commandes").onclick = function() { menu.remove(); openCommandesPanel(); setTimeout(function(){afficherPhenixContextuel("commandes");},800); };
+            document.getElementById("menu-notes").onclick = function() { menu.remove(); openNotesPanel(); setTimeout(function(){afficherPhenixContextuel("notes");},800); };
             document.getElementById("menu-diagnostics").onclick = function() {
               var sub = document.getElementById("menu-diag-sub");
               var arrow = document.getElementById("diag-arrow");
@@ -202,7 +202,7 @@ function initBeautyAddictLogin() {
               menu.style.transform = "translateX(-100%)";
               setTimeout(function() { menu.remove(); if (typeof openTeinteFoundation === "function") openTeinteFoundation(); }, 200);
             };
-            document.getElementById("menu-outils").onclick = function() { menu.remove(); openOutilsPanel(); };
+            document.getElementById("menu-outils").onclick = function() { menu.remove(); openOutilsPanel(); setTimeout(function(){afficherPhenixContextuel("outils");},800); };
             document.getElementById("menu-boutique").onclick = function() {
               menu.style.transform = "translateX(-100%)";
               setTimeout(function() { menu.remove(); if (typeof openGestionBoutique === "function") openGestionBoutique(); }, 200);
@@ -215,9 +215,9 @@ function initBeautyAddictLogin() {
               menu.style.transform = "translateX(-100%)";
               setTimeout(function() { menu.remove(); if (typeof openAnalyseProfil === "function") openAnalyseProfil(); }, 200);
             };
-            document.getElementById("menu-quiz").onclick = function() { menu.remove(); openQuizPanel(); };
-            document.getElementById("menu-victoires").onclick = function() { menu.remove(); openVictoiresPanel(); };
-            document.getElementById("menu-badges").onclick = function() { menu.remove(); if (typeof openBadgesPanel === "function") openBadgesPanel(); };
+            document.getElementById("menu-quiz").onclick = function() { menu.remove(); openQuizPanel(); setTimeout(function(){afficherPhenixContextuel("quiz");},800); };
+            document.getElementById("menu-victoires").onclick = function() { menu.remove(); openVictoiresPanel(); setTimeout(function(){afficherPhenixContextuel("victoires");},800); };
+            document.getElementById("menu-badges").onclick = function() { menu.remove(); if (typeof openBadgesPanel === "function") openBadgesPanel(); setTimeout(function(){afficherPhenixContextuel("badges");},800); };
             document.getElementById("menu-carte").onclick = function() { menu.remove(); if (typeof openCarteVisitePanel === "function") openCarteVisitePanel(); };
             document.getElementById("menu-assistant").onclick = function() { menu.remove(); if (typeof openAssistantPanel === "function") openAssistantPanel(); };
           });
@@ -225,6 +225,7 @@ function initBeautyAddictLogin() {
           document.addEventListener("click", function closeMenu(e) { if (!menu.contains(e.target) && e.target !== menuBtn) { menu.remove(); document.removeEventListener("click", closeMenu); } });
         };
         document.body.appendChild(menuBtn);
+        setTimeout(function(){afficherPhenixContextuel("accueil");},3000);
       }
       function openAdminPanel() {
         if (document.getElementById("baa-admin-panel")) return;
@@ -1268,6 +1269,71 @@ function initBeautyAddictLogin() {
     }
   });
 }
+function afficherPhenixContextuel(page) {
+  var existing = document.getElementById("phenix-contextuel");
+  if (existing) existing.remove();
+
+  var messages = {
+    "accueil": "Bienvenue ! Je suis Phénix, ton assistante IA 🐦‍🔥",
+    "quiz": "Besoin d'aide sur ce module ? Demande-moi !",
+    "boutique": "Je peux rédiger tes descriptions produits !",
+    "carnet": "Je peux t'aider à rédiger un message pour une cliente !",
+    "formations": "Des questions sur cette formation ? Je suis là !",
+    "badges": "Comment gagner plus de badges ? Demande-moi !",
+    "victoires": "Partage ta victoire, je t'aide à la rédiger !",
+    "outils": "Je peux t'aider à atteindre tes objectifs !",
+    "notes": "Je peux t'aider à rédiger tes notes !",
+    "commandes": "Des questions sur une commande ? Demande-moi !",
+    "default": "Une question ? Je suis là pour t'aider ! 🌿"
+  };
+
+  var msg = messages[page] || messages["default"];
+
+  var bubble = document.createElement("div");
+  bubble.id = "phenix-contextuel";
+  bubble.style.cssText = "position:fixed;bottom:80px;left:16px;z-index:9999;display:flex;align-items:flex-end;gap:8px;font-family:Arial,sans-serif;animation:phenixFadeIn 0.4s ease;";
+
+  var avatar = document.createElement("div");
+  avatar.style.cssText = "width:44px;height:44px;background:linear-gradient(135deg,#c9a86a,#f5d48a);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;box-shadow:0 4px 12px rgba(201,168,106,0.4);cursor:pointer;touch-action:manipulation;";
+  avatar.textContent = "🐦‍🔥";
+
+  var msgDiv = document.createElement("div");
+  msgDiv.style.cssText = "background:white;border:1px solid #e8d4b0;border-radius:16px 16px 16px 4px;padding:10px 14px;max-width:220px;box-shadow:0 4px 12px rgba(0,0,0,0.1);cursor:pointer;touch-action:manipulation;";
+  msgDiv.innerHTML = "<p style='color:#3a3a3a;font-size:12px;margin:0 0 6px;line-height:1.5;'>"+msg+"</p><p style='color:#c9a86a;font-size:11px;font-weight:bold;margin:0;'>Appuie pour me parler →</p>";
+
+  var closeX = document.createElement("button");
+  closeX.textContent = "✕";
+  closeX.style.cssText = "position:absolute;top:-8px;right:-8px;background:#8b735d;color:white;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;touch-action:manipulation;";
+  closeX.onclick = function(e) { e.stopPropagation(); bubble.remove(); };
+
+  msgDiv.style.position = "relative";
+  msgDiv.appendChild(closeX);
+
+  var doOpen = function() {
+    bubble.remove();
+    if (typeof openAssistantPanel === "function") openAssistantPanel();
+  };
+  avatar.onclick = doOpen;
+  msgDiv.onclick = function(e) { if (e.target !== closeX) doOpen(); };
+  avatar.addEventListener("touchend", function(e){e.preventDefault();doOpen();},{passive:false});
+
+  bubble.appendChild(avatar);
+  bubble.appendChild(msgDiv);
+
+  // Ajouter style animation
+  if (!document.getElementById("phenix-style")) {
+    var style = document.createElement("style");
+    style.id = "phenix-style";
+    style.textContent = "@keyframes phenixFadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}";
+    document.head.appendChild(style);
+  }
+
+  document.body.appendChild(bubble);
+
+  // Auto-fermeture après 6 secondes
+  setTimeout(function() { if (bubble.parentNode) { bubble.style.opacity="0"; bubble.style.transition="opacity 0.5s"; setTimeout(function(){bubble.remove();},500); } }, 6000);
+}
+
 function baaGetApiKey(cb) {
     firebase.firestore().collection("config").doc("assistant").get().then(function(snap) {
       cb(snap.exists ? snap.data().apiKey || "" : "");
