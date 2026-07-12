@@ -842,12 +842,11 @@ function openGestionBoutique() {
               sousCatSel.appendChild(opt);
             });
             sousCatSel.addEventListener("touchstart",function(e){e.stopPropagation();},{passive:true});
-            sousCatSel.onchange=function(){
+            var doSaveSousCat = function(){
               if(!b.sousCatsMakeup)b.sousCatsMakeup={};
               b.sousCatsMakeup[photoKey]=sousCatSel.value;
-              // Sauvegarder uniquement le champ sousCatsMakeup
               var user3 = firebase.auth().currentUser;
-              if (user3) {
+              if (user3 && sousCatSel.value) {
                 var update = {};
                 update["sousCatsMakeup."+photoKey] = sousCatSel.value;
                 firebase.firestore().collection("boutiques").doc(user3.uid).update(update).then(function(){
@@ -856,6 +855,9 @@ function openGestionBoutique() {
                 });
               }
             };
+            sousCatSel.onchange = doSaveSousCat;
+            sousCatSel.addEventListener("change", doSaveSousCat);
+            sousCatSel.addEventListener("blur", doSaveSousCat);
             sousCatRow.appendChild(sousCatSel);
             catContent.appendChild(sousCatRow);
           }
