@@ -1380,6 +1380,7 @@ function ouvrirGenerateurPostsBAA() {
     box.appendChild(tabBar);
 
     // ===== SECTION POSTS =====
+    var sectionPosts = document.createElement("div"); sectionsMap["posts"] = sectionPosts;
 
     // Sélection réseau
     var reseauLabel = document.createElement("p"); reseauLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;"; reseauLabel.textContent="📱 Réseau social"; sectionPosts.appendChild(reseauLabel);
