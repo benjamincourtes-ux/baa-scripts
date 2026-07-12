@@ -1317,6 +1317,7 @@ function ouvrirGenerateurPostsBAA() {
     produitSection.appendChild(produitInp);
     box.appendChild(produitSection);
 
+    var objLabel = document.createElement("p"); objLabel.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 6px;"; objLabel.textContent="🎯 Objectif du post";
     var objBtns = document.createElement("div"); objBtns.style.cssText="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;";
     var objectifs = ["Vendre un produit","Attirer des clientes","Recruter","Partager un conseil","Avant/Après"];
     var objSel = "Vendre un produit";
