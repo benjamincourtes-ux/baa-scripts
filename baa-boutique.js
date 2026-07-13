@@ -1168,10 +1168,11 @@ function openGestionBoutique() {
 
   function renderSets() {
     var user = firebase.auth().currentUser; if (!user) return;
-    var titre=document.createElement("p");titre.style.cssText="color:#8b735d;font-size:15px;font-weight:bold;margin:0 0 6px;";titre.textContent="🏷️ Sets & Promos";box.appendChild(titre);
-    var sub=document.createElement("p");sub.style.cssText="color:#999;font-size:12px;margin:0 0 16px;line-height:1.5;";sub.textContent="Créez des bundles exclusifs et gérez vos promotions.";box.appendChild(sub);
 
     chargerBoutique(function(b) {
+      var titre=document.createElement("p");titre.style.cssText="color:#8b735d;font-size:15px;font-weight:bold;margin:0 0 6px;";titre.textContent="🏷️ Sets & Promos";box.appendChild(titre);
+      var sub=document.createElement("p");sub.style.cssText="color:#999;font-size:12px;margin:0 0 16px;line-height:1.5;";sub.textContent="Créez des bundles exclusifs et gérez vos promotions.";box.appendChild(sub);
+
       // Bouton créer un set
       var addBtn=document.createElement("button");addBtn.textContent="➕ Créer un set/bundle";addBtn.style.cssText="width:100%;background:linear-gradient(135deg,#e74c3c,#c0392b);color:white;border:none;padding:13px;border-radius:12px;font-weight:bold;font-size:14px;cursor:pointer;touch-action:manipulation;margin-bottom:14px;";
       box.appendChild(addBtn);
