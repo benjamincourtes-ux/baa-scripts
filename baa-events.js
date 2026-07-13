@@ -2,14 +2,7 @@
 // Ce fichier coordonne tous les modules de l'académie
 
 (function() {
-  // Attendre que Firebase soit initialisé
-  function initBAAEvents() {
-    if (typeof firebase === "undefined" || !firebase.apps || !firebase.apps.length) {
-      setTimeout(initBAAEvents, 200);
-      return;
-    }
-
-  // Initialiser le bus d'événements
+  // Initialiser le bus IMMÉDIATEMENT — avant même Firebase
   window.baaEventBus = {
     listeners: {},
     emit: function(event, data) {
@@ -21,6 +14,13 @@
       this.listeners[event].push(cb);
     }
   };
+
+  // Attendre que Firebase soit initialisé pour le reste
+  function initBAAEvents() {
+    if (typeof firebase === "undefined" || !firebase.apps || !firebase.apps.length) {
+      setTimeout(initBAAEvents, 200);
+      return;
+    }
 
   var db = firebase.firestore();
   var auth = firebase.auth();
