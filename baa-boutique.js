@@ -1227,15 +1227,18 @@ function openGestionBoutique() {
         var prix=parseFloat(document.getElementById("set-prix").value)||0;
         if(!nom||!prix){alert("Nom et prix remisé obligatoires.");return;}
         var newSet={nom:nom,prix:prix,prixNormal:parseFloat(document.getElementById("set-prix-normal").value)||0,description:document.getElementById("set-desc").value.trim(),ingredients:document.getElementById("set-ingr").value.trim(),photo:setPhotoUrl,createdAt:new Date().toISOString()};
-        var sets=(b.sets||[]).slice();
-        sets.push(newSet);
-        firebase.firestore().collection("boutiques").doc(user.uid).set({sets:sets},{merge:true}).then(function(){
-          formDiv.style.display="none";
-          b.sets=sets;
-          // Rafraîchir juste la liste
-          delete box.dataset.setsLoading;
-          state.boutique=null;state.step="sets";render();
-        });
+        saveSetBtn.disabled=true;saveSetBtn.textContent="⏳ Sauvegarde...";
+        // Recharger depuis Firebase pour avoir les sets actuels
+        firebase.firestore().collection("boutiques").doc(user.uid).get().then(function(freshSnap){
+          var freshData=freshSnap.exists?freshSnap.data():{};
+          var sets=(freshData.sets||[]).slice();
+          sets.push(newSet);
+          return firebase.firestore().collection("boutiques").doc(user.uid).set({sets:sets},{merge:true}).then(function(){
+            formDiv.style.display="none";
+            delete box.dataset.setsLoading;
+            state.boutique=null;state.step="sets";render();
+          });
+        }).catch(function(e){alert("Erreur: "+e.message);saveSetBtn.disabled=false;saveSetBtn.textContent="✅ Créer ce set";});
       };
       saveSetBtn.onclick=doSaveSet;saveSetBtn.addEventListener("touchend",function(e){e.preventDefault();doSaveSet();},{passive:false});
       formDiv.appendChild(saveSetBtn);
@@ -1247,17 +1250,17 @@ function openGestionBoutique() {
       // Produits en promo (cochés inSetsPromos)
       var promoTitle=document.createElement("p");promoTitle.style.cssText="color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 10px;letter-spacing:1px;";promoTitle.textContent="🏷️ PRODUITS EN PROMO";box.appendChild(promoTitle);
       var promoCount=0;
-      Object.keys(BAA_PRODUITS||{}).forEach(function(cat){
-        (BAA_PRODUITS[cat].produits||[]).forEach(function(prod){
-          var pk=getProdKey(prod);
-          if(b.inSetsPromos&&b.inSetsPromos[pk]&&b.prixPromo&&b.prixPromo[pk]){
-            promoCount++;
-            var card=document.createElement("div");card.style.cssText="background:white;border-radius:10px;padding:12px;margin-bottom:8px;border:1px solid #fcc;display:flex;justify-content:space-between;align-items:center;";
-            card.innerHTML="<div><p style='color:#3a3a3a;font-size:13px;font-weight:bold;margin:0 0 2px;'>"+prod.nom+"</p><p style='color:#999;font-size:11px;margin:0;'>Prix normal : "+(b.prixCustom&&b.prixCustom[pk]?b.prixCustom[pk]:prod.prix).toFixed(2)+"€</p></div><span style='background:#e74c3c;color:white;font-weight:bold;padding:5px 10px;border-radius:8px;font-size:13px;'>"+b.prixPromo[pk].toFixed(2)+"€</span>";
-            box.appendChild(card);
-          }
+      if(b.inSetsPromos && b.prixPromo){
+        Object.keys(b.inSetsPromos).forEach(function(pk){
+          if(!b.inSetsPromos[pk]||!b.prixPromo[pk])return;
+          promoCount++;
+          var nomProd=(b.nomsCustom&&b.nomsCustom[pk])||pk.replace(/^prod_/,"").replace(/_/g," ").slice(0,40);
+          var prixNorm=(b.prixCustom&&b.prixCustom[pk])||0;
+          var card=document.createElement("div");card.style.cssText="background:white;border-radius:10px;padding:12px;margin-bottom:8px;border:1px solid #fcc;display:flex;justify-content:space-between;align-items:center;";
+          card.innerHTML="<div><p style='color:#3a3a3a;font-size:13px;font-weight:bold;margin:0 0 2px;'>"+nomProd+"</p>"+(prixNorm?"<p style='color:#999;font-size:11px;margin:0;'>Prix normal : "+prixNorm.toFixed(2)+"€</p>":"")+"</div><span style='background:#e74c3c;color:white;font-weight:bold;padding:5px 10px;border-radius:8px;font-size:13px;'>"+b.prixPromo[pk].toFixed(2)+"€</span>";
+          box.appendChild(card);
         });
-      });
+      }
       if(promoCount===0){var noPromo=document.createElement("p");noPromo.style.cssText="color:#999;font-size:13px;text-align:center;padding:10px 0 14px;";noPromo.textContent="Aucun produit en promo. Cochez la case dans Gérer mes produits.";box.appendChild(noPromo);}
 
       // Liste des sets créés
