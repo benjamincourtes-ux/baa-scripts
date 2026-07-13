@@ -100,22 +100,37 @@
   window.baaEventBus.on("module_termine", function(data) {
     var user = auth.currentUser; if (!user) return;
     var moduleNom = data.moduleNom || "ce module";
+    var score = data.score || 0;
+    var quizSuivant = data.quizSuivant || null;
 
     // 1. Points XP
     ajouterPointsXP(user.uid, 100, "Module terminé : "+moduleNom);
 
-    // 2. Célébration
+    // 2. Points badges
+    setTimeout(function() {
+      if (typeof window.ajouterPointsBadge === "function") {
+        window.ajouterPointsBadge(20);
+      }
+    }, 2000);
+
+    // 3. Célébration
     lancerConfettis();
 
-    // 3. Message Phénix
+    // 4. Message Phénix personnalisé
     setTimeout(function() {
-      afficherMessagePhenixEvent("🎓 Bravo ! Tu as terminé "+moduleNom+" ! +100 points XP gagnés. Continue vers le module suivant ! 💪");
+      var msg = "🎓 Bravo ! Tu as validé le "+moduleNom+" avec "+score+"% ! +20 points badges gagnés 🔥";
+      if (quizSuivant) {
+        msg += "\n\n👉 Prochain quiz : "+quizSuivant+" — continue sur ta lancée !";
+      } else {
+        msg += "\n\n🏆 Tu as validé tous les quiz ! Tu es au top !";
+      }
+      afficherMessagePhenixEvent(msg);
     }, 500);
 
-    // 4. Proposition victoire
+    // 5. Proposition victoire
     setTimeout(function() {
-      afficherPropositionVictoire("🎓 Tu viens de terminer "+moduleNom+" ! Tu veux partager cette victoire avec l'équipe ?");
-    }, 3000);
+      afficherPropositionVictoire("🎓 Tu viens de valider le "+moduleNom+" avec "+score+"% ! Tu veux partager cette victoire avec l'équipe ?");
+    }, 4000);
   });
 
   // ============================
