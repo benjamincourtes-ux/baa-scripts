@@ -1304,9 +1304,9 @@ function initBeautyAddictLogin() {
             var evoCa=caP>0?Math.round((ca-caP)/caP*100):ca>0?100:0;
             var evoCmd=cmdP>0?Math.round((cmd-cmdP)/cmdP*100):cmd>0?100:0;
             var PALIERS=[{nom:"Consultant",min:100,comm:20},{nom:"Conseiller",min:250,comm:30},{nom:"Conseiller Principal",min:500,comm:30},{nom:"Responsable",min:1000,comm:30},{nom:"Cadre Supérieur",min:1500,comm:30},{nom:"Partenaire",min:2000,comm:30},{nom:"Directeur Adjoint",min:3000,comm:30},{nom:"Directeur",min:5000,comm:30}];
-            var palierActuel=PALIERS[0]; var palierSuivant=PALIERS[1];
+            var palierActuel=null; var palierSuivant=PALIERS[0];
             for(var i=0;i<PALIERS.length;i++){if(ca>=PALIERS[i].min){palierActuel=PALIERS[i];palierSuivant=PALIERS[i+1]||null;}}
-            var commission=Math.round(ca*palierActuel.comm/100);
+            var commission=palierActuel?Math.round(ca*palierActuel.comm/100):0;
 
             statsDiv.innerHTML="<p style='color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 10px;letter-spacing:1px;'>📅 "+moisLabel.toUpperCase()+"</p>";
 
@@ -1316,7 +1316,7 @@ function initBeautyAddictLogin() {
               {label:"CA ce mois",val:ca.toFixed(2)+"€",evo:evoCa,icon:"💰"},
               {label:"Commandes",val:cmd,evo:evoCmd,icon:"📦"},
               {label:"Clientes actives",val:clientes||"—",evo:null,icon:"👥"},
-              {label:"Commission estimée",val:commission+"€",evo:null,icon:"🏆"},
+
             ];
             stats.forEach(function(s){
               var card=document.createElement("div"); card.style.cssText="background:white;border-radius:12px;padding:14px;border:1px solid #e8d4b0;text-align:center;";
@@ -1330,9 +1330,10 @@ function initBeautyAddictLogin() {
             // Barre progression palier
             if(palierSuivant){
               var progDiv=document.createElement("div");progDiv.style.cssText="background:white;border-radius:12px;padding:14px;border:1px solid #e8d4b0;";
-              var pct=Math.min(Math.round((ca-palierActuel.min)/(palierSuivant.min-palierActuel.min)*100),100);
+              var palierBase=palierActuel?palierActuel.min:0;
+              var pct=Math.min(Math.round((ca-palierBase)/(palierSuivant.min-palierBase)*100),100);
               var manquant=Math.max(0,palierSuivant.min-ca);
-              progDiv.innerHTML="<p style='color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 8px;'>📈 PROGRESSION STATUT</p><div style='display:flex;justify-content:space-between;margin-bottom:6px;'><span style='color:#3a3a3a;font-size:12px;font-weight:bold;'>"+palierActuel.nom+"</span><span style='color:#c9a86a;font-size:12px;font-weight:bold;'>"+palierSuivant.nom+"</span></div><div style='background:#f0e6d3;border-radius:6px;height:10px;margin-bottom:6px;'><div style='background:linear-gradient(135deg,#c9a86a,#f5d48a);width:"+pct+"%;height:10px;border-radius:6px;'></div></div><p style='color:#999;font-size:12px;margin:0;text-align:center;'>Plus que <b>"+manquant.toFixed(0)+"€</b> pour atteindre "+palierSuivant.nom+"</p>";
+              progDiv.innerHTML="<p style='color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 8px;'>📈 PROGRESSION STATUT</p><div style='display:flex;justify-content:space-between;margin-bottom:6px;'><span style='color:#3a3a3a;font-size:12px;font-weight:bold;'>"+(palierActuel?palierActuel.nom:"Démarrage")+"</span><span style='color:#c9a86a;font-size:12px;font-weight:bold;'>"+palierSuivant.nom+"</span></div><div style='background:#f0e6d3;border-radius:6px;height:10px;margin-bottom:6px;'><div style='background:linear-gradient(135deg,#c9a86a,#f5d48a);width:"+pct+"%;height:10px;border-radius:6px;'></div></div><p style='color:#999;font-size:12px;margin:0;text-align:center;'>Plus que <b>"+manquant.toFixed(0)+"€</b> pour atteindre "+palierSuivant.nom+"</p>";
               statsDiv.appendChild(progDiv);
             }
           }
