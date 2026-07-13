@@ -1168,8 +1168,15 @@ function openGestionBoutique() {
 
   function renderSets() {
     var user = firebase.auth().currentUser; if (!user) return;
+    if (box.dataset.setsLoading) return;
+    box.dataset.setsLoading = "1";
+    var loading=document.createElement("p");loading.id="sets-loading";loading.style.cssText="color:#999;font-size:13px;text-align:center;padding:20px;";loading.textContent="Chargement...";box.appendChild(loading);
 
-    chargerBoutique(function(b) {
+    firebase.firestore().collection("boutiques").doc(user.uid).get().then(function(snap) {
+      delete box.dataset.setsLoading;
+      var loadEl=document.getElementById("sets-loading");if(loadEl)loadEl.remove();
+      var b = snap.exists ? snap.data() : {};
+
       var titre=document.createElement("p");titre.style.cssText="color:#8b735d;font-size:15px;font-weight:bold;margin:0 0 6px;";titre.textContent="🏷️ Sets & Promos";box.appendChild(titre);
       var sub=document.createElement("p");sub.style.cssText="color:#999;font-size:12px;margin:0 0 16px;line-height:1.5;";sub.textContent="Créez des bundles exclusifs et gérez vos promotions.";box.appendChild(sub);
 
