@@ -1190,7 +1190,8 @@ function openGestionBoutique() {
 
       var fields3=[
         {id:"set-nom",label:"Nom du set *",type:"text",placeholder:"Ex: Kit Routine Anti-âge"},
-        {id:"set-prix",label:"Prix du set (€) *",type:"number",placeholder:"Ex: 45.90"},
+        {id:"set-prix-normal",label:"Prix normal (€) — barré",type:"number",placeholder:"Ex: 55.00"},
+        {id:"set-prix",label:"Prix remisé (€) *",type:"number",placeholder:"Ex: 45.90"},
         {id:"set-desc",label:"Description",type:"textarea",placeholder:"Contenu du set, produits inclus..."},
         {id:"set-ingr",label:"Avantages / Ingrédients",type:"text",placeholder:"Ex: Économisez 20% vs achat séparé"},
       ];
@@ -1224,11 +1225,17 @@ function openGestionBoutique() {
       var doSaveSet=function(){
         var nom=document.getElementById("set-nom").value.trim();
         var prix=parseFloat(document.getElementById("set-prix").value)||0;
-        if(!nom||!prix){alert("Nom et prix obligatoires.");return;}
-        var newSet={nom:nom,prix:prix,description:document.getElementById("set-desc").value.trim(),ingredients:document.getElementById("set-ingr").value.trim(),photo:setPhotoUrl,createdAt:new Date().toISOString()};
-        if(!b.sets)b.sets=[];
-        b.sets.push(newSet);
-        sauvegarderBoutique(b,function(){formDiv.style.display="none";state.boutique=null;state.step="sets";render();});
+        if(!nom||!prix){alert("Nom et prix remisé obligatoires.");return;}
+        var newSet={nom:nom,prix:prix,prixNormal:parseFloat(document.getElementById("set-prix-normal").value)||0,description:document.getElementById("set-desc").value.trim(),ingredients:document.getElementById("set-ingr").value.trim(),photo:setPhotoUrl,createdAt:new Date().toISOString()};
+        var sets=(b.sets||[]).slice();
+        sets.push(newSet);
+        firebase.firestore().collection("boutiques").doc(user.uid).update({sets:sets}).then(function(){
+          formDiv.style.display="none";
+          b.sets=sets;
+          // Rafraîchir juste la liste
+          delete box.dataset.setsLoading;
+          state.boutique=null;state.step="sets";render();
+        });
       };
       saveSetBtn.onclick=doSaveSet;saveSetBtn.addEventListener("touchend",function(e){e.preventDefault();doSaveSet();},{passive:false});
       formDiv.appendChild(saveSetBtn);
@@ -1260,9 +1267,14 @@ function openGestionBoutique() {
         b.sets.forEach(function(s,idx){
           var card=document.createElement("div");card.style.cssText="background:white;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8d4b0;";
           var photoHtml=s.photo?"<img src='"+s.photo+"' style='width:60px;height:60px;object-fit:cover;border-radius:8px;flex-shrink:0;' />":"<div style='width:60px;height:60px;background:#f0e6d3;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;'>🎁</div>";
-          card.innerHTML="<div style='display:flex;gap:12px;align-items:center;'>"+(photoHtml)+"<div style='flex:1;'><p style='color:#3a3a3a;font-size:14px;font-weight:bold;margin:0 0 3px;'>"+s.nom+"</p><p style='color:#e74c3c;font-size:15px;font-weight:bold;margin:0 0 3px;'>"+s.prix.toFixed(2)+"€</p>"+(s.description?"<p style='color:#666;font-size:12px;margin:0;'>"+s.description+"</p>":"")+"</div></div>";
+          card.innerHTML="<div style='display:flex;gap:12px;align-items:center;'>"+(photoHtml)+"<div style='flex:1;'><p style='color:#3a3a3a;font-size:14px;font-weight:bold;margin:0 0 3px;'>"+s.nom+"</p>"+(s.prixNormal?"<p style='color:#999;font-size:12px;text-decoration:line-through;margin:0;'>"+s.prixNormal.toFixed(2)+"€</p>":"")+"<p style='color:#e74c3c;font-size:15px;font-weight:bold;margin:0 0 3px;'>"+s.prix.toFixed(2)+"€"+(s.prixNormal?" (-"+Math.round((s.prixNormal-s.prix)/s.prixNormal*100)+"%)":" ")+"</p>"+(s.description?"<p style='color:#666;font-size:12px;margin:0;'>"+s.description+"</p>":"")+"</div></div>";
           var delSetBtn=document.createElement("button");delSetBtn.textContent="🗑️ Supprimer";delSetBtn.style.cssText="margin-top:10px;background:#fee;color:#e74c3c;border:1px solid #e74c3c;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;touch-action:manipulation;";
-          var doDelSet=(function(i){return function(){if(confirm("Supprimer ce set ?")){b.sets.splice(i,1);sauvegarderBoutique(b,function(){state.boutique=null;state.step="sets";render();});}}})(idx);
+          var doDelSet=(function(i){return function(){if(confirm("Supprimer ce set ?")){
+            var sets2=(b.sets||[]).slice();sets2.splice(i,1);
+            firebase.firestore().collection("boutiques").doc(user.uid).update({sets:sets2}).then(function(){
+              delete box.dataset.setsLoading;state.boutique=null;state.step="sets";render();
+            });
+          }}})(idx);
           delSetBtn.onclick=doDelSet;delSetBtn.addEventListener("touchend",function(e){e.preventDefault();doDelSet();},{passive:false});
           card.appendChild(delSetBtn);box.appendChild(card);
         });
