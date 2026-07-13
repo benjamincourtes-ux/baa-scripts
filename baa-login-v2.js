@@ -794,7 +794,7 @@ function initBeautyAddictLogin() {
         panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;justify-content:center;align-items:flex-start;padding-top:60px;";
         const box = document.createElement("div");
         box.style.cssText = "background:#f8f3ee;width:90%;max-width:500px;border-radius:20px;padding:30px;font-family:Arial,sans-serif;max-height:85vh;overflow-y:auto;";
-        box.innerHTML = "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;'><h2 style='color:#8b735d;margin:0;'>Mon compte</h2><span id='close-info' style='cursor:pointer;font-size:28px;color:#8b735d;'>✕</span></div><div style='display:flex;flex-direction:column;gap:14px;'><div id='btn-mes-infos' style='background:white;border:1px solid #e8d4b0;border-radius:14px;padding:20px;cursor:pointer;display:flex;align-items:center;gap:16px;touch-action:manipulation;'><span style='font-size:32px;'>👤</span><div><div style='font-weight:bold;color:#3a3a3a;font-size:15px;'>Mes informations</div><div style='color:#999;font-size:13px;margin-top:4px;'>Modifier mon profil, ma photo</div></div></div><div id='btn-suivi-objectif' style='background:white;border:1px solid #e8d4b0;border-radius:14px;padding:20px;cursor:pointer;display:flex;align-items:center;gap:16px;touch-action:manipulation;'><span style='font-size:32px;'>🎯</span><div><div style='font-weight:bold;color:#3a3a3a;font-size:15px;'>Suivi objectif du mois</div><div style='color:#999;font-size:13px;margin-top:4px;'>Suivre mon CA et mes commissions</div></div></div><div id='btn-tableau-bord' style='background:white;border:1px solid #e8d4b0;border-radius:14px;padding:20px;cursor:pointer;display:flex;align-items:center;gap:16px;touch-action:manipulation;'><span style='font-size:32px;'>📊</span><div><div style='font-weight:bold;color:#3a3a3a;font-size:15px;'>Tableau de bord</div><div style='color:#999;font-size:13px;margin-top:4px;'>CA, commandes, clientes, évolution</div></div></div><div id='btn-rang-mihi' style='background:white;border:1px solid #e8d4b0;border-radius:14px;padding:20px;cursor:pointer;display:flex;align-items:center;gap:16px;touch-action:manipulation;'><span style='font-size:32px;'>🏆</span><div><div style='font-weight:bold;color:#3a3a3a;font-size:15px;'>Mon rang Mihi</div><div style='color:#999;font-size:13px;margin-top:4px;'>Statut actuel et progression</div></div></div></div>";
+        box.innerHTML = "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;'><h2 style='color:#8b735d;margin:0;'>Mon compte</h2><span id='close-info' style='cursor:pointer;font-size:28px;color:#8b735d;'>✕</span></div><div style='display:flex;flex-direction:column;gap:14px;'><div id='btn-mes-infos' style='background:white;border:1px solid #e8d4b0;border-radius:14px;padding:20px;cursor:pointer;display:flex;align-items:center;gap:16px;touch-action:manipulation;'><span style='font-size:32px;'>👤</span><div><div style='font-weight:bold;color:#3a3a3a;font-size:15px;'>Mes informations</div><div style='color:#999;font-size:13px;margin-top:4px;'>Modifier mon profil, ma photo</div></div></div><div id='btn-suivi-objectif' style='background:white;border:1px solid #e8d4b0;border-radius:14px;padding:20px;cursor:pointer;display:flex;align-items:center;gap:16px;touch-action:manipulation;'><span style='font-size:32px;'>🎯</span><div><div style='font-weight:bold;color:#3a3a3a;font-size:15px;'>Suivi objectif du mois</div><div style='color:#999;font-size:13px;margin-top:4px;'>Suivre mon CA et mes commissions</div></div></div><div id='btn-tableau-bord' style='background:white;border:1px solid #e8d4b0;border-radius:14px;padding:20px;cursor:pointer;display:flex;align-items:center;gap:16px;touch-action:manipulation;'><span style='font-size:32px;'>📊</span><div><div style='font-weight:bold;color:#3a3a3a;font-size:15px;'>Tableau de bord</div><div style='color:#999;font-size:13px;margin-top:4px;'>CA, commandes, clientes, évolution</div></div></div><div id='btn-rang-mihi' style='background:white;border:1px solid #e8d4b0;border-radius:14px;padding:20px;cursor:pointer;display:flex;align-items:center;gap:16px;touch-action:manipulation;'><span style='font-size:32px;'>🏆</span><div><div style='font-weight:bold;color:#3a3a3a;font-size:15px;'>Mon rang Mihi</div><div style='color:#999;font-size:13px;margin-top:4px;'>Statut actuel et progression</div></div></div><div id='btn-mes-liens' style='background:white;border:1px solid #e8d4b0;border-radius:14px;padding:20px;cursor:pointer;display:flex;align-items:center;gap:16px;touch-action:manipulation;'><span style='font-size:32px;'>🔗</span><div><div style='font-weight:bold;color:#3a3a3a;font-size:15px;'>Mes liens</div><div style='color:#999;font-size:13px;margin-top:4px;'>Partager ma boutique et mon recrutement</div></div></div></div>";
         panel.appendChild(box); document.body.appendChild(panel);
         document.getElementById("close-info").onclick = function() { panel.remove(); var mb = document.getElementById("baa-menu-btn"); if (mb) mb.click(); };
         document.getElementById("btn-mes-infos").onmouseenter = function() { this.style.background = "#f0e6d3"; };
@@ -805,7 +805,8 @@ function initBeautyAddictLogin() {
         document.getElementById("btn-suivi-objectif").onclick = function() { panel.remove(); openSuiviObjectifPanel(); };
         document.getElementById("btn-tableau-bord").onclick = function() { panel.remove(); openTableauBordPanel(); };
         document.getElementById("btn-rang-mihi").onclick = function() { panel.remove(); openRangMihiPanel(); };
-        ["btn-mes-infos","btn-suivi-objectif","btn-tableau-bord","btn-rang-mihi"].forEach(function(id){
+        document.getElementById("btn-mes-liens").onclick = function() { panel.remove(); openMesLiensPanel(); };
+        ["btn-mes-infos","btn-suivi-objectif","btn-tableau-bord","btn-rang-mihi","btn-mes-liens"].forEach(function(id){
           var el=document.getElementById(id);
           if(el){el.addEventListener("touchend",function(e){e.preventDefault();el.onclick();},{passive:false});}
         });
@@ -1231,6 +1232,72 @@ function initBeautyAddictLogin() {
           document.getElementById("objectif-result").innerHTML = resultHTML; document.getElementById("objectif-result").style.display = "block";
         };
       }
+      function openMesLiensPanel() {
+        if (document.getElementById("baa-liens-panel")) return;
+        var user = auth.currentUser; if(!user) return;
+        var panel=document.createElement("div");panel.id="baa-liens-panel";
+        panel.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;justify-content:center;align-items:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch;";
+        var box=document.createElement("div");box.style.cssText="background:#f8f3ee;width:90%;max-width:500px;border-radius:20px;padding:24px;margin:20px auto;font-family:Arial,sans-serif;";
+        box.innerHTML="<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;'><div><p style='color:#999;font-size:11px;font-weight:bold;margin:0 0 2px;letter-spacing:1px;'>🔗 MON COMPTE</p><h2 style='color:#8b735d;font-size:17px;margin:0;'>Mes liens</h2></div><button id='close-liens' style='background:none;border:none;font-size:22px;color:#8b735d;cursor:pointer;touch-action:manipulation;'>← Retour</button></div>";
+        panel.appendChild(box);document.body.appendChild(panel);
+        document.getElementById("close-liens").onclick=function(){panel.remove();openInfoPanel();};
+        document.getElementById("close-liens").addEventListener("touchend",function(e){e.preventDefault();panel.remove();openInfoPanel();},{passive:false});
+
+        db.collection("boutiques").doc(user.uid).get().then(function(snap){
+          var b=snap.exists?snap.data():{};
+          var lienBoutique="https://baa-vitrine.vercel.app/?uid="+user.uid;
+          var lienRecrutement="https://baa-recrutement.vercel.app/?uid="+user.uid;
+          var lienParrainage=b.lienParrainage||"";
+
+          var liens=[
+            {label:"🛍️ Ma boutique en ligne",desc:"Partage ta boutique à tes clientes",lien:lienBoutique,couleur:"#c9a86a"},
+            {label:"🎯 Mon tunnel de recrutement",desc:"Attire des prospects avec ta page personnalisée",lien:lienRecrutement,couleur:"#8b735d"},
+            {label:"✅ Mon lien Mihi parrainage",desc:"Pour inscrire directement une nouvelle VDI",lien:lienParrainage,couleur:"#27AE60"},
+          ];
+
+          liens.forEach(function(l){
+            if(!l.lien)return;
+            var card=document.createElement("div");card.style.cssText="background:white;border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid #e8d4b0;";
+            card.innerHTML="<p style='color:#3a3a3a;font-size:14px;font-weight:bold;margin:0 0 3px;'>"+l.label+"</p><p style='color:#999;font-size:12px;margin:0 0 10px;'>"+l.desc+"</p><p style='color:#666;font-size:11px;word-break:break-all;background:#f8f3ee;padding:8px;border-radius:8px;margin-bottom:10px;'>"+l.lien+"</p>";
+
+            var btnRow=document.createElement("div");btnRow.style.cssText="display:flex;gap:8px;flex-wrap:wrap;";
+
+            // Copier
+            var copyBtn=document.createElement("button");copyBtn.textContent="📋 Copier";copyBtn.style.cssText="flex:1;background:#f8f3ee;color:#8b735d;border:1px solid #e8d4b0;padding:10px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;touch-action:manipulation;";
+            var doCopy=(function(lien,btn){return function(){navigator.clipboard&&navigator.clipboard.writeText(lien).then(function(){btn.textContent="✅ Copié !";setTimeout(function(){btn.textContent="📋 Copier";},2000);});};})(l.lien,copyBtn);
+            copyBtn.onclick=doCopy;copyBtn.addEventListener("touchend",function(e){e.preventDefault();doCopy();},{passive:false});
+            btnRow.appendChild(copyBtn);
+
+            // Partager (natif mobile)
+            if(navigator.share){
+              var shareBtn=document.createElement("button");shareBtn.textContent="📤 Partager";shareBtn.style.cssText="flex:1;background:linear-gradient(135deg,#c9a86a,#f5d48a);color:#1a0a00;border:none;padding:10px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;touch-action:manipulation;";
+              var doShare=(function(lien,label){return function(){navigator.share({title:label,text:"Découvre ça !",url:lien});};})(l.lien,l.label);
+              shareBtn.onclick=doShare;shareBtn.addEventListener("touchend",function(e){e.preventDefault();doShare();},{passive:false});
+              btnRow.appendChild(shareBtn);
+            }
+
+            // WhatsApp
+            var waBtn=document.createElement("a");waBtn.href="https://wa.me/?text="+encodeURIComponent(l.lien);waBtn.target="_blank";waBtn.style.cssText="flex:1;background:#25D366;color:white;border:none;padding:10px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;touch-action:manipulation;";waBtn.textContent="💬 WhatsApp";
+            btnRow.appendChild(waBtn);
+
+            // Messenger
+            var msBtn=document.createElement("a");msBtn.href="https://www.facebook.com/dialog/send?link="+encodeURIComponent(l.lien)+"&app_id=291494417518998&redirect_uri="+encodeURIComponent(l.lien);msBtn.target="_blank";msBtn.style.cssText="flex:1;background:#0084FF;color:white;border:none;padding:10px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;touch-action:manipulation;";msBtn.textContent="💙 Messenger";
+            btnRow.appendChild(msBtn);
+
+            card.appendChild(btnRow);box.appendChild(card);
+          });
+
+          // Si pas de lien parrainage configuré
+          if(!lienParrainage){
+            var noLien=document.createElement("div");noLien.style.cssText="background:#fff3cd;border:1px solid #ffc107;border-radius:12px;padding:14px;margin-bottom:12px;text-align:center;";
+            noLien.innerHTML="<p style='color:#856404;font-size:13px;margin:0;'>⚠️ Ton lien de parrainage Mihi n'est pas configuré.<br>Va dans Ma Boutique → ⚙️ Configurer pour l'ajouter.</p>";
+            box.appendChild(noLien);
+          }
+
+          var iosSpace=document.createElement("div");iosSpace.style.height="40px";box.appendChild(iosSpace);
+        });
+      }
+
       function openTableauBordPanel() {
         if (document.getElementById("baa-tableau-panel")) return;
         var user = auth.currentUser; if(!user) return;
