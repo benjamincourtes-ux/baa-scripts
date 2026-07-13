@@ -269,16 +269,51 @@
     });
   }
 
-  // Émettre l'événement de connexion quand l'utilisateur est connecté
+  // ============================
+  // DÉTECTION AUTOMATIQUE TOUS LES QUIZ
+  // ============================
+  var QUIZ_MAP = {
+    "quizBonDemarrageComplete":   { nom: "Bon Démarrage",       suivant: "Module 2" },
+    "quizModule2Complete":        { nom: "Module 2",             suivant: "Module 3" },
+    "quizModule3Complete":        { nom: "Module 3",             suivant: "Module 4" },
+    "quizModule4Complete":        { nom: "Module 4",             suivant: "Module 5" },
+    "quizModule5Complete":        { nom: "Module 5",             suivant: "Module 6" },
+    "quizModule6Complete":        { nom: "Module 6",             suivant: "Module 7" },
+    "quizModule7Complete":        { nom: "Module 7",             suivant: "Module 8" },
+    "quizModule8Complete":        { nom: "Module 8",             suivant: "Module 9" },
+    "quizModule9Complete":        { nom: "Module 9",             suivant: "Module 10" },
+    "quizModule10Complete":       { nom: "Module 10",            suivant: null }
+  };
+
   auth.onAuthStateChanged(function(user) {
-    if (user) {
-      db.collection("users").doc(user.uid).get().then(function(snap) {
-        var prenom = snap.exists ? (snap.data().prenom || "") : "";
-        setTimeout(function() {
-          window.baaEventBus.emit("connexion", { uid: user.uid, prenom: prenom });
-        }, 3500);
+    if (!user) return;
+    var previousData = {};
+    db.collection("users").doc(user.uid).onSnapshot(function(snap) {
+      var data = snap.data() || {};
+      Object.keys(QUIZ_MAP).forEach(function(field) {
+        // Détecter quand un quiz passe à true pour la première fois
+        if (data[field] === true && previousData[field] !== true) {
+          var quizInfo = QUIZ_MAP[field];
+          var score = data[field.replace("Complete","Score")] || 0;
+          var total = data[field.replace("Complete","Total")] || 1;
+          var pct = Math.round(score / total * 100);
+          window.baaEventBus.emit("module_termine", {
+            moduleNom: "Quiz " + quizInfo.nom,
+            score: pct,
+            quizSuivant: quizInfo.suivant
+          });
+        }
       });
-    }
+      previousData = JSON.parse(JSON.stringify(data));
+    });
+
+    // Message de connexion
+    db.collection("users").doc(user.uid).get().then(function(snap) {
+      var prenom = snap.exists ? (snap.data().prenom || "") : "";
+      setTimeout(function() {
+        window.baaEventBus.emit("connexion", { uid: user.uid, prenom: prenom });
+      }, 3500);
+    });
   });
 
   console.log("✅ BAA Events initialisé");
