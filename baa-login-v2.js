@@ -1280,9 +1280,9 @@ function initBeautyAddictLogin() {
             var waBtn=document.createElement("a");waBtn.href="https://wa.me/?text="+encodeURIComponent(l.lien);waBtn.target="_blank";waBtn.style.cssText="flex:1;background:#25D366;color:white;border:none;padding:10px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;touch-action:manipulation;";waBtn.textContent="💬 WhatsApp";
             btnRow.appendChild(waBtn);
 
-            // Messenger
-            var msBtn=document.createElement("a");msBtn.href="https://www.facebook.com/dialog/send?link="+encodeURIComponent(l.lien)+"&app_id=291494417518998&redirect_uri="+encodeURIComponent(l.lien);msBtn.target="_blank";msBtn.style.cssText="flex:1;background:#0084FF;color:white;border:none;padding:10px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;touch-action:manipulation;";msBtn.textContent="💙 Messenger";
-            btnRow.appendChild(msBtn);
+            // SMS
+            var smsBtn=document.createElement("a");smsBtn.href="sms:?body="+encodeURIComponent(l.lien);smsBtn.style.cssText="flex:1;background:#34C759;color:white;border:none;padding:10px;border-radius:10px;font-size:13px;font-weight:bold;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;touch-action:manipulation;";smsBtn.textContent="💬 SMS";
+            btnRow.appendChild(smsBtn);
 
             card.appendChild(btnRow);box.appendChild(card);
           });
