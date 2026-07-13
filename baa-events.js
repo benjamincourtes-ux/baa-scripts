@@ -287,11 +287,14 @@
 
   auth.onAuthStateChanged(function(user) {
     if (!user) return;
-    var previousData = {};
+    var previousData = null;
     db.collection("users").doc(user.uid).onSnapshot(function(snap) {
       var data = snap.data() || {};
+      if (previousData === null) {
+        previousData = JSON.parse(JSON.stringify(data));
+        return;
+      }
       Object.keys(QUIZ_MAP).forEach(function(field) {
-        // Détecter quand un quiz passe à true pour la première fois
         if (data[field] === true && previousData[field] !== true) {
           var quizInfo = QUIZ_MAP[field];
           var score = data[field.replace("Complete","Score")] || 0;
