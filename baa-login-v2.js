@@ -794,7 +794,7 @@ function initBeautyAddictLogin() {
         panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;justify-content:center;align-items:flex-start;padding-top:60px;";
         const box = document.createElement("div");
         box.style.cssText = "background:#f8f3ee;width:90%;max-width:500px;border-radius:20px;padding:30px;font-family:Arial,sans-serif;max-height:85vh;overflow-y:auto;";
-        box.innerHTML = "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;'><h2 style='color:#8b735d;margin:0;'>Mon compte</h2><span id='close-info' style='cursor:pointer;font-size:28px;color:#8b735d;'>X</span></div><div style='display:flex;flex-direction:column;gap:14px;'><div id='btn-mes-infos' style='background:white;border:1px solid #e8d4b0;border-radius:14px;padding:20px;cursor:pointer;display:flex;align-items:center;gap:16px;'><span style='font-size:32px;'>👤</span><div><div style='font-weight:bold;color:#3a3a3a;font-size:15px;'>Mes informations</div><div style='color:#999;font-size:13px;margin-top:4px;'>Modifier mon profil, ma photo</div></div></div><div id='btn-suivi-objectif' style='background:white;border:1px solid #e8d4b0;border-radius:14px;padding:20px;cursor:pointer;display:flex;align-items:center;gap:16px;'><span style='font-size:32px;'>🎯</span><div><div style='font-weight:bold;color:#3a3a3a;font-size:15px;'>Suivi objectif du mois</div><div style='color:#999;font-size:13px;margin-top:4px;'>Suivre mon CA et mes commissions</div></div></div></div>";
+        box.innerHTML = "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;'><h2 style='color:#8b735d;margin:0;'>Mon compte</h2><span id='close-info' style='cursor:pointer;font-size:28px;color:#8b735d;'>✕</span></div><div style='display:flex;flex-direction:column;gap:14px;'><div id='btn-mes-infos' style='background:white;border:1px solid #e8d4b0;border-radius:14px;padding:20px;cursor:pointer;display:flex;align-items:center;gap:16px;touch-action:manipulation;'><span style='font-size:32px;'>👤</span><div><div style='font-weight:bold;color:#3a3a3a;font-size:15px;'>Mes informations</div><div style='color:#999;font-size:13px;margin-top:4px;'>Modifier mon profil, ma photo</div></div></div><div id='btn-suivi-objectif' style='background:white;border:1px solid #e8d4b0;border-radius:14px;padding:20px;cursor:pointer;display:flex;align-items:center;gap:16px;touch-action:manipulation;'><span style='font-size:32px;'>🎯</span><div><div style='font-weight:bold;color:#3a3a3a;font-size:15px;'>Suivi objectif du mois</div><div style='color:#999;font-size:13px;margin-top:4px;'>Suivre mon CA et mes commissions</div></div></div><div id='btn-tableau-bord' style='background:white;border:1px solid #e8d4b0;border-radius:14px;padding:20px;cursor:pointer;display:flex;align-items:center;gap:16px;touch-action:manipulation;'><span style='font-size:32px;'>📊</span><div><div style='font-weight:bold;color:#3a3a3a;font-size:15px;'>Tableau de bord</div><div style='color:#999;font-size:13px;margin-top:4px;'>CA, commandes, clientes, évolution</div></div></div><div id='btn-rang-mihi' style='background:white;border:1px solid #e8d4b0;border-radius:14px;padding:20px;cursor:pointer;display:flex;align-items:center;gap:16px;touch-action:manipulation;'><span style='font-size:32px;'>🏆</span><div><div style='font-weight:bold;color:#3a3a3a;font-size:15px;'>Mon rang Mihi</div><div style='color:#999;font-size:13px;margin-top:4px;'>Statut actuel et progression</div></div></div></div>";
         panel.appendChild(box); document.body.appendChild(panel);
         document.getElementById("close-info").onclick = function() { panel.remove(); var mb = document.getElementById("baa-menu-btn"); if (mb) mb.click(); };
         document.getElementById("btn-mes-infos").onmouseenter = function() { this.style.background = "#f0e6d3"; };
@@ -803,6 +803,12 @@ function initBeautyAddictLogin() {
         document.getElementById("btn-suivi-objectif").onmouseleave = function() { this.style.background = "white"; };
         document.getElementById("btn-mes-infos").onclick = function() { panel.remove(); openMesInfosPanel(); };
         document.getElementById("btn-suivi-objectif").onclick = function() { panel.remove(); openSuiviObjectifPanel(); };
+        document.getElementById("btn-tableau-bord").onclick = function() { panel.remove(); openTableauBordPanel(); };
+        document.getElementById("btn-rang-mihi").onclick = function() { panel.remove(); openRangMihiPanel(); };
+        ["btn-mes-infos","btn-suivi-objectif","btn-tableau-bord","btn-rang-mihi"].forEach(function(id){
+          var el=document.getElementById(id);
+          if(el){el.addEventListener("touchend",function(e){e.preventDefault();el.onclick();},{passive:false});}
+        });
       }
       function openMesInfosPanel() {
         if (document.getElementById("baa-mesinfos-panel")) return;
@@ -1225,6 +1231,194 @@ function initBeautyAddictLogin() {
           document.getElementById("objectif-result").innerHTML = resultHTML; document.getElementById("objectif-result").style.display = "block";
         };
       }
+      function openTableauBordPanel() {
+        if (document.getElementById("baa-tableau-panel")) return;
+        var user = auth.currentUser; if(!user) return;
+        var panel = document.createElement("div"); panel.id="baa-tableau-panel";
+        panel.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;justify-content:center;align-items:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch;";
+        var box=document.createElement("div"); box.style.cssText="background:#f8f3ee;width:90%;max-width:500px;border-radius:20px;padding:24px;margin:20px auto;font-family:Arial,sans-serif;";
+
+        // Header
+        box.innerHTML="<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;'><div><p style='color:#999;font-size:11px;font-weight:bold;margin:0 0 2px;letter-spacing:1px;'>📊 MON COMPTE</p><h2 style='color:#8b735d;font-size:17px;margin:0;'>Tableau de bord</h2></div><button id='close-tableau' style='background:none;border:none;font-size:22px;color:#8b735d;cursor:pointer;touch-action:manipulation;'>← Retour</button></div>";
+
+        // Mois en cours
+        var now=new Date();
+        var moisLabel=now.toLocaleDateString("fr-FR",{month:"long",year:"numeric"});
+        var moisDebut=new Date(now.getFullYear(),now.getMonth(),1).toISOString();
+        var moisFin=new Date(now.getFullYear(),now.getMonth()+1,0).toISOString();
+        var moisPrec=new Date(now.getFullYear(),now.getMonth()-1,1).toISOString();
+        var moisPrecFin=new Date(now.getFullYear(),now.getMonth(),0).toISOString();
+
+        // Saisie manuelle
+        var manuelDiv=document.createElement("div"); manuelDiv.style.cssText="background:white;border-radius:14px;padding:16px;margin-bottom:14px;border:1px solid #e8d4b0;";
+        manuelDiv.innerHTML="<p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 10px;'>✏️ Saisie manuelle (ventes hors boutique)</p><div style='display:flex;gap:8px;margin-bottom:8px;'><div style='flex:1;'><label style='color:#999;font-size:11px;display:block;margin-bottom:3px;'>CA manuel (€)</label><input id='tb-ca-manuel' type='number' placeholder='0' style='width:100%;padding:8px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;'></div><div style='flex:1;'><label style='color:#999;font-size:11px;display:block;margin-bottom:3px;'>Commandes manuelles</label><input id='tb-cmd-manuel' type='number' placeholder='0' style='width:100%;padding:8px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;'></div></div><button id='tb-save-manuel' style='width:100%;background:#c9a86a;color:#1a0a00;border:none;padding:10px;border-radius:10px;font-weight:bold;font-size:13px;cursor:pointer;touch-action:manipulation;'>💾 Sauvegarder</button>";
+        box.appendChild(manuelDiv);
+
+        // Stats auto boutique
+        var statsDiv=document.createElement("div"); statsDiv.innerHTML="<p style='color:#999;font-size:13px;text-align:center;padding:20px;'>Chargement...</p>"; box.appendChild(statsDiv);
+
+        panel.appendChild(box); document.body.appendChild(panel);
+        document.getElementById("close-tableau").onclick=function(){panel.remove();openInfoPanel();};
+        document.getElementById("close-tableau").addEventListener("touchend",function(e){e.preventDefault();panel.remove();openInfoPanel();},{passive:false});
+
+        // Charger données manuelles sauvegardées
+        db.collection("users").doc(user.uid).get().then(function(snap){
+          var d=snap.exists?snap.data():{};
+          var manuel=d.tableauBordManuel||{};
+          var moisKey=now.getFullYear()+"-"+(now.getMonth()+1);
+          var moisPrecKey=now.getFullYear()+"-"+now.getMonth();
+          var mData=manuel[moisKey]||{ca:0,commandes:0};
+          var mPrecData=manuel[moisPrecKey]||{ca:0,commandes:0};
+          document.getElementById("tb-ca-manuel").value=mData.ca||"";
+          document.getElementById("tb-cmd-manuel").value=mData.commandes||"";
+
+          document.getElementById("tb-save-manuel").onclick=function(){
+            var caM=parseFloat(document.getElementById("tb-ca-manuel").value)||0;
+            var cmdM=parseInt(document.getElementById("tb-cmd-manuel").value)||0;
+            var update={}; update["tableauBordManuel."+moisKey]={ca:caM,commandes:cmdM};
+            db.collection("users").doc(user.uid).update(update).then(function(){
+              document.getElementById("tb-save-manuel").textContent="✅ Sauvegardé !";
+              setTimeout(function(){document.getElementById("tb-save-manuel").textContent="💾 Sauvegarder";},2000);
+              rechargerStats(mData.ca,mData.commandes,mPrecData.ca,mPrecData.commandes);
+            });
+          };
+
+          // Charger commandes Firebase boutique
+          Promise.all([
+            db.collection("commandes_clients").where("boutiqueUid","==",user.uid).where("date",">=",moisDebut).where("date","<=",moisFin).get(),
+            db.collection("commandes_clients").where("boutiqueUid","==",user.uid).where("date",">=",moisPrec).where("date","<=",moisPrecFin).get(),
+            db.collection("commandes_clients").where("boutiqueUid","==",user.uid).get()
+          ]).then(function(results){
+            var cmdMois=results[0]; var cmdPrec=results[1]; var cmdTotal=results[2];
+            var caMois=0; cmdMois.forEach(function(d){caMois+=parseFloat((d.data().total||"0").replace("€","").replace(",","."))||0;});
+            var caPrec=0; cmdPrec.forEach(function(d){caPrec+=parseFloat((d.data().total||"0").replace("€","").replace(",","."))||0;});
+            var clientesSet=new Set(); cmdTotal.forEach(function(d){if(d.data().clientUid)clientesSet.add(d.data().clientUid);});
+
+            caMois+=mData.ca||0; var nbCmd=cmdMois.size+(mData.commandes||0);
+            caPrec+=mPrecData.ca||0; var nbCmdPrec=cmdPrec.size+(mPrecData.commandes||0);
+
+            rechargerStats(caMois,nbCmd,caPrec,nbCmdPrec,clientesSet.size);
+          }).catch(function(){rechargerStats(mData.ca||0,mData.commandes||0,0,0,0);});
+
+          function rechargerStats(ca,cmd,caP,cmdP,clientes){
+            var evoCa=caP>0?Math.round((ca-caP)/caP*100):ca>0?100:0;
+            var evoCmd=cmdP>0?Math.round((cmd-cmdP)/cmdP*100):cmd>0?100:0;
+            var PALIERS=[{nom:"Consultant",min:100,comm:20},{nom:"Conseiller",min:250,comm:30},{nom:"Conseiller Principal",min:500,comm:30},{nom:"Responsable",min:1000,comm:30},{nom:"Cadre Supérieur",min:1500,comm:30},{nom:"Partenaire",min:2000,comm:30},{nom:"Directeur Adjoint",min:3000,comm:30},{nom:"Directeur",min:5000,comm:30}];
+            var palierActuel=PALIERS[0]; var palierSuivant=PALIERS[1];
+            for(var i=0;i<PALIERS.length;i++){if(ca>=PALIERS[i].min){palierActuel=PALIERS[i];palierSuivant=PALIERS[i+1]||null;}}
+            var commission=Math.round(ca*palierActuel.comm/100);
+
+            statsDiv.innerHTML="<p style='color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 10px;letter-spacing:1px;'>📅 "+moisLabel.toUpperCase()+"</p>";
+
+            // Grid stats
+            var grid=document.createElement("div"); grid.style.cssText="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;";
+            var stats=[
+              {label:"CA ce mois",val:ca.toFixed(2)+"€",evo:evoCa,icon:"💰"},
+              {label:"Commandes",val:cmd,evo:evoCmd,icon:"📦"},
+              {label:"Clientes actives",val:clientes||"—",evo:null,icon:"👥"},
+              {label:"Commission estimée",val:commission+"€",evo:null,icon:"🏆"},
+            ];
+            stats.forEach(function(s){
+              var card=document.createElement("div"); card.style.cssText="background:white;border-radius:12px;padding:14px;border:1px solid #e8d4b0;text-align:center;";
+              var evoHtml="";
+              if(s.evo!==null){evoHtml="<p style='font-size:11px;margin:4px 0 0;color:"+(s.evo>=0?"#27AE60":"#e74c3c")+"'>"+(s.evo>=0?"↑":"↓")+Math.abs(s.evo)+"% vs mois dernier</p>";}
+              card.innerHTML="<p style='font-size:20px;margin:0 0 4px;'>"+s.icon+"</p><p style='color:#c9a86a;font-size:20px;font-weight:bold;margin:0;'>"+s.val+"</p><p style='color:#999;font-size:11px;margin:2px 0 0;'>"+s.label+"</p>"+evoHtml;
+              grid.appendChild(card);
+            });
+            statsDiv.appendChild(grid);
+
+            // Barre progression palier
+            if(palierSuivant){
+              var progDiv=document.createElement("div");progDiv.style.cssText="background:white;border-radius:12px;padding:14px;border:1px solid #e8d4b0;";
+              var pct=Math.min(Math.round((ca-palierActuel.min)/(palierSuivant.min-palierActuel.min)*100),100);
+              var manquant=Math.max(0,palierSuivant.min-ca);
+              progDiv.innerHTML="<p style='color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 8px;'>📈 PROGRESSION STATUT</p><div style='display:flex;justify-content:space-between;margin-bottom:6px;'><span style='color:#3a3a3a;font-size:12px;font-weight:bold;'>"+palierActuel.nom+"</span><span style='color:#c9a86a;font-size:12px;font-weight:bold;'>"+palierSuivant.nom+"</span></div><div style='background:#f0e6d3;border-radius:6px;height:10px;margin-bottom:6px;'><div style='background:linear-gradient(135deg,#c9a86a,#f5d48a);width:"+pct+"%;height:10px;border-radius:6px;'></div></div><p style='color:#999;font-size:12px;margin:0;text-align:center;'>Plus que <b>"+manquant.toFixed(0)+"€</b> pour atteindre "+palierSuivant.nom+"</p>";
+              statsDiv.appendChild(progDiv);
+            }
+          }
+
+          rechargerStats(mData.ca||0,mData.commandes||0,mPrecData.ca||0,mPrecData.commandes||0,0);
+        });
+      }
+
+      function openRangMihiPanel() {
+        if (document.getElementById("baa-rang-panel")) return;
+        var user = auth.currentUser; if(!user) return;
+        var panel=document.createElement("div");panel.id="baa-rang-panel";
+        panel.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999999;display:flex;justify-content:center;align-items:flex-start;overflow-y:auto;-webkit-overflow-scrolling:touch;";
+        var box=document.createElement("div");box.style.cssText="background:#f8f3ee;width:90%;max-width:500px;border-radius:20px;padding:24px;margin:20px auto;font-family:Arial,sans-serif;";
+        box.innerHTML="<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;'><div><p style='color:#999;font-size:11px;font-weight:bold;margin:0 0 2px;letter-spacing:1px;'>🏆 MON COMPTE</p><h2 style='color:#8b735d;font-size:17px;margin:0;'>Mon rang Mihi</h2></div><button id='close-rang' style='background:none;border:none;font-size:22px;color:#8b735d;cursor:pointer;touch-action:manipulation;'>← Retour</button></div>";
+        panel.appendChild(box);document.body.appendChild(panel);
+        document.getElementById("close-rang").onclick=function(){panel.remove();openInfoPanel();};
+        document.getElementById("close-rang").addEventListener("touchend",function(e){e.preventDefault();panel.remove();openInfoPanel();},{passive:false});
+
+        var PALIERS=[
+          {nom:"Consultant",min:100,max:249,comm:20,equipe:2,emoji:"🌱"},
+          {nom:"Conseiller",min:250,max:499,comm:30,equipe:4,emoji:"🌿"},
+          {nom:"Conseiller Principal",min:500,max:999,comm:30,equipe:6,emoji:"🌳"},
+          {nom:"Responsable",min:1000,max:1499,comm:30,equipe:8,emoji:"⭐"},
+          {nom:"Cadre Supérieur",min:1500,max:1999,comm:30,equipe:10,emoji:"🌟"},
+          {nom:"Partenaire",min:2000,max:2999,comm:30,equipe:12,emoji:"💫"},
+          {nom:"Directeur Adjoint",min:3000,max:4999,comm:30,equipe:14,emoji:"👑"},
+          {nom:"Directeur",min:5000,max:99999,comm:30,equipe:17,emoji:"🏆"},
+        ];
+
+        // Saisie CA pour calculer le rang
+        var saisiDiv=document.createElement("div");saisiDiv.style.cssText="background:white;border-radius:14px;padding:16px;margin-bottom:14px;border:1px solid #e8d4b0;";
+        saisiDiv.innerHTML="<p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 10px;'>💰 Mon CA mensuel actuel</p><div style='display:flex;gap:8px;'><input id='rang-ca' type='number' placeholder='Ex: 650' style='flex:1;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:14px;'><button id='rang-calc' style='background:#c9a86a;color:#1a0a00;border:none;padding:10px 16px;border-radius:8px;font-weight:bold;cursor:pointer;touch-action:manipulation;'>Voir</button></div>";
+        box.appendChild(saisiDiv);
+
+        var rangDiv=document.createElement("div");box.appendChild(rangDiv);
+
+        var doCalc=function(){
+          var ca=parseFloat(document.getElementById("rang-ca").value)||0;
+          var palierActuel=null;var palierSuivant=null;
+          for(var i=0;i<PALIERS.length;i++){if(ca>=PALIERS[i].min){palierActuel=PALIERS[i];palierSuivant=PALIERS[i+1]||null;}}
+          rangDiv.innerHTML="";
+          if(!palierActuel){
+            rangDiv.innerHTML="<div style='background:white;border-radius:12px;padding:16px;text-align:center;border:1px solid #e8d4b0;'><p style='color:#999;font-size:13px;'>Tu es en démarrage ! Il te faut 100€ de CA pour atteindre le premier palier.</p></div>";
+          } else {
+            // Rang actuel
+            var rangCard=document.createElement("div");rangCard.style.cssText="background:linear-gradient(135deg,#c9a86a,#f5d48a);border-radius:14px;padding:20px;text-align:center;margin-bottom:14px;";
+            rangCard.innerHTML="<p style='color:#1a0a00;font-size:28px;margin:0 0 4px;'>"+palierActuel.emoji+"</p><p style='color:#1a0a00;font-size:20px;font-weight:bold;margin:0 0 4px;'>"+palierActuel.nom+"</p><p style='color:rgba(0,0,0,0.6);font-size:13px;margin:0 0 12px;'>"+palierActuel.comm+"% sur ventes perso + "+palierActuel.equipe+"% équipe</p><p style='color:#1a0a00;font-size:14px;font-weight:bold;margin:0;'>Commission estimée : "+Math.round(ca*palierActuel.comm/100)+"€</p>";
+            rangDiv.appendChild(rangCard);
+
+            // Progression vers le suivant
+            if(palierSuivant){
+              var pct=Math.min(Math.round((ca-palierActuel.min)/(palierSuivant.min-palierActuel.min)*100),100);
+              var manquant=Math.max(0,palierSuivant.min-ca);
+              var progCard=document.createElement("div");progCard.style.cssText="background:white;border-radius:12px;padding:16px;border:1px solid #e8d4b0;margin-bottom:14px;";
+              progCard.innerHTML="<p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 10px;'>🎯 Prochain rang : "+palierSuivant.emoji+" "+palierSuivant.nom+"</p><div style='background:#f0e6d3;border-radius:6px;height:12px;margin-bottom:8px;'><div style='background:linear-gradient(135deg,#c9a86a,#f5d48a);width:"+pct+"%;height:12px;border-radius:6px;'></div></div><p style='color:#999;font-size:12px;text-align:center;margin:0;'>"+pct+"% — Plus que <b>"+manquant.toFixed(0)+"€</b> de CA pour y arriver</p>";
+              rangDiv.appendChild(progCard);
+            }
+          }
+
+          // Tous les paliers
+          var listeTitle=document.createElement("p");listeTitle.style.cssText="color:#8b735d;font-size:12px;font-weight:bold;margin:0 0 10px;letter-spacing:1px;";listeTitle.textContent="📋 TOUS LES PALIERS";rangDiv.appendChild(listeTitle);
+          var listeDiv=document.createElement("div");listeDiv.style.cssText="background:white;border-radius:12px;padding:14px;border:1px solid #e8d4b0;";
+          PALIERS.forEach(function(p){
+            var isActuel=palierActuel&&p.nom===palierActuel.nom;
+            var row=document.createElement("div");row.style.cssText="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0e6d3;background:"+(isActuel?"#fdf6ec":"white");
+            if(isActuel)row.style.cssText+="border-radius:8px;padding:8px;margin:-2px;";
+            row.innerHTML="<div style='display:flex;align-items:center;gap:8px;'><span style='font-size:18px;'>"+p.emoji+"</span><div><p style='color:"+(isActuel?"#c9a86a":"#3a3a3a")+";font-size:13px;font-weight:"+(isActuel?"bold":"normal")+";margin:0;'>"+p.nom+"</p><p style='color:#999;font-size:11px;margin:0;'>"+p.min.toLocaleString("fr-FR")+"€"+(p.max<99999?" → "+p.max.toLocaleString("fr-FR")+"€":" et +")+"</p></div></div><span style='color:#c9a86a;font-size:12px;font-weight:bold;'>"+p.comm+"%+"+(p.equipe)+"%</span>";
+            listeDiv.appendChild(row);
+          });
+          rangDiv.appendChild(listeDiv);
+        };
+
+        document.getElementById("rang-calc").onclick=doCalc;
+        document.getElementById("rang-calc").addEventListener("touchend",function(e){e.preventDefault();doCalc();},{passive:false});
+
+        // Charger CA sauvegardé
+        db.collection("users").doc(user.uid).get().then(function(snap){
+          var d=snap.exists?snap.data():{};
+          var now=new Date();
+          var moisKey=now.getFullYear()+"-"+(now.getMonth()+1);
+          var manuel=(d.tableauBordManuel||{})[moisKey]||{};
+          if(manuel.ca){document.getElementById("rang-ca").value=manuel.ca;doCalc();}
+        });
+      }
+
       function openCalculEquipePanel() {
         if (document.getElementById("baa-equipe-panel")) return;
         const panel = document.createElement("div"); panel.id = "baa-equipe-panel";
