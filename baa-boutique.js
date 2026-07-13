@@ -353,6 +353,7 @@ function openGestionBoutique() {
     else if (state.step === "fidelite") renderFidelite();
     else if (state.step === "fidelite-cliente") renderFideliteCliente();
     else if (state.step === "recrutement") renderRecrutement();
+    else if (state.step === "sets") renderSets();
     else if (state.step === "prospects") renderProspects();
     else if (state.step === "ajouter-produit") renderAjouterProduit();
   }
@@ -374,6 +375,7 @@ function openGestionBoutique() {
         { icon:"📊", label:"Mes statistiques", sub:"Visites, paniers, commandes", step:"stats" },
         { icon:"🛒", label:"Créer un panier partagé", sub:"Envoyer un panier prêt à commander", step:"panier-partage" },
         { icon:"🎁", label:"Carte de fidélité", sub:"Tampons et récompenses clientes", step:"fidelite" },
+        { icon:"🏷️", label:"Sets & Promos", sub:"Créer des bundles et promotions", step:"sets" },
         { icon:"🔗", label:"Mon lien boutique", sub:"Partager avec mes clientes", step:"lien" },
         { icon:"🎯", label:"Mon tunnel recrutement", sub:"Attirer et convertir des prospects", step:"recrutement" },
         { icon:"👥", label:"Mes prospects", sub:"Gérer les demandes reçues", step:"prospects" },
@@ -862,6 +864,30 @@ function openGestionBoutique() {
           }
 
           // Champs description et ingrédients
+          // Prix promo
+          var promoRow = document.createElement("div"); promoRow.style.cssText="padding:4px 14px 6px 52px;background:white;display:flex;gap:8px;align-items:center;";
+          var promoLabel2 = document.createElement("span"); promoLabel2.style.cssText="background:#e74c3c;color:white;font-size:10px;font-weight:bold;padding:3px 6px;border-radius:4px;flex-shrink:0;"; promoLabel2.textContent="🏷️ PROMO";
+          var promoInp = document.createElement("input"); promoInp.type="number"; promoInp.step="0.01"; promoInp.placeholder="Prix promo (ex: 12.50)"; promoInp.value=(b.prixPromo&&b.prixPromo[photoKey])||""; promoInp.style.cssText="flex:1;padding:6px 8px;border:1px solid #e74c3c;border-radius:6px;font-size:12px;";
+          promoInp.addEventListener("touchstart",function(e){e.stopPropagation();},{passive:true});
+          promoInp.oninput=function(){if(!b.prixPromo)b.prixPromo={};b.prixPromo[photoKey]=parseFloat(promoInp.value)||null;};
+          promoRow.appendChild(promoLabel2); promoRow.appendChild(promoInp);
+          catContent.appendChild(promoRow);
+
+          // Case à cocher Sets & Promos
+          var setsRow = document.createElement("div"); setsRow.style.cssText="padding:4px 14px 8px 52px;background:white;display:flex;align-items:center;gap:8px;";
+          var setsCheck = document.createElement("input"); setsCheck.type="checkbox"; setsCheck.style.cssText="width:16px;height:16px;cursor:pointer;";
+          setsCheck.checked = !!(b.inSetsPromos && b.inSetsPromos[photoKey]);
+          var setsLabel3 = document.createElement("label"); setsLabel3.style.cssText="color:#8b735d;font-size:12px;cursor:pointer;"; setsLabel3.textContent="🏷️ Afficher dans Sets & Promos";
+          var doSetsCheck = function(){
+            if(!b.inSetsPromos)b.inSetsPromos={};
+            b.inSetsPromos[photoKey]=setsCheck.checked;
+            var user4=firebase.auth().currentUser;
+            if(user4){var upd={};upd["inSetsPromos."+photoKey]=setsCheck.checked;firebase.firestore().collection("boutiques").doc(user4.uid).update(upd);}
+          };
+          setsCheck.onchange=doSetsCheck;
+          setsRow.appendChild(setsCheck); setsRow.appendChild(setsLabel3);
+          catContent.appendChild(setsRow);
+
           // Champ prix VIP
           var vipRow = document.createElement("div"); vipRow.style.cssText="padding:4px 14px 6px 52px;background:white;display:flex;gap:8px;align-items:center;";
           var vipLabel2 = document.createElement("span"); vipLabel2.style.cssText="background:#c0392b;color:#f5d48a;font-size:10px;font-weight:bold;padding:3px 6px;border-radius:4px;flex-shrink:0;"; vipLabel2.textContent="💎 PRIX VIP";
@@ -1138,6 +1164,105 @@ function openGestionBoutique() {
     var back=document.createElement("button");back.textContent="← Retour";back.style.cssText="background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;width:100%;";
     back.onclick=function(){state.boutique=b;state.step="produits";render();};box.appendChild(back);
     var ios=document.createElement("div");ios.style.height="60px";box.appendChild(ios);
+  }
+
+  function renderSets() {
+    var user = firebase.auth().currentUser; if (!user) return;
+    var titre=document.createElement("p");titre.style.cssText="color:#8b735d;font-size:15px;font-weight:bold;margin:0 0 6px;";titre.textContent="🏷️ Sets & Promos";box.appendChild(titre);
+    var sub=document.createElement("p");sub.style.cssText="color:#999;font-size:12px;margin:0 0 16px;line-height:1.5;";sub.textContent="Créez des bundles exclusifs et gérez vos promotions.";box.appendChild(sub);
+
+    chargerBoutique(function(b) {
+      // Bouton créer un set
+      var addBtn=document.createElement("button");addBtn.textContent="➕ Créer un set/bundle";addBtn.style.cssText="width:100%;background:linear-gradient(135deg,#e74c3c,#c0392b);color:white;border:none;padding:13px;border-radius:12px;font-weight:bold;font-size:14px;cursor:pointer;touch-action:manipulation;margin-bottom:14px;";
+      box.appendChild(addBtn);
+
+      // Formulaire création set
+      var formDiv=document.createElement("div");formDiv.style.cssText="display:none;background:white;border-radius:12px;padding:16px;margin-bottom:14px;border:1px solid #e8d4b0;";
+      formDiv.innerHTML="<p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 12px;'>🎁 Nouveau Set / Bundle</p>";
+
+      var fields3=[
+        {id:"set-nom",label:"Nom du set *",type:"text",placeholder:"Ex: Kit Routine Anti-âge"},
+        {id:"set-prix",label:"Prix du set (€) *",type:"number",placeholder:"Ex: 45.90"},
+        {id:"set-desc",label:"Description",type:"textarea",placeholder:"Contenu du set, produits inclus..."},
+        {id:"set-ingr",label:"Avantages / Ingrédients",type:"text",placeholder:"Ex: Économisez 20% vs achat séparé"},
+      ];
+      fields3.forEach(function(f){
+        var lbl=document.createElement("p");lbl.style.cssText="color:#8b735d;font-size:11px;font-weight:bold;margin:0 0 3px;";lbl.textContent=f.label;formDiv.appendChild(lbl);
+        if(f.type==="textarea"){
+          var ta=document.createElement("textarea");ta.id=f.id;ta.placeholder=f.placeholder;ta.rows=3;ta.style.cssText="width:100%;padding:9px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:8px;resize:none;";
+          ta.addEventListener("touchstart",function(e){e.stopPropagation();},{passive:true});formDiv.appendChild(ta);
+        } else {
+          var inp=document.createElement("input");inp.type=f.type;inp.id=f.id;inp.placeholder=f.placeholder;inp.style.cssText="width:100%;padding:9px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;margin-bottom:8px;";
+          inp.addEventListener("touchstart",function(e){e.stopPropagation();},{passive:true});formDiv.appendChild(inp);
+        }
+      });
+
+      // Photo
+      var photoLbl=document.createElement("p");photoLbl.style.cssText="color:#8b735d;font-size:11px;font-weight:bold;margin:0 0 3px;";photoLbl.textContent="Photo du set";formDiv.appendChild(photoLbl);
+      var fileInpSet=document.createElement("input");fileInpSet.type="file";fileInpSet.accept="image/*";fileInpSet.style.display="none";formDiv.appendChild(fileInpSet);
+      var photoBtn2=document.createElement("button");photoBtn2.textContent="📷 Ajouter une photo";photoBtn2.style.cssText="background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:12px;margin-bottom:10px;touch-action:manipulation;";
+      photoBtn2.onclick=function(){fileInpSet.click();};formDiv.appendChild(photoBtn2);
+      var photoStatusSet=document.createElement("p");photoStatusSet.style.cssText="color:#999;font-size:11px;margin:0 0 10px;";formDiv.appendChild(photoStatusSet);
+      var setPhotoUrl="";
+      fileInpSet.onchange=async function(){
+        var f=this.files[0];if(!f)return;
+        photoBtn2.disabled=true;photoStatusSet.textContent="Upload...";
+        var fd=new FormData();fd.append("file",f);fd.append("upload_preset","baa_avatars");fd.append("folder","sets");
+        try{var r=await fetch("https://api.cloudinary.com/v1_1/dxcfq3nyl/image/upload",{method:"POST",body:fd});var data=await r.json();setPhotoUrl=data.secure_url||"";photoStatusSet.textContent="✅ Photo ajoutée !";}catch(e){photoStatusSet.textContent="Erreur upload";}
+        photoBtn2.disabled=false;
+      };
+
+      var saveSetBtn=document.createElement("button");saveSetBtn.textContent="✅ Créer ce set";saveSetBtn.style.cssText="width:100%;background:#c9a86a;color:#1a0a00;border:none;padding:12px;border-radius:10px;font-weight:bold;font-size:14px;cursor:pointer;touch-action:manipulation;margin-top:6px;";
+      var doSaveSet=function(){
+        var nom=document.getElementById("set-nom").value.trim();
+        var prix=parseFloat(document.getElementById("set-prix").value)||0;
+        if(!nom||!prix){alert("Nom et prix obligatoires.");return;}
+        var newSet={nom:nom,prix:prix,description:document.getElementById("set-desc").value.trim(),ingredients:document.getElementById("set-ingr").value.trim(),photo:setPhotoUrl,createdAt:new Date().toISOString()};
+        if(!b.sets)b.sets=[];
+        b.sets.push(newSet);
+        sauvegarderBoutique(b,function(){formDiv.style.display="none";state.boutique=null;state.step="sets";render();});
+      };
+      saveSetBtn.onclick=doSaveSet;saveSetBtn.addEventListener("touchend",function(e){e.preventDefault();doSaveSet();},{passive:false});
+      formDiv.appendChild(saveSetBtn);
+      box.appendChild(formDiv);
+
+      addBtn.onclick=function(){formDiv.style.display=formDiv.style.display==="none"?"block":"none";};
+      addBtn.addEventListener("touchend",function(e){e.preventDefault();addBtn.onclick();},{passive:false});
+
+      // Produits en promo (cochés inSetsPromos)
+      var promoTitle=document.createElement("p");promoTitle.style.cssText="color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 10px;letter-spacing:1px;";promoTitle.textContent="🏷️ PRODUITS EN PROMO";box.appendChild(promoTitle);
+      var promoCount=0;
+      Object.keys(BAA_PRODUITS||{}).forEach(function(cat){
+        (BAA_PRODUITS[cat].produits||[]).forEach(function(prod){
+          var pk=getProdKey(prod);
+          if(b.inSetsPromos&&b.inSetsPromos[pk]&&b.prixPromo&&b.prixPromo[pk]){
+            promoCount++;
+            var card=document.createElement("div");card.style.cssText="background:white;border-radius:10px;padding:12px;margin-bottom:8px;border:1px solid #fcc;display:flex;justify-content:space-between;align-items:center;";
+            card.innerHTML="<div><p style='color:#3a3a3a;font-size:13px;font-weight:bold;margin:0 0 2px;'>"+prod.nom+"</p><p style='color:#999;font-size:11px;margin:0;'>Prix normal : "+(b.prixCustom&&b.prixCustom[pk]?b.prixCustom[pk]:prod.prix).toFixed(2)+"€</p></div><span style='background:#e74c3c;color:white;font-weight:bold;padding:5px 10px;border-radius:8px;font-size:13px;'>"+b.prixPromo[pk].toFixed(2)+"€</span>";
+            box.appendChild(card);
+          }
+        });
+      });
+      if(promoCount===0){var noPromo=document.createElement("p");noPromo.style.cssText="color:#999;font-size:13px;text-align:center;padding:10px 0 14px;";noPromo.textContent="Aucun produit en promo. Cochez la case dans Gérer mes produits.";box.appendChild(noPromo);}
+
+      // Liste des sets créés
+      var setsTitle=document.createElement("p");setsTitle.style.cssText="color:#8b735d;font-size:13px;font-weight:bold;margin:8px 0 10px;letter-spacing:1px;";setsTitle.textContent="🎁 MES SETS & BUNDLES";box.appendChild(setsTitle);
+      if(!b.sets||b.sets.length===0){var noSet=document.createElement("p");noSet.style.cssText="color:#999;font-size:13px;text-align:center;padding:10px 0;";noSet.textContent="Aucun set créé pour l'instant.";box.appendChild(noSet);}
+      else{
+        b.sets.forEach(function(s,idx){
+          var card=document.createElement("div");card.style.cssText="background:white;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8d4b0;";
+          var photoHtml=s.photo?"<img src='"+s.photo+"' style='width:60px;height:60px;object-fit:cover;border-radius:8px;flex-shrink:0;' />":"<div style='width:60px;height:60px;background:#f0e6d3;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;'>🎁</div>";
+          card.innerHTML="<div style='display:flex;gap:12px;align-items:center;'>"+(photoHtml)+"<div style='flex:1;'><p style='color:#3a3a3a;font-size:14px;font-weight:bold;margin:0 0 3px;'>"+s.nom+"</p><p style='color:#e74c3c;font-size:15px;font-weight:bold;margin:0 0 3px;'>"+s.prix.toFixed(2)+"€</p>"+(s.description?"<p style='color:#666;font-size:12px;margin:0;'>"+s.description+"</p>":"")+"</div></div>";
+          var delSetBtn=document.createElement("button");delSetBtn.textContent="🗑️ Supprimer";delSetBtn.style.cssText="margin-top:10px;background:#fee;color:#e74c3c;border:1px solid #e74c3c;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;touch-action:manipulation;";
+          var doDelSet=(function(i){return function(){if(confirm("Supprimer ce set ?")){b.sets.splice(i,1);sauvegarderBoutique(b,function(){state.boutique=null;state.step="sets";render();});}}})(idx);
+          delSetBtn.onclick=doDelSet;delSetBtn.addEventListener("touchend",function(e){e.preventDefault();doDelSet();},{passive:false});
+          card.appendChild(delSetBtn);box.appendChild(card);
+        });
+      }
+    });
+
+    var back=document.createElement("button");back.textContent="← Retour";back.style.cssText="background:none;border:none;color:#8b735d;font-size:13px;cursor:pointer;width:100%;margin-top:8px;padding-bottom:40px;";
+    back.onclick=function(){state.step="menu";render();};box.appendChild(back);
   }
 
   function renderRecrutement() {
