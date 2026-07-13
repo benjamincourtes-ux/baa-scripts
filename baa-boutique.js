@@ -1229,7 +1229,7 @@ function openGestionBoutique() {
         var newSet={nom:nom,prix:prix,prixNormal:parseFloat(document.getElementById("set-prix-normal").value)||0,description:document.getElementById("set-desc").value.trim(),ingredients:document.getElementById("set-ingr").value.trim(),photo:setPhotoUrl,createdAt:new Date().toISOString()};
         var sets=(b.sets||[]).slice();
         sets.push(newSet);
-        firebase.firestore().collection("boutiques").doc(user.uid).update({sets:sets}).then(function(){
+        firebase.firestore().collection("boutiques").doc(user.uid).set({sets:sets},{merge:true}).then(function(){
           formDiv.style.display="none";
           b.sets=sets;
           // Rafraîchir juste la liste
@@ -1271,7 +1271,7 @@ function openGestionBoutique() {
           var delSetBtn=document.createElement("button");delSetBtn.textContent="🗑️ Supprimer";delSetBtn.style.cssText="margin-top:10px;background:#fee;color:#e74c3c;border:1px solid #e74c3c;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;touch-action:manipulation;";
           var doDelSet=(function(i){return function(){if(confirm("Supprimer ce set ?")){
             var sets2=(b.sets||[]).slice();sets2.splice(i,1);
-            firebase.firestore().collection("boutiques").doc(user.uid).update({sets:sets2}).then(function(){
+            firebase.firestore().collection("boutiques").doc(user.uid).set({sets:sets2},{merge:true}).then(function(){
               delete box.dataset.setsLoading;state.boutique=null;state.step="sets";render();
             });
           }}})(idx);
