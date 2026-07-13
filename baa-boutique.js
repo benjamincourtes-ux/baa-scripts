@@ -1271,7 +1271,34 @@ function openGestionBoutique() {
           var card=document.createElement("div");card.style.cssText="background:white;border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #e8d4b0;";
           var photoHtml=s.photo?"<img src='"+s.photo+"' style='width:60px;height:60px;object-fit:cover;border-radius:8px;flex-shrink:0;' />":"<div style='width:60px;height:60px;background:#f0e6d3;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;'>🎁</div>";
           card.innerHTML="<div style='display:flex;gap:12px;align-items:center;'>"+(photoHtml)+"<div style='flex:1;'><p style='color:#3a3a3a;font-size:14px;font-weight:bold;margin:0 0 3px;'>"+s.nom+"</p>"+(s.prixNormal?"<p style='color:#999;font-size:12px;text-decoration:line-through;margin:0;'>"+s.prixNormal.toFixed(2)+"€</p>":"")+"<p style='color:#e74c3c;font-size:15px;font-weight:bold;margin:0 0 3px;'>"+s.prix.toFixed(2)+"€"+(s.prixNormal?" (-"+Math.round((s.prixNormal-s.prix)/s.prixNormal*100)+"%)":" ")+"</p>"+(s.description?"<p style='color:#666;font-size:12px;margin:0;'>"+s.description+"</p>":"")+"</div></div>";
-          var delSetBtn=document.createElement("button");delSetBtn.textContent="🗑️ Supprimer";delSetBtn.style.cssText="margin-top:10px;background:#fee;color:#e74c3c;border:1px solid #e74c3c;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;touch-action:manipulation;";
+          var delSetBtn=document.createElement("button");delSetBtn.textContent="🗑️ Supprimer";delSetBtn.style.cssText="margin-top:10px;margin-right:8px;background:#fee;color:#e74c3c;border:1px solid #e74c3c;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;touch-action:manipulation;";
+          var editSetBtn=document.createElement("button");editSetBtn.textContent="✏️ Modifier";editSetBtn.style.cssText="margin-top:10px;background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;touch-action:manipulation;";
+          var doEditSet=(function(set,i){return function(){
+            document.getElementById("set-nom").value=set.nom||"";
+            document.getElementById("set-prix-normal").value=set.prixNormal||"";
+            document.getElementById("set-prix").value=set.prix||"";
+            document.getElementById("set-desc").value=set.description||"";
+            document.getElementById("set-ingr").value=set.ingredients||"";
+            setPhotoUrl=set.photo||"";
+            photoStatusSet.textContent=set.photo?"✅ Photo existante":"";
+            formDiv.style.display="block";
+            // Remplacer le set existant au lieu d'en créer un nouveau
+            saveSetBtn.textContent="✅ Modifier ce set";
+            doSaveSet=(function(idx2){return function(){
+              var nom2=document.getElementById("set-nom").value.trim();
+              var prix2=parseFloat(document.getElementById("set-prix").value)||0;
+              if(!nom2||!prix2){alert("Nom et prix obligatoires.");return;}
+              saveSetBtn.disabled=true;saveSetBtn.textContent="⏳ Sauvegarde...";
+              firebase.firestore().collection("boutiques").doc(user.uid).get().then(function(fs){
+                var fd=fs.exists?fs.data():{};var sets2=(fd.sets||[]).slice();
+                sets2[idx2]={nom:nom2,prix:prix2,prixNormal:parseFloat(document.getElementById("set-prix-normal").value)||0,description:document.getElementById("set-desc").value.trim(),ingredients:document.getElementById("set-ingr").value.trim(),photo:setPhotoUrl,createdAt:sets2[idx2]?sets2[idx2].createdAt:new Date().toISOString()};
+                firebase.firestore().collection("boutiques").doc(user.uid).set({sets:sets2},{merge:true}).then(function(){formDiv.style.display="none";delete box.dataset.setsLoading;state.boutique=null;state.step="sets";render();});
+              });
+            };})(i);
+            saveSetBtn.onclick=doSaveSet;
+            formDiv.scrollIntoView({behavior:"smooth"});
+          };})(s,idx);
+          editSetBtn.onclick=doEditSet;editSetBtn.addEventListener("touchend",function(e){e.preventDefault();doEditSet();},{passive:false});
           var doDelSet=(function(i){return function(){if(confirm("Supprimer ce set ?")){
             var sets2=(b.sets||[]).slice();sets2.splice(i,1);
             firebase.firestore().collection("boutiques").doc(user.uid).set({sets:sets2},{merge:true}).then(function(){
@@ -1279,6 +1306,7 @@ function openGestionBoutique() {
             });
           }}})(idx);
           delSetBtn.onclick=doDelSet;delSetBtn.addEventListener("touchend",function(e){e.preventDefault();doDelSet();},{passive:false});
+          card.appendChild(editSetBtn);
           card.appendChild(delSetBtn);box.appendChild(card);
         });
       }
