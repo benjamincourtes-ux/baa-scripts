@@ -272,3 +272,31 @@
   initBAAEvents();
 
 })();
+
+  // ============================
+  // PATCH EMAILJS — Détection commandes boutique
+  // ============================
+  function patchEmailJSPourVentes() {
+    if (typeof emailjs === "undefined") {
+      setTimeout(patchEmailJSPourVentes, 500);
+      return;
+    }
+    var _origSend = emailjs.send;
+    emailjs.send = function(serviceId, templateId, params) {
+      var result = _origSend.apply(this, arguments);
+      if (templateId === "template_nkfnrnd" && window.baaEventBus) {
+        var montant = parseFloat(((params && params.total) || "0").replace("€","").replace(",",".")) || 0;
+        var clientNom = (params && (params.client_prenom || params.client_nom)) || "une cliente";
+        setTimeout(function() {
+          window.baaEventBus.emit("vente_realisee", {
+            montant: montant,
+            clientNom: clientNom,
+            articles: (params && params.articles) || ""
+          });
+        }, 1000);
+      }
+      return result;
+    };
+    console.log("✅ BAA Vente Event patch actif");
+  }
+  patchEmailJSPourVentes();
