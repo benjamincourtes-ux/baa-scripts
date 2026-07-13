@@ -274,8 +274,23 @@
 })();
 
   // ============================
-  // PATCH EMAILJS — Détection commandes boutique
+  // CONNEXION BADGES AU BUS
   // ============================
+  window.baaEventBus.on("vente_realisee", function(data) {
+    setTimeout(function() {
+      if (typeof window.ajouterPointsBadge === "function") {
+        window.ajouterPointsBadge(5); // +5 pts par commande
+      }
+    }, 2000);
+  });
+
+  window.baaEventBus.on("module_termine", function(data) {
+    setTimeout(function() {
+      if (typeof window.ajouterPointsBadge === "function") {
+        window.ajouterPointsBadge(20); // +20 pts par module terminé
+      }
+    }, 2000);
+  });
   function patchEmailJSPourVentes() {
     if (typeof emailjs === "undefined") {
       setTimeout(patchEmailJSPourVentes, 500);
