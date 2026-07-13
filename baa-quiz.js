@@ -35,6 +35,18 @@ function openQuizBonDemarrage() {
     { q: "Que doit-on faire au Jour 7 pour cloturer le programme ?", options: ["Tout recommencer depuis le debut", "Faire un bilan et definir un plan d'action pour les 30 jours suivants", "Arreter l'activite si les resultats ne sont pas parfaits", "Ignorer les resultats de la semaine"], correct: 1, explain: "Le Jour 7 est dedie au bilan de la semaine et a la definition d'objectifs clairs pour le mois a venir." }
   ];
 
+  // Mapping des quiz pour les messages Phénix
+  var QUIZ_SUIVANTS = {
+    "Bon Demarrage": { nom: "Module 2", fn: "openQuizModule2" },
+    "Module 2": { nom: "Module 3", fn: "openQuizModule3" },
+    "Module 3": { nom: "Module 4", fn: "openQuizModule4" },
+    "Module 4": { nom: "Module 5", fn: "openQuizModule5" },
+    "Module 5": { nom: "Module 6", fn: "openQuizModule6" },
+    "Module 6": { nom: "Module 7", fn: "openQuizModule7" },
+    "Module 7": null
+  };
+  var NOM_QUIZ_ACTUEL = "Bon Demarrage";
+
   var currentIndex = 0;
   var score = 0;
   var answered = false;
@@ -135,6 +147,7 @@ function openQuizBonDemarrage() {
       score = 0;
       renderQuestion();
     };
+
     if (uid) {
       var pctSave = Math.round((score / questions.length) * 100);
       var updateData = {
@@ -142,7 +155,29 @@ function openQuizBonDemarrage() {
         quizBonDemarrageTotal: questions.length,
         quizBonDemarrageDate: new Date().toISOString()
       };
-      if (pctSave >= 80) { updateData.quizBonDemarrageComplete = true; } else { updateData.quizBonDemarrageComplete = false; }
+      if (pctSave >= 80) {
+        updateData.quizBonDemarrageComplete = true;
+
+        // 🔥 CONNEXION BUS D'ÉVÉNEMENTS
+        if (window.baaEventBus) {
+          var quizSuivant = QUIZ_SUIVANTS[NOM_QUIZ_ACTUEL];
+          var msgPhenix = "🎓 Bravo ! Tu as validé le Quiz " + NOM_QUIZ_ACTUEL + " avec " + pctFinal + "% ! 🔥\n+20 points badges gagnés !";
+          if (quizSuivant) {
+            msgPhenix += "\n\n👉 Prochain quiz : " + quizSuivant.nom;
+          } else {
+            msgPhenix += "\n\n🏆 Tu as validé tous les quiz ! Tu es au top !";
+          }
+
+          window.baaEventBus.emit("module_termine", {
+            moduleNom: "Quiz " + NOM_QUIZ_ACTUEL,
+            score: pctFinal,
+            quizSuivant: quizSuivant ? quizSuivant.nom : null
+          });
+        }
+
+      } else {
+        updateData.quizBonDemarrageComplete = false;
+      }
       db.collection("users").doc(uid).update(updateData).catch(function(e) { console.log("Erreur sauvegarde quiz:", e); });
     }
   }
