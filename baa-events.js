@@ -327,6 +327,25 @@
 })();
 
   // ============================
+  // ÉVÉNEMENT : VICTOIRE PARTAGÉE
+  // ============================
+  window.baaEventBus.on("victoire_partagee", function(data) {
+    var user = auth.currentUser; if (!user) return;
+    var prenom = data.prenom || "toi";
+    var categorie = data.categorie || "";
+
+    // 1. Points XP
+    ajouterPointsXP(user.uid, 30, "Victoire partagée");
+
+    // 2. Message Phénix
+    setTimeout(function() {
+      var msg = "🏆 Bravo "+prenom+" ! Ta victoire inspire toute l'équipe ! Continue comme ça 🔥";
+      if (categorie) msg += "\n\nCatégorie : "+categorie;
+      afficherMessagePhenixEvent(msg);
+    }, 500);
+  });
+
+  // ============================
   // CONNEXION BADGES AU BUS
   // ============================
   window.baaEventBus.on("vente_realisee", function(data) {
