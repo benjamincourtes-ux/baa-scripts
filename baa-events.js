@@ -209,6 +209,10 @@
   }
 
   function afficherMessagePhenixEvent(msg) {
+    window.__afficherMessagePhenixEvent(msg);
+  }
+
+  window.__afficherMessagePhenixEvent = function(msg) {
     var existing = document.getElementById("phenix-event-msg");
     if (existing) existing.remove();
     var bubble = document.createElement("div");
