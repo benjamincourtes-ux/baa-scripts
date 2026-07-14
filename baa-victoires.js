@@ -26,14 +26,12 @@ function openVictoiresPanel() {
   panel.appendChild(content);
   document.body.appendChild(panel);
 
-  // Écoute temps réel des notifications — démarre après que le DOM est prêt
   db.collection("notifications").where("destUid", "==", uid).where("lu", "==", false).onSnapshot(function(snap) {
     var badge = document.getElementById("notif-badge"); if (!badge) return;
     if (snap.size > 0) { badge.innerText = snap.size > 9 ? "9+" : snap.size; badge.style.display = "inline-block"; }
     else { badge.style.display = "none"; }
   }, function() {});
 
-  // Handlers immédiats (sans attendre Firebase)
   var isReduced = false;
   document.getElementById("v-close").onclick = function() {
     if (messageListener) { messageListener(); }
@@ -80,23 +78,7 @@ function openVictoiresPanel() {
     ongletActif = "admin"; afficherAdminConversations();
   };
 
-  document.getElementById("notif-btn").onclick = function() {
-    document.getElementById("tab-v-btn").style.background = "rgba(255,255,255,0.5)"; document.getElementById("tab-v-btn").style.color = "#8b735d";
-    document.getElementById("tab-m-btn").style.background = "rgba(255,255,255,0.5)"; document.getElementById("tab-m-btn").style.color = "#8b735d";
-    document.getElementById("tab-a-btn").style.background = "rgba(255,255,255,0.5)"; document.getElementById("tab-a-btn").style.color = "#8b735d";
-    if (messageListener) { messageListener(); messageListener = null; }
-    ongletActif = "notifs";
-    content.style.cssText = "flex:1;overflow-y:auto;padding:20px;max-width:800px;width:100%;margin:0 auto;box-sizing:border-box;";
-    content.innerHTML = "<div style='background:white;border-radius:14px;padding:18px;border:1px solid #e8d4b0;'><div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;'><p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0;'>&#128276; Notifications</p><button id='notif-tout-lu' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:11px;'>Tout marquer comme lu</button></div><div id='notif-list'><p style='color:#999;text-align:center;'>Chargement...</p></div></div>";
-    document.getElementById("notif-tout-lu").onclick = function() {
-      db.collection("notifications").where("destUid", "==", uid).where("lu", "==", false).get().then(function(snap) {
-        var batch = db.batch();
-        snap.forEach(function(d) { batch.update(d.ref, { lu: true }); });
-        batch.commit().then(function() { chargerNotifications(); majBadge(); });
-      }).catch(function(e) { console.log("Erreur notif:", e); });
-    };
-    chargerNotifications();
-  };
+  document.getElementById("notif-btn").onclick = function() { afficherNotifications(); };
 
   function majBadge() {
     db.collection("notifications").where("destUid", "==", uid).where("lu", "==", false).get().then(function(snap) {
@@ -107,10 +89,10 @@ function openVictoiresPanel() {
   }
 
   function envoyerNotif(destUid, type, texte) {
-    if (destUid === uid) return;
+    if (!destUid || destUid === uid) return;
     db.collection("notifications").add({
-      destUid: destUid, type: type, texte: texte, lu: false,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      destUid: destUid, type: type, texte: texte,
+      lu: false, createdAt: firebase.firestore.FieldValue.serverTimestamp()
     }).catch(function() {});
   }
 
@@ -137,25 +119,6 @@ function openVictoiresPanel() {
       });
       majBadge();
     }).catch(function(e) { console.log("Erreur chargement notifs:", e); });
-  }
-
-  document.getElementById("notif-btn").onclick = function() { afficherNotifications(); };
-
-  function envoyerNotif(destUid, type, texte) {
-    if (!destUid || destUid === uid) return;
-    db.collection("notifications").add({
-      destUid: destUid, type: type, texte: texte,
-      lu: false, createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).catch(function() {});
-  }
-
-  function mettreAJourBadge() {
-    db.collection("notifications").where("destUid", "==", uid).where("lu", "==", false).get().then(function(snap) {
-      var badge = document.getElementById("notif-badge");
-      if (!badge) return;
-      if (snap.size > 0) { badge.innerText = snap.size > 9 ? "9+" : snap.size; badge.style.display = "inline-block"; }
-      else { badge.style.display = "none"; }
-    }).catch(function() {});
   }
 
   function afficherNotifications() {
@@ -195,7 +158,6 @@ function openVictoiresPanel() {
     }).catch(function(e) { var list = document.getElementById("notif-list"); if (list) list.innerHTML = "<p style='color:#999;text-align:center;'>Erreur chargement.</p>"; });
   }
 
-  // Chargement Firebase initial
   db.collection("users").where("accountStatus", "==", "active").get().then(function(snap) {
     snap.forEach(function(d) {
       var m = d.data(); m._uid = d.id;
@@ -207,11 +169,9 @@ function openVictoiresPanel() {
     afficherVictoires();
   });
 
-  // ===================== VICTOIRES =====================
   function afficherVictoires() {
     content.innerHTML = "<div id='vform' style='background:white;border-radius:14px;padding:18px;border:1px solid #e8d4b0;margin-bottom:16px;'><p style='color:#8b735d;font-size:13px;font-weight:bold;margin:0 0 10px;'>Partager une victoire</p><div style='display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;'><button class='cat-btn' data-cat='Objectif' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:12px;'>&#127942; Objectif</button><button class='cat-btn' data-cat='Vente' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:12px;'>&#128176; Vente</button><button class='cat-btn' data-cat='Recrue' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:12px;'>&#128101; Recrue</button><button class='cat-btn' data-cat='Autre' style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:12px;'>&#11088; Autre</button></div><div style='position:relative;'><div id='vtexte' contenteditable='true' data-placeholder='Raconte ta victoire... (@ pour mentionner)' style='width:100%;padding:10px;border:1px solid #e8d4b0;border-radius:8px;font-size:13px;box-sizing:border-box;min-height:65px;font-family:Arial,sans-serif;outline:none;'></div><style>#vtexte:empty:before{content:attr(data-placeholder);color:#aaa;pointer-events:none;display:block;}</style><div id='mention-v' style='display:none;position:absolute;top:70px;left:0;background:white;border:1px solid #e8d4b0;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.1);z-index:99;max-height:140px;overflow-y:auto;min-width:180px;'></div></div><div style='display:flex;gap:8px;align-items:center;margin-top:8px;'><label style='background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;'>&#128247; Photo<input type='file' id='vphoto' accept='image/*' style='display:none;' /></label><span id='vphoto-name' style='color:#999;font-size:12px;'></span><button id='vpublier' style='margin-left:auto;background:#c9a86a;color:white;border:none;padding:9px 18px;border-radius:10px;cursor:pointer;font-weight:bold;font-size:13px;'>Publier !</button></div><div id='vmsg' style='color:#8b735d;font-size:12px;margin-top:6px;'></div></div><div id='vlist'><p style='color:#999;text-align:center;'>Chargement...</p></div>";
 
-    // Catégories
     document.querySelectorAll(".cat-btn").forEach(function(btn) {
       btn.onclick = function() {
         document.querySelectorAll(".cat-btn").forEach(function(b) { b.style.background = "#f3e7d3"; b.style.color = "#8a6a35"; b.style.border = "1px solid #c8a96b"; });
@@ -220,7 +180,6 @@ function openVictoiresPanel() {
       };
     });
 
-    // Mentions dans textarea
     document.getElementById("vtexte").addEventListener("input", function() {
       var val = this.innerText; var at = val.lastIndexOf("@");
       var ml = document.getElementById("mention-v");
@@ -241,7 +200,6 @@ function openVictoiresPanel() {
               ml.style.display = "none";
               ta.style.border = "2px solid #c9a86a"; ta.style.boxShadow = "0 0 0 3px rgba(201,168,106,0.2)";
               setTimeout(function(){ta.style.border="1px solid #e8d4b0";ta.style.boxShadow="none";},2000);
-              // Placer le curseur à la fin
               var range = document.createRange(); var sel = window.getSelection();
               range.selectNodeContents(ta); range.collapse(false);
               sel.removeAllRanges(); sel.addRange(range);
@@ -254,12 +212,10 @@ function openVictoiresPanel() {
       } else { ml.style.display = "none"; }
     });
 
-    // Photo
     document.getElementById("vphoto").onchange = function() {
       document.getElementById("vphoto-name").innerText = this.files[0] ? this.files[0].name : "";
     };
 
-    // Publier
     document.getElementById("vpublier").onclick = async function() {
       var texte = document.getElementById("vtexte").innerText.trim();
       var msg = document.getElementById("vmsg");
@@ -280,8 +236,10 @@ function openVictoiresPanel() {
         reactions: {}, createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
       if (typeof window.ajouterPointsBadge === "function") window.ajouterPointsBadge(10);
-              if (typeof window.baaPlaySuccess === "function") window.baaPlaySuccess();
-              if (typeof window.baaTelegram !== "undefined") window.baaTelegram.victoire(userData.prenom||"Une Phénix", texte.substring(0,200));
+      // 🔥 CONNEXION BUS D'ÉVÉNEMENTS
+      if (window.baaEventBus) { window.baaEventBus.emit("victoire_partagee", { texte: texte, categorie: categorieSelectionnee, prenom: userData.prenom || "" }); }
+      if (typeof window.baaPlaySuccess === "function") window.baaPlaySuccess();
+      if (typeof window.baaTelegram !== "undefined") window.baaTelegram.victoire(userData.prenom||"Une Phenix", texte.substring(0,200));
       emailjs.init("D_JtKhPDgOQWi_ECO");
       tousLesMembres.forEach(function(m) {
         if (m._uid !== uid) envoyerNotif(m._uid, "victoire", (userData.prenom||"") + " a partage une nouvelle victoire !" + (categorieSelectionnee ? " (" + categorieSelectionnee + ")" : ""));
@@ -325,9 +283,7 @@ function openVictoiresPanel() {
         var k = btn.getAttribute("data-k");
         db.collection("victoires").doc(vid).get().then(function(s) {
           var r = s.data().reactions || {};
-          // Retirer uid de toutes les autres réactions d'abord
           EMOJIS.forEach(function(e) { if (e.k !== k && r[e.k]) { var i = r[e.k].indexOf(uid); if (i > -1) { r[e.k].splice(i, 1); if (!r[e.k].length) delete r[e.k]; } } });
-          // Toggler la réaction cliquée
           if (!r[k]) r[k] = [];
           var i = r[k].indexOf(uid);
           if (i > -1) { r[k].splice(i, 1); if (!r[k].length) delete r[k]; } else { r[k].push(uid); }
@@ -372,7 +328,6 @@ function openVictoiresPanel() {
           var db2 = document.getElementById("delv-" + vid);
           if (db2) db2.onclick = function() { if (confirm("Supprimer ?")) db.collection("victoires").doc(vid).delete().then(function() { document.getElementById("vcard-"+vid).remove(); }); };
         }
-        // Mentions dans commentaire
         var ci = document.getElementById("cinput-" + vid);
         ci.addEventListener("input", function() {
           var val = this.value; var at = val.lastIndexOf("@"); var ml = document.getElementById("menc-" + vid);
@@ -467,7 +422,6 @@ function openVictoiresPanel() {
     });
   }
 
-  // ===================== MESSAGES =====================
   function afficherMessages() {
     if (messageListener) { messageListener(); messageListener = null; }
     content.style.cssText = "flex:1;overflow:hidden;max-width:800px;width:100%;margin:0 auto;box-sizing:border-box;display:flex;flex-direction:column;padding:0;";
@@ -491,7 +445,6 @@ function openVictoiresPanel() {
         ouvrirConv(m);
       };
       ml.appendChild(item);
-      // Charger aperçu dernier message
       db.collection("conversations").doc(convId).collection("messages").orderBy("createdAt", "desc").limit(1).get().then(function(snap) {
         var prev = document.getElementById("preview-" + m._uid); if (!prev) return;
         if (!snap.empty) {
@@ -515,7 +468,6 @@ function openVictoiresPanel() {
     if (badge) badge.style.display = "none";
     var tabBadge = document.getElementById("msg-tab-badge");
     if (tabBadge) tabBadge.style.display = "none";
-    // Sur mobile, cacher la liste et afficher plein écran
     var isMobile = window.innerWidth < 768;
     if (isMobile) {
       var ml = document.getElementById("mlist");
@@ -533,8 +485,6 @@ function openVictoiresPanel() {
         if (messageListener) { messageListener(); messageListener = null; }
       };
     }
-
-    // Emoji picker
     var emojisDispos = ["😃","😊","😂","😍","😢","🥰","🤗","😎","🤩","😅","👍","👏","🙌","🎉","🔥","💪","❤️","⭐","🏆","💰","🚀","✨","🌸","🎯","💯"];
     var emojiBar = document.getElementById("emoji-bar");
     emojisDispos.forEach(function(e) {
@@ -543,17 +493,12 @@ function openVictoiresPanel() {
       btn.style.cssText = "cursor:pointer;font-size:20px;padding:2px;border-radius:4px;";
       btn.onmouseenter = function() { btn.style.background = "#e8d4b0"; };
       btn.onmouseleave = function() { btn.style.background = "none"; };
-      btn.onclick = function() {
-        var inp = document.getElementById("minput");
-        inp.value += e; inp.focus();
-      };
+      btn.onclick = function() { var inp = document.getElementById("minput"); inp.value += e; inp.focus(); };
       emojiBar.appendChild(btn);
     });
     document.getElementById("emoji-btn").onclick = function() {
       emojiBar.style.display = emojiBar.style.display === "none" ? "flex" : "none";
     };
-
-    // Photo preview
     var photoFileMsg = null;
     document.getElementById("mphoto").onchange = function() {
       if (!this.files[0]) return;
@@ -578,7 +523,6 @@ function openVictoiresPanel() {
       var hasMajLu = false;
       docs.forEach(function(ds, idx) {
         var msg = ds.data(); var mine = msg.uid === uid; var isLast = idx === docs.length - 1;
-        // Marquer comme lu seulement à l'ouverture de la conv
         if (!mine && msg.lu === false) { batch.update(ds.ref, { lu: true }); hasMajLu = true; }
         var div = document.createElement("div"); div.style.cssText = "display:flex;justify-content:" + (mine?"flex-end":"flex-start") + ";margin-bottom:2px;";
         var bub = document.createElement("div");
@@ -620,15 +564,10 @@ function openVictoiresPanel() {
           dernierMessage: t || "Photo",
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
-        if (membre.email && (t || imageURL)) {
-          // Email via Resend
-          // Email envoyé via baaEmail
-        }
       });
     };
   }
 
-  // ===================== ADMIN CONVERSATIONS =====================
   function afficherAdminConversations() {
     if (messageListener) { messageListener(); messageListener = null; }
     content.style.cssText = "flex:1;overflow-y:auto;padding:20px;max-width:800px;width:100%;margin:0 auto;box-sizing:border-box;";
