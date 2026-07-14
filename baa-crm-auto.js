@@ -31,10 +31,12 @@
 
         // 🎂 Anniversaire dans les 3 prochains jours
         if (c.anniversaire) {
-          var anniv = new Date(c.anniversaire);
-          var annivCetteAnnee = new Date(now.getFullYear(), anniv.getMonth(), anniv.getDate());
-          if (annivCetteAnnee < now) annivCetteAnnee.setFullYear(now.getFullYear() + 1);
-          var joursAvantAnniv = Math.floor((annivCetteAnnee - now) / (1000 * 60 * 60 * 24));
+          var annivParts = c.anniversaire.indexOf("/") > -1 ? c.anniversaire.split("/") : c.anniversaire.split("-").reverse();
+          // annivParts = [jour, mois, année] dans les deux cas
+          var annivCetteAnnee = new Date(now.getFullYear(), parseInt(annivParts[1])-1, parseInt(annivParts[0]));
+          var aujourdhui = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          if (annivCetteAnnee < aujourdhui) annivCetteAnnee.setFullYear(now.getFullYear() + 1);
+          var joursAvantAnniv = Math.round((annivCetteAnnee - aujourdhui) / (1000 * 60 * 60 * 24));
           if (joursAvantAnniv <= 3 && joursAvantAnniv >= 0) {
             alertes.push({
               type: "anniversaire",
