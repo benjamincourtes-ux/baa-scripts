@@ -1010,7 +1010,10 @@ function openGestionBoutique() {
           var pDiv = document.createElement("div"); pDiv.setAttribute("data-prodkey",k); pDiv.style.cssText="display:flex;align-items:center;padding:10px 14px;background:white;border-bottom:1px solid #f0e6d3;cursor:pointer;";
           var checkEl=document.createElement("div"); checkEl.className="check-el"; checkEl.style.cssText="width:20px;height:20px;border-radius:4px;border:2px solid "+(checked?"#c9a86a":"#ddd")+";background:"+(checked?"#c9a86a":"white")+";margin-right:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center;"; checkEl.innerHTML=checked?"<span style='color:white;font-size:12px;font-weight:bold;'>✓</span>":"";
           var infoEl=document.createElement("div"); infoEl.style.cssText="flex:1;"; infoEl.innerHTML="<p style='color:#3a3a3a;font-size:13px;margin:0 0 1px;'>"+prod.nom+"</p><p style='color:#c9a86a;font-size:12px;font-weight:bold;margin:0;'>"+parseFloat(prod.prix||0).toFixed(2)+" €</p>";
-          var delBtn=document.createElement("button"); delBtn.textContent="🗑️"; delBtn.style.cssText="background:#fee;color:#e74c3c;border:1px solid #e74c3c;padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;touch-action:manipulation;";
+          var editCustomBtn=document.createElement("button"); editCustomBtn.textContent="✏️"; editCustomBtn.style.cssText="background:#f3e7d3;color:#8a6a35;border:1px solid #c8a96b;padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;touch-action:manipulation;margin-right:4px;";
+var doEdit=(function(idx2,prod2){return function(e){e.stopPropagation();state.boutique=b;state.editCustomIndex=idx2;state.step="ajouter-produit";render();};})(i,prod);
+editCustomBtn.onclick=doEdit;editCustomBtn.addEventListener("touchend",function(e){e.preventDefault();doEdit(e);},{passive:false});
+var delBtn=document.createElement("button"); delBtn.textContent="🗑️"; delBtn.style.cssText="background:#fee;color:#e74c3c;border:1px solid #e74c3c;padding:3px 8px;border-radius:6px;cursor:pointer;font-size:11px;touch-action:manipulation;";
           var doDelete=(function(idx, key){return function(e){e.stopPropagation();if(confirm("Supprimer ce produit ?")){
             b.produitsCustom.splice(idx,1);
             var i2=produitsSel.indexOf(key);if(i2>=0)produitsSel.splice(i2,1);
