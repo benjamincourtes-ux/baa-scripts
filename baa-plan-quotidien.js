@@ -21,7 +21,7 @@
       var d = snap.data();
 
       // Récupérer l'objectif mensuel
-      var objectif = d.objectifMensuel || 0;
+      var objectif = d.suiviObjectif || d.objectifMensuel || 0;
       if (!objectif || objectif <= 0) return; // Pas d'objectif défini
 
       // Récupérer le CA actuel du mois
