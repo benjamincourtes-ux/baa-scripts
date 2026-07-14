@@ -36,7 +36,6 @@ function initDefiEclair() {
             style.innerHTML = "@keyframes defi-pulse { 0%,100%{box-shadow:0 4px 15px rgba(255,107,53,0.4);} 50%{box-shadow:0 4px 25px rgba(255,107,53,0.8);transform:scale(1.03);} }";
             document.head.appendChild(style);
           }
-          // Popup automatique si pas encore répondu
           db.collection("defis").doc(did).collection("reponses").doc(uid).get().then(function(repSnap) {
             if (!repSnap.exists) { ouvrirDefi(did, defi); }
           });
@@ -63,7 +62,6 @@ function initDefiEclair() {
     db.collection("defis").doc(did).collection("reponses").doc(uid).get().then(function(repSnap) {
       var contenu = document.getElementById("defi-contenu"); if (!contenu) return;
       if (!repSnap.exists || repSnap.data().statut === "non") {
-        // Pas encore répondu ou refusé
         contenu.innerHTML = "<div style='display:flex;gap:10px;'><button id='defi-oui' style='flex:1;background:linear-gradient(135deg,#ff6b35,#f7931e);color:white;border:none;padding:14px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:15px;'>&#9889; Je participe !</button><button id='defi-non' style='flex:1;background:#f8f3ee;color:#8b735d;border:1px solid #e8d4b0;padding:14px;border-radius:12px;cursor:pointer;font-size:14px;'>Pas cette fois</button></div>";
         document.getElementById("defi-oui").onclick = function() {
           db.collection("defis").doc(did).collection("reponses").doc(uid).set({ statut: "oui", createdAt: firebase.firestore.FieldValue.serverTimestamp() }).then(function() { afficherZonePreuve(did, defi, contenu, repSnap.data()); });
@@ -106,7 +104,15 @@ function initDefiEclair() {
         preuveAt: firebase.firestore.FieldValue.serverTimestamp()
       }).then(function() {
         if (typeof window.ajouterPointsBadge === "function") window.ajouterPointsBadge(30);
-        msg.innerText = ""; 
+        // 🔥 CONNEXION BUS D'ÉVÉNEMENTS
+        if (window.baaEventBus) {
+          window.baaEventBus.emit("defi_releve", {
+            titreDefi: defi.titre || "Défi Eclair",
+            texte: texte,
+            prenom: auth.currentUser ? auth.currentUser.displayName || "" : ""
+          });
+        }
+        msg.innerText = "";
         contenu.innerHTML = "<div style='background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:16px;text-align:center;'><div style='font-size:32px;'>&#127881;</div><p style='color:#16a34a;font-weight:bold;margin:8px 0;'>Bravo ! Preuve deposee !</p></div><button onclick='document.getElementById(\"baa-defi-panel\").remove()' style='width:100%;margin-top:12px;background:#f8f3ee;color:#8b735d;border:1px solid #e8d4b0;padding:12px;border-radius:10px;cursor:pointer;font-size:14px;'>Fermer</button>";
       }).catch(function(e) { msg.innerText = "Erreur. Reessaie."; document.getElementById("defi-soumettre").disabled = false; });
     };
