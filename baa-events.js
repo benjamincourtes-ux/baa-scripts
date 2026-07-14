@@ -324,6 +324,30 @@
   });
 
   // ============================
+  // ÉVÉNEMENT : DÉFI RELEVÉ
+  // ============================
+  window.baaEventBus.on("defi_releve", function(data) {
+    var user = firebase.auth().currentUser; if (!user) return;
+    var titreDefi = data.titreDefi || "Défi Eclair";
+
+    // 1. XP
+    ajouterPointsXP(user.uid, 50, "Défi relevé : "+titreDefi);
+
+    // 2. Confettis
+    lancerConfettis();
+
+    // 3. Message Phénix
+    setTimeout(function() {
+      window.__afficherMessagePhenixEvent("⚡ Incroyable ! Tu as relevé le défi \""+titreDefi+"\" ! +30 points badges + 50 XP gagnés ! Tu es une vraie Phénix 🔥");
+    }, 500);
+
+    // 4. Proposition victoire
+    setTimeout(function() {
+      afficherPropositionVictoire("⚡ Tu viens de relever le défi \""+titreDefi+"\" ! Tu veux partager cette victoire avec l'équipe ?");
+    }, 4000);
+  });
+
+  // ============================
   // ÉVÉNEMENT : VICTOIRE PARTAGÉE
   // ============================
   window.baaEventBus.on("victoire_partagee", function(data) {
