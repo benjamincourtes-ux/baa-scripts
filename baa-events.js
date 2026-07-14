@@ -323,18 +323,11 @@
     });
   });
 
-  console.log("✅ BAA Events initialisé");
-
-  } // fin initBAAEvents
-  initBAAEvents();
-
-})();
-
   // ============================
   // ÉVÉNEMENT : VICTOIRE PARTAGÉE
   // ============================
   window.baaEventBus.on("victoire_partagee", function(data) {
-    var user = auth.currentUser; if (!user) return;
+    var user = firebase.auth().currentUser; if (!user) return;
     var prenom = data.prenom || "toi";
     var categorie = data.categorie || "";
 
@@ -345,9 +338,16 @@
     setTimeout(function() {
       var msg = "🏆 Bravo "+prenom+" ! Ta victoire inspire toute l'équipe ! Continue comme ça 🔥";
       if (categorie) msg += "\n\nCatégorie : "+categorie;
-      afficherMessagePhenixEvent(msg);
+      window.__afficherMessagePhenixEvent(msg);
     }, 500);
   });
+
+  console.log("✅ BAA Events initialisé");
+
+  } // fin initBAAEvents
+  initBAAEvents();
+
+})();
 
   // ============================
   // CONNEXION BADGES AU BUS
