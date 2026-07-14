@@ -1025,7 +1025,7 @@ var delBtn=document.createElement("button"); delBtn.textContent="🗑️"; delBt
           }};})(i,k);
           delBtn.onclick=doDelete;
           delBtn.addEventListener("touchend",function(e){e.preventDefault();doDelete(e);},{passive:false});
-          pDiv.appendChild(checkEl);pDiv.appendChild(infoEl);pDiv.appendChild(delBtn);
+          pDiv.appendChild(checkEl);pDiv.appendChild(infoEl);pDiv.appendChild(editCustomBtn);pDiv.appendChild(delBtn);
           var handleSel=function(){var idx2=produitsSel.indexOf(k);if(idx2>=0){produitsSel.splice(idx2,1);checkEl.style.background="white";checkEl.style.borderColor="#ddd";checkEl.innerHTML="";}else{produitsSel.push(k);checkEl.style.background="#c9a86a";checkEl.style.borderColor="#c9a86a";checkEl.innerHTML="<span style='color:white;font-size:12px;font-weight:bold;'>✓</span>";}b.produits=produitsSel.slice();};
           pDiv.onclick=handleSel; pDiv.addEventListener("touchend",function(e){e.preventDefault();handleSel();},{passive:false});
           customCatDiv.appendChild(pDiv);
