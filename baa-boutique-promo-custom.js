@@ -19,7 +19,7 @@
 
   function injecterChampPromo(panel) {
     // Chercher le champ prix VIP dans renderAjouterProduit
-    var vipInputs = panel.querySelectorAll("input[placeholder='Ex: 19.90']");
+    var vipInputs = panel.querySelectorAll("input[placeholder='Ex: 19.90'], input[placeholder='Prix VIP (ex: 19.90)']");
     vipInputs.forEach(function(vipInp) {
       if (vipInp.dataset.promoAdded) return;
       vipInp.dataset.promoAdded = "1";
