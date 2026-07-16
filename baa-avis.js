@@ -22,7 +22,7 @@
 
     var btn = document.createElement("div");
     btn.id = "baa-avis-btn";
-    btn.style.cssText = "position:fixed;bottom:130px;right:20px;z-index:99998;background:linear-gradient(135deg,#f5d48a,#c9a86a);border-radius:50%;width:46px;height:46px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 15px rgba(201,168,106,0.4);font-size:20px;touch-action:manipulation;";
+    btn.style.cssText = "position:fixed;bottom:180px;right:20px;z-index:99998;background:linear-gradient(135deg,#f5d48a,#c9a86a);border-radius:50%;width:46px;height:46px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 15px rgba(201,168,106,0.4);font-size:20px;touch-action:manipulation;";
     btn.innerHTML = "⭐";
     btn.title = "Donner mon avis";
     btn.onclick = function() { ouvrirPanneauAvis(user, db); };
