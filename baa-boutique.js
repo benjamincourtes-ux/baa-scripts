@@ -400,7 +400,7 @@ function openGestionBoutique() {
       inp1.style.cssText = "width:100%;padding:12px;border:1px solid #e8d4b0;border-radius:10px;font-size:14px;box-sizing:border-box;margin-bottom:10px;";
       box.appendChild(inp1);
 
-      var inp2 = document.createElement("input"); inp2.placeholder = "Ton lien PayPal.me (ex: paypal.me/tonnom) *"; inp2.value = b.paypal || "";
+      var inp2 = document.createElement("input"); inp2.placeholder = "Ton lien PayPal.me (ex: paypal.me/tonnom) — optionnel"; inp2.value = b.paypal || "";
       inp2.style.cssText = "width:100%;padding:12px;border:1px solid #e8d4b0;border-radius:10px;font-size:14px;box-sizing:border-box;margin-bottom:10px;";
       box.appendChild(inp2);
 
