@@ -656,7 +656,7 @@ function openGestionBoutique() {
       saveBtn.textContent = "💾 Sauvegarder";
       saveBtn.style.cssText = "width:100%;background:#c9a86a;color:#1a0a00;border:none;padding:14px;border-radius:12px;cursor:pointer;font-weight:bold;font-size:15px;margin-bottom:10px;touch-action:manipulation;";
       saveBtn.onclick = function() {
-        if (!inp1.value || !inp2.value) { alert("Merci de remplir ton prénom et ton lien PayPal."); return; }
+        if (!inp1.value) { alert("Merci de remplir ton prénom."); return; }
         var paypalLink = inp2.value.trim();
         if (!paypalLink.startsWith("http")) paypalLink = "https://" + paypalLink;
         b.prenom = inp1.value.trim();
