@@ -15,7 +15,6 @@
     }
   };
 
-  // Attendre que Firebase soit initialisé pour le reste
   function initBAAEvents() {
     if (typeof firebase === "undefined" || !firebase.apps || !firebase.apps.length) {
       setTimeout(initBAAEvents, 200);
@@ -25,9 +24,6 @@
   var db = firebase.firestore();
   var auth = firebase.auth();
 
-  // ============================
-  // ÉVÉNEMENT : CONNEXION
-  // ============================
   window.baaEventBus.on("connexion", function(data) {
     var heure = new Date().getHours();
     var prenom = data.prenom || "toi";
@@ -41,7 +37,6 @@
     }
     setTimeout(function() {
       if (typeof afficherPhenixContextuel === "function") {
-        // Message spécial connexion via bulle Phénix
         var existing = document.getElementById("phenix-contextuel");
         if (existing) existing.remove();
         var bubble = document.createElement("div");
@@ -66,104 +61,55 @@
     }, 4000);
   });
 
-  // ============================
-  // ÉVÉNEMENT : VENTE REALISEE
-  // ============================
   window.baaEventBus.on("vente_realisee", function(data) {
     var user = auth.currentUser; if (!user) return;
     var montant = data.montant || 0;
     var clientNom = data.clientNom || "une cliente";
-
-    // 1. Célébration visuelle
     lancerConfettis();
-
-    // 2. Message Phénix
     setTimeout(function() {
       afficherMessagePhenixEvent("🎉 Félicitations ! Tu viens de réaliser une vente de "+montant+"€ avec "+clientNom+" ! Continue comme ça, tu es sur la bonne voie ! 🔥");
     }, 500);
-
-    // 3. Ajouter points XP
     ajouterPointsXP(user.uid, 50, "Vente réalisée");
-
-    // 4. Proposition de partager sur le mur des victoires
     setTimeout(function() {
       afficherPropositionVictoire("💰 Tu viens de faire une vente de "+montant+"€ ! Tu veux le partager sur le Mur des Victoires ?");
     }, 3000);
-
-    // 5. Mettre à jour progression rang
     mettreAJourProgressionRang(user.uid, montant);
   });
 
-  // ============================
-  // ÉVÉNEMENT : MODULE TERMINE
-  // ============================
   window.baaEventBus.on("module_termine", function(data) {
     var user = auth.currentUser; if (!user) return;
     var moduleNom = data.moduleNom || "ce module";
     var score = data.score || 0;
     var quizSuivant = data.quizSuivant || null;
-
-    // 1. Points XP
     ajouterPointsXP(user.uid, 100, "Module terminé : "+moduleNom);
-
-    // 2. Points badges
     setTimeout(function() {
-      if (typeof window.ajouterPointsBadge === "function") {
-        window.ajouterPointsBadge(20);
-      }
+      if (typeof window.ajouterPointsBadge === "function") window.ajouterPointsBadge(20);
     }, 2000);
-
-    // 3. Célébration
     lancerConfettis();
-
-    // 4. Message Phénix personnalisé
     setTimeout(function() {
       var msg = "🎓 Bravo ! Tu as validé le "+moduleNom+" avec "+score+"% ! +20 points badges gagnés 🔥";
-      if (quizSuivant) {
-        msg += "\n\n👉 Prochain quiz : "+quizSuivant+" — continue sur ta lancée !";
-      } else {
-        msg += "\n\n🏆 Tu as validé tous les quiz ! Tu es au top !";
-      }
+      if (quizSuivant) { msg += "\n\n👉 Prochain quiz : "+quizSuivant+" — continue sur ta lancée !"; }
+      else { msg += "\n\n🏆 Tu as validé tous les quiz ! Tu es au top !"; }
       afficherMessagePhenixEvent(msg);
     }, 500);
-
-    // 5. Proposition victoire
     setTimeout(function() {
       afficherPropositionVictoire("🎓 Tu viens de valider le "+moduleNom+" avec "+score+"% ! Tu veux partager cette victoire avec l'équipe ?");
     }, 4000);
   });
 
-  // ============================
-  // ÉVÉNEMENT : OBJECTIF DEFINI
-  // ============================
   window.baaEventBus.on("objectif_defini", function(data) {
     var objectif = data.objectif || 500;
-    var PALIERS = [
-      {nom:"Consultant",min:100,comm:20},{nom:"Conseiller",min:250,comm:30},
-      {nom:"Conseiller Principal",min:500,comm:30},{nom:"Responsable",min:1000,comm:30},
-    ];
+    var PALIERS = [{nom:"Consultant",min:100,comm:20},{nom:"Conseiller",min:250,comm:30},{nom:"Conseiller Principal",min:500,comm:30},{nom:"Responsable",min:1000,comm:30}];
     var palier = PALIERS[0];
     for(var i=0;i<PALIERS.length;i++){if(objectif>=PALIERS[i].min)palier=PALIERS[i];}
     var commission = Math.round(objectif * palier.comm / 100);
-    var nbVentes = Math.ceil(objectif / 35); // panier moyen estimé 35€
-    var nbConversations = nbVentes * 5; // ratio 1 vente / 5 conversations
-    var nbPosts = Math.ceil(nbConversations / 3); // 3 prospects par post
-
+    var nbVentes = Math.ceil(objectif / 35);
+    var nbConversations = nbVentes * 5;
+    var nbPosts = Math.ceil(nbConversations / 3);
     setTimeout(function() {
-      afficherMessagePhenixEvent(
-        "🎯 Pour atteindre "+objectif+"€ ce mois-ci :\n\n" +
-        "• ~"+nbVentes+" ventes à réaliser\n" +
-        "• ~"+nbConversations+" conversations à lancer\n" +
-        "• ~"+nbPosts+" posts à publier\n" +
-        "• Commission estimée : "+commission+"€\n\n" +
-        "Soit "+Math.ceil(nbConversations/30)+" conversations par jour — c'est tout à fait réalisable ! 💪"
-      );
+      afficherMessagePhenixEvent("🎯 Pour atteindre "+objectif+"€ ce mois-ci :\n\n• ~"+nbVentes+" ventes à réaliser\n• ~"+nbConversations+" conversations à lancer\n• ~"+nbPosts+" posts à publier\n• Commission estimée : "+commission+"€\n\nSoit "+Math.ceil(nbConversations/30)+" conversations par jour — c'est tout à fait réalisable ! 💪");
     }, 500);
   });
-
-  // ============================
-  // FONCTIONS UTILITAIRES
-  // ============================
 
   function lancerConfettis() {
     if (document.getElementById("baa-confettis")) return;
@@ -177,40 +123,20 @@
     var particles = [];
     var colors = ["#c9a86a","#f5d48a","#e74c3c","#27AE60","#3498db","#9b59b6"];
     for (var i = 0; i < 80; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: -10,
-        w: Math.random() * 10 + 5,
-        h: Math.random() * 5 + 3,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        speed: Math.random() * 4 + 2,
-        angle: Math.random() * 360,
-        rotation: Math.random() * 10 - 5
-      });
+      particles.push({x:Math.random()*canvas.width,y:-10,w:Math.random()*10+5,h:Math.random()*5+3,color:colors[Math.floor(Math.random()*colors.length)],speed:Math.random()*4+2,angle:Math.random()*360,rotation:Math.random()*10-5});
     }
     var frame = 0;
     function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(function(p) {
-        p.y += p.speed;
-        p.angle += p.rotation;
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate(p.angle * Math.PI / 180);
-        ctx.fillStyle = p.color;
-        ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
-        ctx.restore();
-      });
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      particles.forEach(function(p){p.y+=p.speed;p.angle+=p.rotation;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.angle*Math.PI/180);ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();});
       frame++;
-      if (frame < 120) requestAnimationFrame(animate);
-      else { canvas.remove(); }
+      if(frame<120)requestAnimationFrame(animate);
+      else{canvas.remove();}
     }
     animate();
   }
 
-  function afficherMessagePhenixEvent(msg) {
-    window.__afficherMessagePhenixEvent(msg);
-  }
+  function afficherMessagePhenixEvent(msg) { window.__afficherMessagePhenixEvent(msg); }
 
   window.__afficherMessagePhenixEvent = function(msg) {
     var existing = document.getElementById("phenix-event-msg");
@@ -233,7 +159,7 @@
     bubble.appendChild(avatar); bubble.appendChild(msgDiv);
     document.body.appendChild(bubble);
     setTimeout(function(){if(bubble.parentNode){bubble.style.opacity="0";bubble.style.transition="opacity 0.5s";setTimeout(function(){bubble.remove();},500);}},8000);
-  }
+  };
 
   function afficherPropositionVictoire(msg) {
     var existing = document.getElementById("phenix-victoire-prop");
@@ -265,7 +191,6 @@
   }
 
   function mettreAJourProgressionRang(uid, montantVente) {
-    // Juste un log — le vrai calcul se fait dans le tableau de bord
     db.collection("users").doc(uid).get().then(function(snap){
       var d = snap.exists ? snap.data() : {};
       var caMois = (d.caMoisEnCours || 0) + montantVente;
@@ -273,20 +198,17 @@
     });
   }
 
-  // ============================
-  // DÉTECTION AUTOMATIQUE TOUS LES QUIZ
-  // ============================
   var QUIZ_MAP = {
-    "quizBonDemarrageComplete":   { nom: "Bon Démarrage",       suivant: "Module 2" },
-    "quizModule2Complete":        { nom: "Module 2",             suivant: "Module 3" },
-    "quizModule3Complete":        { nom: "Module 3",             suivant: "Module 4" },
-    "quizModule4Complete":        { nom: "Module 4",             suivant: "Module 5" },
-    "quizModule5Complete":        { nom: "Module 5",             suivant: "Module 6" },
-    "quizModule6Complete":        { nom: "Module 6",             suivant: "Module 7" },
-    "quizModule7Complete":        { nom: "Module 7",             suivant: "Module 8" },
-    "quizModule8Complete":        { nom: "Module 8",             suivant: "Module 9" },
-    "quizModule9Complete":        { nom: "Module 9",             suivant: "Module 10" },
-    "quizModule10Complete":       { nom: "Module 10",            suivant: null }
+    "quizBonDemarrageComplete":{ nom:"Bon Démarrage", suivant:"Module 2" },
+    "quizModule2Complete":{ nom:"Module 2", suivant:"Module 3" },
+    "quizModule3Complete":{ nom:"Module 3", suivant:"Module 4" },
+    "quizModule4Complete":{ nom:"Module 4", suivant:"Module 5" },
+    "quizModule5Complete":{ nom:"Module 5", suivant:"Module 6" },
+    "quizModule6Complete":{ nom:"Module 6", suivant:"Module 7" },
+    "quizModule7Complete":{ nom:"Module 7", suivant:"Module 8" },
+    "quizModule8Complete":{ nom:"Module 8", suivant:"Module 9" },
+    "quizModule9Complete":{ nom:"Module 9", suivant:"Module 10" },
+    "quizModule10Complete":{ nom:"Module 10", suivant:null }
   };
 
   auth.onAuthStateChanged(function(user) {
@@ -294,71 +216,38 @@
     var previousData = null;
     db.collection("users").doc(user.uid).onSnapshot(function(snap) {
       var data = snap.data() || {};
-      if (previousData === null) {
-        previousData = JSON.parse(JSON.stringify(data));
-        return;
-      }
+      if (previousData === null) { previousData = JSON.parse(JSON.stringify(data)); return; }
       Object.keys(QUIZ_MAP).forEach(function(field) {
         if (data[field] === true && previousData[field] !== true) {
           var quizInfo = QUIZ_MAP[field];
           var score = data[field.replace("Complete","Score")] || 0;
           var total = data[field.replace("Complete","Total")] || 1;
           var pct = Math.round(score / total * 100);
-          window.baaEventBus.emit("module_termine", {
-            moduleNom: "Quiz " + quizInfo.nom,
-            score: pct,
-            quizSuivant: quizInfo.suivant
-          });
+          window.baaEventBus.emit("module_termine", { moduleNom:"Quiz "+quizInfo.nom, score:pct, quizSuivant:quizInfo.suivant });
         }
       });
       previousData = JSON.parse(JSON.stringify(data));
     });
-
-    // Message de connexion
     db.collection("users").doc(user.uid).get().then(function(snap) {
       var prenom = snap.exists ? (snap.data().prenom || "") : "";
-      setTimeout(function() {
-        window.baaEventBus.emit("connexion", { uid: user.uid, prenom: prenom });
-      }, 3500);
+      setTimeout(function() { window.baaEventBus.emit("connexion", { uid:user.uid, prenom:prenom }); }, 3500);
     });
   });
 
-  // ============================
-  // ÉVÉNEMENT : DÉFI RELEVÉ
-  // ============================
   window.baaEventBus.on("defi_releve", function(data) {
     var user = firebase.auth().currentUser; if (!user) return;
     var titreDefi = data.titreDefi || "Défi Eclair";
-
-    // 1. XP
     ajouterPointsXP(user.uid, 50, "Défi relevé : "+titreDefi);
-
-    // 2. Confettis
     lancerConfettis();
-
-    // 3. Message Phénix
-    setTimeout(function() {
-      window.__afficherMessagePhenixEvent("⚡ Incroyable ! Tu as relevé le défi \""+titreDefi+"\" ! +30 points badges + 50 XP gagnés ! Tu es une vraie Phénix 🔥");
-    }, 500);
-
-    // 4. Proposition victoire
-    setTimeout(function() {
-      afficherPropositionVictoire("⚡ Tu viens de relever le défi \""+titreDefi+"\" ! Tu veux partager cette victoire avec l'équipe ?");
-    }, 4000);
+    setTimeout(function() { window.__afficherMessagePhenixEvent("⚡ Incroyable ! Tu as relevé le défi \""+titreDefi+"\" ! +30 points badges + 50 XP gagnés ! Tu es une vraie Phénix 🔥"); }, 500);
+    setTimeout(function() { afficherPropositionVictoire("⚡ Tu viens de relever le défi \""+titreDefi+"\" ! Tu veux partager cette victoire avec l'équipe ?"); }, 4000);
   });
 
-  // ============================
-  // ÉVÉNEMENT : VICTOIRE PARTAGÉE
-  // ============================
   window.baaEventBus.on("victoire_partagee", function(data) {
     var user = firebase.auth().currentUser; if (!user) return;
     var prenom = data.prenom || "toi";
     var categorie = data.categorie || "";
-
-    // 1. Points XP
     ajouterPointsXP(user.uid, 30, "Victoire partagée");
-
-    // 2. Message Phénix
     setTimeout(function() {
       var msg = "🏆 Bravo "+prenom+" ! Ta victoire inspire toute l'équipe ! Continue comme ça 🔥";
       if (categorie) msg += "\n\nCatégorie : "+categorie;
@@ -373,45 +262,17 @@
 
 })();
 
-  // ============================
-  // CONNEXION BADGES AU BUS
-  // ============================
-  window.baaEventBus.on("vente_realisee", function(data) {
-    setTimeout(function() {
-      if (typeof window.ajouterPointsBadge === "function") {
-        window.ajouterPointsBadge(5); // +5 pts par commande
-      }
-    }, 2000);
-  });
+// ============================
+// CONNEXION BADGES AU BUS
+// ============================
+window.baaEventBus.on("vente_realisee", function(data) {
+  setTimeout(function() {
+    if (typeof window.ajouterPointsBadge === "function") window.ajouterPointsBadge(5);
+  }, 2000);
+});
 
-  window.baaEventBus.on("module_termine", function(data) {
-    setTimeout(function() {
-      if (typeof window.ajouterPointsBadge === "function") {
-        window.ajouterPointsBadge(20); // +20 pts par module terminé
-      }
-    }, 2000);
-  });
-  function patchEmailJSPourVentes() {
-    if (typeof emailjs === "undefined") {
-      setTimeout(patchEmailJSPourVentes, 500);
-      return;
-    }
-    var _origSend = emailjs.send;
-    emailjs.send = function(serviceId, templateId, params) {
-      var result = _origSend.apply(this, arguments);
-      if (templateId === "template_nkfnrnd" && window.baaEventBus) {
-        var montant = parseFloat(((params && params.total) || "0").replace("€","").replace(",",".")) || 0;
-        var clientNom = (params && (params.client_prenom || params.client_nom)) || "une cliente";
-        setTimeout(function() {
-          window.baaEventBus.emit("vente_realisee", {
-            montant: montant,
-            clientNom: clientNom,
-            articles: (params && params.articles) || ""
-          });
-        }, 1000);
-      }
-      return result;
-    };
-    console.log("✅ BAA Vente Event patch actif");
-  }
-  patchEmailJSPourVentes();
+window.baaEventBus.on("module_termine", function(data) {
+  setTimeout(function() {
+    if (typeof window.ajouterPointsBadge === "function") window.ajouterPointsBadge(20);
+  }, 2000);
+});
