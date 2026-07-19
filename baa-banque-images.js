@@ -31,6 +31,10 @@
     panel.id = "baa-banque-panel";
     panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999999;display:flex;flex-direction:column;font-family:Arial,sans-serif;overflow:hidden;";
 
+    // Bloquer le scroll de la page
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
     // Header
     var header = document.createElement("div");
     header.style.cssText = "background:linear-gradient(135deg,#1a0a00,#2d1200);padding:16px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;";
@@ -38,7 +42,12 @@
     var closeBtn = document.createElement("button");
     closeBtn.textContent = "← Retour";
     closeBtn.style.cssText = "background:none;border:none;color:#f5d48a;font-size:14px;cursor:pointer;font-weight:bold;";
-    closeBtn.onclick = function() { panel.remove(); var mb = document.getElementById("baa-menu-btn"); if(mb) mb.click(); };
+    closeBtn.onclick = function() { 
+      panel.remove(); 
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+      var mb = document.getElementById("baa-menu-btn"); if(mb) mb.click(); 
+    };
     header.appendChild(closeBtn);
     panel.appendChild(header);
 
@@ -75,8 +84,7 @@
     // Grille images
     var grille = document.createElement("div");
     grille.id = "baa-banque-grille";
-    grille.style.cssText = "flex:1;overflow-y:scroll;-webkit-overflow-scrolling:touch;padding:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-content:start;overscroll-behavior:contain;touch-action:pan-y;";
-    grille.addEventListener("touchmove", function(e){ e.stopPropagation(); }, {passive:true});
+    grille.style.cssText = "flex:1;overflow-y:auto;padding:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-content:start;min-height:0;";
     panel.appendChild(grille);
 
     document.body.appendChild(panel);
