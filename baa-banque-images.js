@@ -29,7 +29,7 @@
 
     var panel = document.createElement("div");
     panel.id = "baa-banque-panel";
-    panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999999;display:flex;flex-direction:column;font-family:Arial,sans-serif;height:100vh;";
+    panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999999;font-family:Arial,sans-serif;";
 
     // Bloquer scroll arrière-plan
     document.body.style.overflow = "hidden";
@@ -85,7 +85,7 @@
     // Grille images
     var grille = document.createElement("div");
     grille.id = "baa-banque-grille";
-    grille.style.cssText = "flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-content:start;min-height:0;max-height:calc(100vh - 160px);overscroll-behavior:contain;";
+    grille.style.cssText = "position:absolute;top:160px;bottom:0;left:0;right:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-content:start;";
     grille.addEventListener("touchmove", function(e){ e.stopPropagation(); }, {passive:true});
     panel.appendChild(grille);
 
