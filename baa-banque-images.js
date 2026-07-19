@@ -29,11 +29,7 @@
 
     var panel = document.createElement("div");
     panel.id = "baa-banque-panel";
-    panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999999;display:flex;flex-direction:column;font-family:Arial,sans-serif;overflow:hidden;";
-
-    // Bloquer le scroll de la page
-    document.body.style.overflow = "hidden";
-    document.documentElement.style.overflow = "hidden";
+    panel.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999999;display:flex;flex-direction:column;font-family:Arial,sans-serif;height:100vh;";
 
     // Header
     var header = document.createElement("div");
@@ -84,7 +80,7 @@
     // Grille images
     var grille = document.createElement("div");
     grille.id = "baa-banque-grille";
-    grille.style.cssText = "flex:1;overflow-y:auto;padding:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-content:start;min-height:0;";
+    grille.style.cssText = "flex:1;overflow-y:auto;padding:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-content:start;min-height:0;max-height:calc(100vh - 160px);";
     panel.appendChild(grille);
 
     document.body.appendChild(panel);
