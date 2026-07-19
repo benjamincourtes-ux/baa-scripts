@@ -17,20 +17,9 @@
     if (!firebase.apps || !firebase.apps.length) { setTimeout(init, 300); return; }
     firebase.auth().onAuthStateChanged(function(user) {
       if (!user) return;
-      setTimeout(function() { injecterBouton(user); }, 3000);
+      // Exposer la fonction globalement pour le menu hamburger
+      window.ouvrirBanqueImages = function() { ouvrirBanque(user); };
     });
-  }
-
-  function injecterBouton(user) {
-    if (document.getElementById("baa-banque-btn")) return;
-    var btn = document.createElement("div");
-    btn.id = "baa-banque-btn";
-    btn.style.cssText = "position:fixed;bottom:230px;right:20px;z-index:99998;background:linear-gradient(135deg,#3498db,#6dd5fa);border-radius:50%;width:46px;height:46px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 15px rgba(52,152,219,0.4);font-size:20px;touch-action:manipulation;";
-    btn.innerHTML = "🖼️";
-    btn.title = "Banque d'images";
-    btn.onclick = function() { ouvrirBanque(user); };
-    btn.addEventListener("touchend", function(e){e.preventDefault();ouvrirBanque(user);},{passive:false});
-    document.body.appendChild(btn);
   }
 
   function ouvrirBanque(user) {
