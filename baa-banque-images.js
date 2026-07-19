@@ -75,7 +75,8 @@
     // Grille images
     var grille = document.createElement("div");
     grille.id = "baa-banque-grille";
-    grille.style.cssText = "flex:1;overflow-y:scroll;-webkit-overflow-scrolling:touch;padding:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-content:start;";
+    grille.style.cssText = "flex:1;overflow-y:scroll;-webkit-overflow-scrolling:touch;padding:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-content:start;overscroll-behavior:contain;touch-action:pan-y;";
+    grille.addEventListener("touchmove", function(e){ e.stopPropagation(); }, {passive:true});
     panel.appendChild(grille);
 
     document.body.appendChild(panel);
